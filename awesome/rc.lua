@@ -502,7 +502,7 @@ end)
 -- Autostart xrandr script with output redirection
 awful.spawn.with_shell("~/.config/autostart/xrandr.sh > ~/.config/awesome/xrandr.log 2>&1")
 awful.spawn.with_shell(
-	'xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 0.4 0 0 0 0.4 0 0 0 1 ; xinput --set-prop "Logitech USB Receiver" "Device Accel Constant Deceleration" 1'
+	'xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 0.3 0 0 0 0.3 0 0 0 1 ; xinput --set-prop "Logitech USB Receiver" "Device Accel Constant Deceleration" 1'
 )
 awful.spawn.with_shell("picom &")
 awful.spawn.with_shell("nvidia-settings -l")

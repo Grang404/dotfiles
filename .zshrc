@@ -337,7 +337,7 @@ export PATH="/usr/bin/pip3:$PATH"
 alias colorscript='~/shell-color-scripts/colorscript.sh'
 # colorscript -e 24
 fastfetch
-alias todo='python3 ~/Programming/Python/TODO/todo.py'
+alias todo='nvim ~/Programming/Python/TODO/tasks.txt'
 alias py='python3'
 
 # export PATH="/usr/local/bin/nvim/bin:$PATH"
