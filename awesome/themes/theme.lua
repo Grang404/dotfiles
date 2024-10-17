@@ -6,21 +6,21 @@ local theme = {}
 
 theme.font = "Inconsolata Nerd Font Mono Regular 12"
 
-theme.bg_normal = "#282828"
-theme.bg_focus = "#504945"
-theme.bg_urgent = "#fb4934"
-theme.bg_minimize = "#1d2021"
+theme.bg_normal = "#16161700"
+theme.bg_focus = "#57575F00"
+theme.bg_urgent = "#fb493400"
+theme.bg_minimize = "#57575F00"
 theme.bg_systray = theme.bg_normal
 
-theme.fg_normal = "#ebdbb2"
-theme.fg_focus = "#ebdbb2"
-theme.fg_urgent = "#ebdbb2"
-theme.fg_minimize = "#7c6f64"
+theme.fg_normal = "#c9c7cd"
+theme.fg_focus = "#c9c7cd"
+theme.fg_urgent = "#ea83a5"
+theme.fg_minimize = "#6E6977"
 
 theme.useless_gap = dpi(2)
 theme.border_width = dpi(2)
-theme.border_normal = "#3c3836"
-theme.border_focus = "#665c54"
+theme.border_normal = "#3e3e43"
+theme.border_focus = "#827D8C"
 theme.border_marked = "#CC241D"
 
 -- There are other variable sets
@@ -34,7 +34,7 @@ theme.border_marked = "#CC241D"
 -- prompt_[fg|bg|fg_cursor|bg_cursor|font]
 -- hotkeys_[bg|fg|border_width|border_color|shape|opacity|modifiers_fg|label_bg|label_fg|group_margin|font|description_font]
 -- Example:
-theme.taglist_fg_focus = "#d79921"
+theme.taglist_fg_focus = "#e29eca"
 
 theme.tasklist_disable_icon = true
 
