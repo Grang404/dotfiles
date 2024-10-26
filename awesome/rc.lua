@@ -486,9 +486,9 @@ awful.rules.rules = {
 -- }}}
 
 client.connect_signal("manage", function(c)
-    c.shape = function(cr, width, height)
-        gears.shape.rounded_rect(cr, width, height, 10)
-    end
+	c.shape = function(cr, width, height)
+		gears.shape.rounded_rect(cr, width, height, 10)
+	end
 end)
 -- {{{ Signals
 -- Signal function to execute when a new client appears.

@@ -4,10 +4,10 @@
 
 
     /* Theme colors */
-    background:                  #131314;
+    background:                  #13131400;
     background-color:            @background;
     foreground:                  #c9c7cd;
-    border-color:                #e29eca;
+    border-color:                #131314;
     separatorcolor:              @border-color;
     scrollbar-handle:            @border-color;
 

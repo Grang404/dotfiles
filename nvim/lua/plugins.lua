@@ -1,4 +1,5 @@
 -- Load package lazy package manager
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -7,10 +8,19 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 		error("Error cloning lazy.nvim:\n" .. out)
 	end
 end
+
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
 	"tpope/vim-sleuth",
+
+	{
+		"startup-nvim/startup.nvim",
+		dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+		config = function()
+			require("startup").setup(require("config.startup_nvim"))
+		end,
+	},
 
 	{
 		"lewis6991/gitsigns.nvim",
@@ -23,6 +33,56 @@ require("lazy").setup({
 				changedelete = { text = "" },
 				untracked = { text = "󰇙" },
 			},
+			on_attach = function(bufnr)
+				local gitsigns = require("gitsigns")
+
+				local function map(mode, l, r, opts)
+					opts = opts or {}
+					opts.buffer = bufnr
+					vim.keymap.set(mode, l, r, opts)
+				end
+
+				-- Navigation
+				map("n", "]c", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "]c", bang = true })
+					else
+						gitsigns.nav_hunk("next")
+					end
+				end, { desc = "Jump to next git [c]hange" })
+
+				map("n", "[c", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "[c", bang = true })
+					else
+						gitsigns.nav_hunk("prev")
+					end
+				end, { desc = "Jump to previous git [c]hange" })
+
+				-- Actions
+				-- visual mode
+				map("v", "<leader>gs", function()
+					gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+				end, { desc = "stage git hunk" })
+				map("v", "<leader>gr", function()
+					gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+				end, { desc = "reset git hunk" })
+				-- normal mode
+				map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "git [s]tage hunk" })
+				map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "git [r]eset hunk" })
+				map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "git [S]tage buffer" })
+				map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "git [u]ndo stage hunk" })
+				map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "git [R]eset buffer" })
+				map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "git [p]review hunk" })
+				map("n", "<leader>gb", gitsigns.blame_line, { desc = "git [b]lame line" })
+				map("n", "<leader>gd", gitsigns.diffthis, { desc = "git [d]iff against index" })
+				map("n", "<leader>gD", function()
+					gitsigns.diffthis("@")
+				end, { desc = "git [D]iff against last commit" })
+				-- Toggles
+				map("n", "<leader>tb", gitsigns.toggle_current_line_blame, { desc = "[T]oggle git show [b]lame line" })
+				map("n", "<leader>tD", gitsigns.toggle_deleted, { desc = "[T]oggle git show [D]eleted" })
+			end,
 		},
 	},
 
@@ -53,6 +113,8 @@ require("lazy").setup({
 			vim.cmd([[
             highlight YankHighlight guibg=#F591B2 guifg=#C9C7CD ctermbg=magenta ctermfg=white
         ]])
+
+			vim.api.nvim_set_hl(0, "Visual", { bg = "#57575F", fg = "#C9C7CD" })
 		end,
 	},
 
@@ -101,13 +163,23 @@ require("lazy").setup({
 			spec = {
 				{ "<leader>c", group = "[C]ode", mode = { "n", "x" } },
 				{ "<leader>d", group = "[D]ocument" },
+				{ "<leader>h", group = "[H]arpoon" },
 				{ "<leader>r", group = "[R]ename" },
-				{ "<leader>s", group = "[S]earch" },
+				{ "<leader>f", group = "[F]ind" },
 				{ "<leader>w", group = "[W]orkspace" },
 				{ "<leader>t", group = "[T]oggle" },
-				{ "<leader>h", group = "Git [H]unk", mode = { "n", "v" } },
+				{ "<leader>g", group = "[G]it" },
 			},
 		},
+	},
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" }, -- if you use the mini.nvim suite
+		-- dependencies = { 'nvim-treesitter/nvim-treesitter', 'echasnovski/mini.icons' }, -- if you use standalone mini plugins
+		-- dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' }, -- if you prefer nvim-web-devicons
+		---@module 'render-markdown'
+		---@type render.md.UserConfig
+		opts = {},
 	},
 
 	{ -- Fuzzy Finder (files, lsp, etc)
@@ -179,15 +251,15 @@ require("lazy").setup({
 
 			-- See `:help telescope.builtin`
 			local builtin = require("telescope.builtin")
-			vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
-			vim.keymap.set("n", "<leader>sk", builtin.keymaps, { desc = "[S]earch [K]eymaps" })
-			vim.keymap.set("n", "<leader>sf", builtin.find_files, { desc = "[S]earch [F]iles" })
-			vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
-			vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
-			vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
-			vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
-			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
-			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+			vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "[F]ind [H]elp" })
+			vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "[F]ind [K]eymaps" })
+			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[F]ind [F]iles" })
+			vim.keymap.set("n", "<leader>fs", builtin.builtin, { desc = "[F]ind [S]elect Telescope" })
+			vim.keymap.set("n", "<leader>fw", builtin.grep_string, { desc = "[F]ind current [W]ord" })
+			vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "[F]ind by [G]rep" })
+			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[F]ind [D]iagnostics" })
+			vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[F]ind [R]esume" })
+			vim.keymap.set("n", "<leader>f.", builtin.oldfiles, { desc = '[F]ind Recent Files ("." for repeat)' })
 			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
 
 			-- Slightly advanced example of overriding default behavior and theme
@@ -201,17 +273,17 @@ require("lazy").setup({
 
 			-- It's also possible to pass additional configuration options.
 			--  See `:help telescope.builtin.live_grep()` for information about particular keys
-			vim.keymap.set("n", "<leader>s/", function()
+			vim.keymap.set("n", "<leader>f/", function()
 				builtin.live_grep({
 					grep_open_files = true,
 					prompt_title = "Live Grep in Open Files",
 				})
-			end, { desc = "[S]earch [/] in Open Files" })
+			end, { desc = "[F]ind [/] in Open Files" })
 
 			-- Shortcut for searching your Neovim configuration files
-			vim.keymap.set("n", "<leader>sn", function()
+			vim.keymap.set("n", "<leader>fn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
-			end, { desc = "[S]earch [N]eovim files" })
+			end, { desc = "[F]ind [N]eovim files" })
 		end,
 	},
 
@@ -476,7 +548,7 @@ require("lazy").setup({
 		cmd = { "ConformInfo" },
 		keys = {
 			{
-				"<leader>f",
+				"<leader>F",
 				function()
 					require("conform").format({ async = true, lsp_format = "fallback" })
 				end,
@@ -584,7 +656,7 @@ require("lazy").setup({
 
 					-- If you prefer more traditional completion keymaps,
 					-- you can uncomment the following lines
-					["<CR>"] = cmp.mapping.confirm({ select = true }),
+					["<S-CR>"] = cmp.mapping.confirm({ select = true }),
 					["<Tab>"] = cmp.mapping.select_next_item(),
 					["<S-Tab>"] = cmp.mapping.select_prev_item(),
 
@@ -635,6 +707,34 @@ require("lazy").setup({
 		opts = { signs = false },
 	},
 
+	{ -- Harpoon
+		"ThePrimeagen/harpoon",
+		config = function()
+			vim.api.nvim_set_keymap(
+				"n",
+				"<leader>ha",
+				':lua require("harpoon.mark").add_file()<CR>',
+				{ noremap = true, silent = true, desc = "[A]dd file to Harpoon" }
+			)
+			vim.api.nvim_set_keymap(
+				"n",
+				"<leader>hq",
+				':lua require("harpoon.ui").toggle_quick_menu()<CR>',
+				{ noremap = true, silent = true, desc = "[Q]ick Menu" }
+			)
+
+			-- Create key mappings for navigating to files 0-9
+			for i = 0, 9 do
+				vim.api.nvim_set_keymap(
+					"n",
+					"<leader>h" .. i,
+					':lua require("harpoon.ui").nav_file(' .. i .. ")<CR>",
+					{ noremap = true, silent = true, desc = "Navigate to file" }
+				)
+			end
+		end,
+	},
+
 	{ -- Collection of various small independent plugins/modules
 		"echasnovski/mini.nvim",
 		config = function()
@@ -651,7 +751,16 @@ require("lazy").setup({
 			-- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
 			-- - sd'   - [S]urround [D]elete [']quotes
 			-- - sr)'  - [S]urround [R]eplace [)] [']
-			require("mini.surround").setup()
+			require("mini.surround").setup({
+				custom_surroundings = {
+					["("] = { output = { left = "(", right = ")" } },
+					[")"] = { output = { left = "( ", right = " )" } },
+					["{"] = { output = { left = "{", right = "}" } },
+					["}"] = { output = { left = "{ ", right = " }" } },
+					["["] = { output = { left = "[", right = "]" } },
+					["]"] = { output = { left = "[ ", right = " ]" } },
+				},
+			})
 
 			-- Simple and easy statusline.
 			--  You could remove this setup call if you don't like it,
@@ -667,7 +776,6 @@ require("lazy").setup({
 			statusline.section_location = function()
 				return "%2l:%-2v"
 			end
-
 			-- ... and there is more!
 			--  Check out: https://github.com/echasnovski/mini.nvim
 		end,
@@ -723,7 +831,6 @@ require("lazy").setup({
 	-- require 'kickstart.plugins.lint',
 	-- require 'kickstart.plugins.autopairs',
 	-- require 'kickstart.plugins.neo-tree',
-	-- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 }, {
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the
