@@ -268,4 +268,4 @@ export PATH="/usr/bin/pip3:$PATH"
 export PATH=$PATH:/home/alice/.local/bin
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
 export PATH=$JAVA_HOME/bin:$PATH
-
+export PATH="$HOME/miniconda3/bin:$PATH"
