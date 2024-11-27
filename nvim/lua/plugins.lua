@@ -344,6 +344,40 @@ require("lazy").setup({
 			"hrsh7th/cmp-nvim-lsp",
 		},
 		config = function()
+			-- Diagnostic Toggling Functions
+			vim.g.diagnostics_enabled = true
+			function _G.toggle_diagnostics()
+				vim.g.diagnostics_enabled = not vim.g.diagnostics_enabled
+				if vim.g.diagnostics_enabled then
+					vim.diagnostic.enable()
+				else
+					vim.diagnostic.enable(false)
+				end
+			end
+
+			function _G.toggle_hover_diagnostics()
+				local current_line_diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+
+				if #current_line_diagnostics > 0 then
+					vim.diagnostic.hide(nil, 0, nil, { virtual_text = true })
+					print("Diagnostics hidden for current line")
+				else
+					vim.diagnostic.show()
+					print("All diagnostics shown")
+				end
+			end
+
+			function _G.show_only_errors_and_warnings()
+				vim.diagnostic.config({
+					virtual_text = {
+						severity = {
+							min = vim.diagnostic.severity.WARN,
+						},
+					},
+				})
+				print("Showing only errors and warnings")
+			end
+
 			--  This function gets run when an LSP attaches to a particular buffer.
 			--    That is to say, every time a new file is opened that is associated with
 			--    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
@@ -402,6 +436,23 @@ require("lazy").setup({
 					--  For example, in C this would take you to the header.
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
+					-- New diagnostic-related keymaps
+					map("<leader>td", _G.toggle_diagnostics, "[T]oggle [D]iagnostics")
+					map("<leader>hd", _G.toggle_hover_diagnostics, "[H]ide [D]iagnostics")
+					map("<leader>de", _G.show_only_errors_and_warnings, "[D]iagnostics [E]rrors Only")
+					map("<leader>e", vim.diagnostic.open_float, "Show line diagnostics")
+
+					map("<leader>cye", function()
+						local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+						if #diagnostics > 0 then
+							-- Yank the first diagnostic message
+							vim.fn.setreg('"', diagnostics[1].message)
+							print("Diagnostic message yanked!")
+						else
+							print("No diagnostic message found")
+						end
+					end, "[Y]ank [E]rror Message")
+
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
 					--    See `:help CursorHold` for information about when this is executed
@@ -442,6 +493,18 @@ require("lazy").setup({
 						end, "[T]oggle Inlay [H]ints")
 					end
 				end,
+			})
+
+			-- Configure diagnostic display globally
+			vim.diagnostic.config({
+				virtual_text = {
+					prefix = "●",
+					severity_sort = true,
+				},
+				signs = true,
+				underline = true,
+				update_in_insert = false,
+				severity_sort = true,
 			})
 
 			-- LSP servers and clients are able to communicate to each other what features they support.
@@ -541,7 +604,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-
 	{ -- Autoformat
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
@@ -577,10 +639,10 @@ require("lazy").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
 				-- Conform can also run multiple formatters sequentially
-				-- python = { "isort", "black" },
-				--
+				python = { "black" },
 				-- You can use 'stop_after_first' to run the first available formatter from the list
-				-- javascript = { "prettierd", "prettier", stop_after_first = true },
+				javascript = { "prettierd", "prettier", stop_after_first = true },
+				html = { "prettier" },
 			},
 		},
 	},
