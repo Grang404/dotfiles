@@ -266,7 +266,8 @@ alias -g G='| grep'
 
 export PATH="/usr/bin/pip3:$PATH"
 export PATH=$PATH:/home/alice/.local/bin
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+export JAVA_HOME=/usr/lib/jvm/java-23-openjdk
 export PATH=$JAVA_HOME/bin:$PATH
 export PATH="$HOME/miniconda3/bin:$PATH"  # commented out by conda initialize
-
+export PATH=$PATH:~/go/bin
+export PATH=$HOME/.config/rofi/scripts:$PATH

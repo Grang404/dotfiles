@@ -295,7 +295,7 @@ globalkeys = gears.table.join(
 	--           {description = "run prompt", group = "launcher"}),
 
 	awful.key({ modkey }, "r", function()
-		awful.spawn("rofi -show drun")
+		awful.spawn(os.getenv("HOME") .. "/.config/rofi/scripts/launcher_t1")
 	end, { description = "rofi", group = "hotkeys" }),
 
 	awful.key({ modkey }, "w", function()
@@ -485,9 +485,10 @@ awful.rules.rules = {
 }
 -- }}}
 
+-- BORDER RADIUS
 client.connect_signal("manage", function(c)
 	c.shape = function(cr, width, height)
-		gears.shape.rounded_rect(cr, width, height, 10)
+		gears.shape.rounded_rect(cr, width, height, 0)
 	end
 end)
 -- {{{ Signals

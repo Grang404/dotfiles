@@ -4,6 +4,9 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 -- Diagnostic keymaps
 vim.keymap.set("n", "<leader>cq", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
+-- vsplit
+vim.keymap.set("n", "<leader>vs", ":vsplit<CR>", { desc = "Open vertical split" })
+
 vim.keymap.set("n", "<A-j>", "<C-w><C-h>", { desc = "Move focus to the left window" })
 vim.keymap.set("n", "<A-k>", "<C-w><C-l>", { desc = "Move focus to the right window" })
 vim.keymap.set("n", "<A-h>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
