@@ -217,7 +217,7 @@ globalkeys = gears.table.join(
 	end, { description = "Screenshot", group = "hotkeys" }),
 
 	awful.key({ modkey, "Control" }, "l", function()
-		awful.spawn("betterlockscreen --lock blur --off 30")
+		awful.spawn("betterlockscreen --lock blur --off 30 &")
 	end, { description = "Lockscreen", group = "hotkeys" }),
 
 	awful.key({ modkey }, "b", function()
@@ -508,7 +508,12 @@ end)
 -- Autostart xrandr script with output redirection
 awful.spawn.with_shell("~/.config/autostart/xrandr.sh > ~/.config/awesome/xrandr.log 2>&1")
 -- awful.spawn.with_shell('xinput set-prop "Logitech USB Receiver" "libinput Accel Profile Enabled" 0, 1')
-awful.spawn.with_shell('xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 2 0 0 0 2 0 0 0 1')
+-- awful.spawn.with_shell('xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 2 0 0 0 2 0 0 0 1')
+
+awful.spawn.with_shell(
+	'xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 0.8 0 0 0 0.8 0 0 0 1'
+)
+awful.spawn.with_shell('xinput --set-prop "Logitech USB Receiver" "libinput Accel Profile Enabled" 0, 1')
 awful.spawn.with_shell("picom &")
 awful.spawn.with_shell("nvidia-settings -l")
 awful.spawn.with_shell("nitrogen --restore &")
