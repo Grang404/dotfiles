@@ -21,4 +21,3 @@ vim.opt.cursorline = true
 vim.opt.inccommand = "split"
 vim.opt.scrolloff = 12
 -- vim.opt.listchars = { tab = "▸ ", trail = "·", nbsp = "␣" }
-

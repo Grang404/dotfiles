@@ -1,5 +1,4 @@
 -- Load package lazy package manager
-
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -441,17 +440,6 @@ require("lazy").setup({
 					map("<leader>hd", _G.toggle_hover_diagnostics, "[H]ide [D]iagnostics")
 					map("<leader>de", _G.show_only_errors_and_warnings, "[D]iagnostics [E]rrors Only")
 					map("<leader>e", vim.diagnostic.open_float, "Show line diagnostics")
-
-					map("<leader>cye", function()
-						local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
-						if #diagnostics > 0 then
-							-- Yank the first diagnostic message
-							vim.fn.setreg('"', diagnostics[1].message)
-							print("Diagnostic message yanked!")
-						else
-							print("No diagnostic message found")
-						end
-					end, "[Y]ank [E]rror Message")
 
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
