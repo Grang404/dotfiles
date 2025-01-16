@@ -1,0 +1,29 @@
+[colors.primary]
+background = '#161617'
+foreground = '#c9c7cd'
+
+[colors]
+cursor = { text = "CellBackground", cursor = "#CAC9DD" }
+
+# Normal colors
+[colors.normal]
+black      = '#27272a'
+red        = '#E78284'
+green      = '#90B99F'
+yellow     = '#E6B99D'
+blue       = '#ACA1CF'
+magenta    = '#E29ECA'
+cyan       = '#EA83A5'
+white      = '#C1C0D4'
+
+# Bright colors
+[colors.bright]
+black      = '#353539'
+red        = '#EA999c'
+green      = '#9DC6AC'
+yellow     = '#F0C5A9'
+blue       = '#B9AEDA'
+magenta    = '#ECAAD6'
+cyan       = '#F591B2'
+white      = '#CAC9DD'
+

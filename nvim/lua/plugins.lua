@@ -105,6 +105,11 @@ require("lazy").setup({
 			mellow_highlight_overrides = {},
 		},
 		config = function()
+			vim.g.mellow_italic_comments = false
+			vim.g.mellow_italic_keywords = false
+			vim.g.mellow_italic_booleans = false
+			vim.g.mellow_italic_functions = false
+			vim.g.mellow_italic_variables = false
 			vim.g.mellow_bold_functions = true
 			vim.cmd("colorscheme mellow")
 			-- Only needed for transparency
