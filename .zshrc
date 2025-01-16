@@ -1,4 +1,4 @@
-# fastfetch
+fastfetch
 
 # Initialize Powerlevel10k 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
