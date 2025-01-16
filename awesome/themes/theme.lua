@@ -6,10 +6,10 @@ local theme = {}
 
 theme.font = "Inconsolata Nerd Font Mono Regular 12"
 
-theme.bg_normal = "#16161700"
-theme.bg_focus = "#57575F64"
-theme.bg_urgent = "#fb493400"
-theme.bg_minimize = "#57575F00"
+theme.bg_normal = "#161617"
+theme.bg_focus = "#57575F"
+theme.bg_urgent = "#fb4934"
+theme.bg_minimize = "#57575F"
 theme.bg_systray = theme.bg_normal
 
 theme.fg_normal = "#c9c7cd"
@@ -17,10 +17,10 @@ theme.fg_focus = "#c9c7cd"
 theme.fg_urgent = "#ea83a5"
 theme.fg_minimize = "#6E6977"
 
-theme.useless_gap = dpi(2)
-theme.border_width = dpi(2)
-theme.border_normal = "#1616177d"
-theme.border_focus = "#16161700"
+theme.useless_gap = dpi(0)
+theme.border_width = dpi(1)
+theme.border_normal = "#161617"
+theme.border_focus = "#3e3e43"
 theme.border_marked = "#CC241D"
 
 -- There are other variable sets
