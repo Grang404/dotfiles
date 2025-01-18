@@ -3,7 +3,7 @@
     "logo": {
         "source": "~/.config/fastfetch/samurai.png",
         "type": "kitty",
-        "height": 18,
+        "height": 15,
         "padding": {
             "top": 0
         }

@@ -25,7 +25,7 @@ export ARCHFLAGS="-arch $(uname -m)"
 source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
 alias todo='nvim ~/Programming/Python/TODO/tasks.txt'
-
+alias gpwd='cat ~/Documents/token.txt | xclip -selection clipboard'
 precmd() {
     print ""
 }
