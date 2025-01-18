@@ -4,16 +4,16 @@ local dpi = xresources.apply_dpi
 local themes_path = os.getenv("HOME") .. "/.config/awesome/themes/"
 local theme = {}
 
-theme.font = "Inconsolata Nerd Font Mono Regular 12"
+theme.font = "Hack Nerd Font 11"
 
 theme.bg_normal = "#161617"
-theme.bg_focus = "#57575F"
+theme.bg_focus = "#3e3e43"
 theme.bg_urgent = "#fb4934"
 theme.bg_minimize = "#57575F"
 theme.bg_systray = theme.bg_normal
 
 theme.fg_normal = "#c9c7cd"
-theme.fg_focus = "#c9c7cd"
+theme.fg_focus = "#e29eca"
 theme.fg_urgent = "#ea83a5"
 theme.fg_minimize = "#6E6977"
 
@@ -121,6 +121,5 @@ theme.awesome_icon = themes_path .. "menu.png"
 -- )
 -- Define the icon theme for application icons. If not set then the icons
 -- from /usr/share/icons and /usr/share/icons/hicolor will be used.
-theme.icon_theme = "/usr/share/icons/Gruvbox-Plus-Dark"
 
 return theme
