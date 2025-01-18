@@ -8,20 +8,20 @@ theme.font = "Hack Nerd Font 11"
 
 theme.bg_normal = "#161617"
 theme.bg_focus = "#3e3e43"
-theme.bg_urgent = "#fb4934"
+theme.bg_urgent = "#e78284"
 theme.bg_minimize = "#57575F"
 theme.bg_systray = theme.bg_normal
 
 theme.fg_normal = "#c9c7cd"
-theme.fg_focus = "#e29eca"
-theme.fg_urgent = "#ea83a5"
+theme.fg_focus = "#ea83a5"
+theme.fg_urgent = "#c9c7cd"
 theme.fg_minimize = "#6E6977"
 
 theme.useless_gap = dpi(0)
 theme.border_width = dpi(1)
 theme.border_normal = "#161617"
 theme.border_focus = "#3e3e43"
-theme.border_marked = "#CC241D"
+theme.border_marked = "#e78284"
 
 -- There are other variable sets
 -- overriding the default one when
@@ -34,7 +34,7 @@ theme.border_marked = "#CC241D"
 -- prompt_[fg|bg|fg_cursor|bg_cursor|font]
 -- hotkeys_[bg|fg|border_width|border_color|shape|opacity|modifiers_fg|label_bg|label_fg|group_margin|font|description_font]
 -- Example:
-theme.taglist_fg_focus = "#e29eca"
+theme.taglist_fg_focus = "#ea83a5"
 
 theme.tasklist_disable_icon = true
 
