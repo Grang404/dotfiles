@@ -33,3 +33,4 @@ precmd() {
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+export LS_COLORS="ow=1;34;40:di=34"
