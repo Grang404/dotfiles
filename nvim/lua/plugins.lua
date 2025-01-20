@@ -37,44 +37,6 @@ require("lazy").setup({
 	},
 
 	{
-		"mellow-theme/mellow.nvim",
-		lazy = false,
-		priority = 1000,
-		opts = {
-			mellow_italic_comments = false,
-			mellow_italic_keywords = false,
-			mellow_italic_booleans = false,
-			mellow_italic_functions = false,
-			mellow_italic_variables = false,
-			mellow_bold_comments = false,
-			mellow_bold_keywords = true,
-			mellow_bold_booleans = true,
-			mellow_bold_functions = true,
-			mellow_bold_variables = true,
-			mellow_transparent = false,
-			mellow_highlight_overrides = {},
-		},
-		config = function()
-			vim.g.mellow_italic_comments = false
-			vim.g.mellow_italic_keywords = false
-			vim.g.mellow_italic_booleans = false
-			vim.g.mellow_italic_functions = false
-			vim.g.mellow_italic_variables = false
-			vim.g.mellow_bold_functions = true
-			vim.cmd("colorscheme mellow")
-			-- Only needed for transparency
-			-- vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
-			-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
-			vim.cmd([[
-            highlight YankHighlight guibg=#F591B2 guifg=#C9C7CD ctermbg=magenta ctermfg=white
-        ]])
-			-- Overwriting colorscheme
-			vim.api.nvim_set_hl(0, "Visual", { bg = "#57575F", fg = "#C9C7CD" })
-			vim.api.nvim_set_hl(0, "CursorLine", { bg = "#11fcbd" })
-		end,
-	},
-
-	{
 		"folke/which-key.nvim",
 		event = "VimEnter",
 		opts = {
