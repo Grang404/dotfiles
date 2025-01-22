@@ -459,6 +459,7 @@ awful.rules.rules = {
 				"xtightvncviewer",
 				"steam",
 				"Thunar",
+				"VirtualBox Machine",
 			},
 
 			-- Note that the name property shown in xprop might be set slightly after creation of the client
