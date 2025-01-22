@@ -38,18 +38,13 @@ install_packages() {
 	print_msg "Installing base packages..."
 	pacman -S --needed --noconfirm \
 		base base-devel \
-		xorg-server \
-		x-org-xinit \
-		x-org-xrandr \
-		x-org-xinput \
-		xorg xorg-server \
 		ly \
 		awesome \
 		zsh \
 		git \
 		wget \
 		curl \
-		nvim \
+		neovim \
 		openvpn \
 		feh \
 		rofi \
@@ -74,7 +69,6 @@ install_packages() {
 		picom \
 		pavucontrol \
 		polkit-gnome \
-		polkit-qt \
 		ripgrep \
 		rsync \
 		tree \
@@ -173,10 +167,6 @@ install_extras() {
 	sudo -u "$SUDO_USER" git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.config/oh-my-zsh/custom}/themes/powerlevel10k
 	sudo -u "$SUDO_USER" git clone https://github.com/zsh-users/zsh-autosuggestions "$HOME/.config/oh-my-zsh/plugins/"
 	sudo -u "$SUDO_USER" git clone https://github.com/marlonrichert/zsh-autocomplete.git "$HOME/.config/oh-my-zsh/plugins/"
-}
-
-install_p10k() {
-
 }
 
 # Main installation flow
