@@ -57,8 +57,12 @@ install_packages() {
 	print_msg "Installing base packages..."
 	pacman -S --needed --noconfirm \
 		base base-devel \
-		xorg \
 		ly \
+		xorg-server \
+		xorg-xinit \
+		xorg-xrandr \
+		xorg-xprop \
+		xorg-xinput \
 		awesome \
 		zsh \
 		git \
