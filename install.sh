@@ -166,22 +166,22 @@ move_dotfiles() {
 	done
 
 	# Move samurai theme
-	SAMURAI_SOURCE="$SCRIPT_DIR/samurai_wallpaper.png"
-	if [ -d "$SAMURAI_SOURCE" ]; then
+	WALLPAPER_SOURCE="$SCRIPT_DIR/samurai_wallpaper.png"
+	if [ -f "$WALLPAPER_SOURCE" ]; then
 		mkdir -p "$AWESOMES_DIR"
-		cp "$SAMURAI_SOURCE" "$AWESOMES_DIR/"
+		cp "$WALLPAPER_SOURCE" "$AWESOMES_DIR/"
 		chown -R "$SUDO_USER:$SUDO_USER" "$AWESOMES_DIR/samurai_wallpaper.png"
 		print_msg "Moved samurai_wallpaper.png to $AWESOMES_DIR"
 	else
-		print_error "Samurai theme not found in $SCRIPT_DIR, skipping..."
+		print_error "Wallpaper not found in $SCRIPT_DIR, skipping..."
 	fi
 }
 
 install_extras() {
 	print_msg "Installing extras..."
 	sudo -u "$SUDO_USER" git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$USER_HOME/.config/oh-my-zsh/themes/powerlevel10k"
-	sudo -u "$SUDO_USER" git clone https://github.com/zsh-users/zsh-autosuggestions "$USER_HOME/.config/oh-my-zsh/plugins/"
-	sudo -u "$SUDO_USER" git clone https://github.com/marlonrichert/zsh-autocomplete.git "$USER_HOME/.config/oh-my-zsh/plugins/"
+	sudo -u "$SUDO_USER" git clone https://github.com/zsh-users/zsh-autosuggestions zsh-autosuggestions "$USER_HOME/.config/oh-my-zsh/plugins/"
+	sudo -u "$SUDO_USER" git clone https://github.com/marlonrichert/zsh-autocomplete.git zsh-autocomplete "$USER_HOME/.config/oh-my-zsh/plugins/"
 	sudo -u "$SUDO_USER" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
