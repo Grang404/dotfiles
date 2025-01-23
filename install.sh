@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# TODO: ignore install.sh and READ.me
+# TODO: move .zshrc after ohmyzsh fucks it
+# TODO: ignore install.sh and README.md
 # TODO: fix the autosuggestions and shizz
 
 # Colors for output
@@ -11,6 +12,10 @@ NC='\033[0m' # No Color
 
 # Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+# Log output
+LOG_FILE="$SCRIPT_DIR/install_script.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 # Print colored output
 print_msg() {
@@ -31,7 +36,15 @@ if [ "$EUID" -ne 0 ]; then
 	exit 1
 fi
 
-# Update system first
+# Check if SUDO_USER is set
+if [ -z "$SUDO_USER" ]; then
+	print_error "SUDO_USER is not set. Run the script using 'sudo -E'."
+	exit 1
+fi
+
+# Get the home directory of the sudo user
+USER_HOME=$(eval echo ~"$SUDO_USER")
+
 update_system() {
 	print_msg "Updating system..."
 	pacman -Syu --noconfirm || {
@@ -83,7 +96,7 @@ install_packages() {
 		vlc \
 		xclip \
 		xdg-utils || {
-		print_error "failed to install packages"
+		print_error "Failed to install packages"
 		exit 1
 	}
 }
@@ -91,13 +104,18 @@ install_packages() {
 # Install and configure yay
 install_yay() {
 	print_msg "Installing yay..."
-	# Check if yay is already installed
 	if ! command -v yay &>/dev/null; then
 		cd /tmp
-		git clone https://aur.archlinux.org/yay.git
+		git clone https://aur.archlinux.org/yay.git || {
+			print_error "Failed to clone yay"
+			exit 1
+		}
 		chown -R "$SUDO_USER:$SUDO_USER" yay
 		cd yay
-		sudo -u "$SUDO_USER" makepkg -si --noconfirm
+		sudo -u "$SUDO_USER" makepkg -si --noconfirm || {
+			print_error "Failed to install yay"
+			exit 1
+		}
 		cd ..
 		rm -rf yay
 	else
@@ -112,32 +130,31 @@ install_yay_packages() {
 		qdirstat \
 		vesktop \
 		spotify \
-		nerd-fonts-complete
+		nerd-fonts-complete || {
+		print_error "Failed to install yay packages"
+		exit 1
+	}
 }
 
 # Enable necessary services
 enable_services() {
 	print_msg "Enabling services..."
-	systemctl enable NetworkManager
-	systemctl enable ly.service
-	systemctl enable polkit.service
+	systemctl enable --now NetworkManager ly.service polkit.service || {
+		print_error "Failed to enable services"
+		exit 1
+	}
 }
 
-# Create $HOME/.config if not exists and move dotfiles
+# Move dotfiles to $HOME/.config
 move_dotfiles() {
 	print_msg "Moving config files..."
-
-	# Use the home directory of the user who ran sudo
-	USER_HOME=$(eval echo ~"$SUDO_USER")
 	CONFIG_DIR="$USER_HOME/.config"
 	AWESOMES_DIR="$CONFIG_DIR/awesome/themes"
 
-	# Create config directory if it doesn't exist
 	mkdir -p "$CONFIG_DIR"
 
-	dirs_to_move_to_config=("kitty" "picom" "btop" "nvim" "ranger" "vesktop" "autostart" "dotfiles.sh" "gtk-3.0" "oh-my-zsh" "README.md" "awesome" "fastfetch" "install.sh" "rofi")
+	dirs_to_move_to_config=("kitty" "picom" "btop" "nvim" "ranger" "vesktop" "autostart" "dotfiles.sh" "gtk-3.0" "oh-my-zsh" "awesome" "fastfetch" "rofi")
 
-	# Move dotfiles
 	for dir in "${dirs_to_move_to_config[@]}"; do
 		SOURCE_PATH="$SCRIPT_DIR/$dir"
 		if [ -e "$SOURCE_PATH" ]; then
@@ -153,19 +170,6 @@ move_dotfiles() {
 		fi
 	done
 
-	# Move .zshrc and .p10k.zsh to $USER_HOME
-	for dotfile in ".zshrc" ".p10k.zsh"; do
-		SOURCE_PATH="$SCRIPT_DIR/$dotfile"
-		if [ -f "$SOURCE_PATH" ]; then
-			cp "$SOURCE_PATH" "$USER_HOME/"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/$dotfile"
-			echo "Moved $dotfile to $USER_HOME"
-		else
-			print_error "$dotfile not found in $SCRIPT_DIR, skipping..."
-		fi
-	done
-
-	# Move samurai theme
 	WALLPAPER_SOURCE="$SCRIPT_DIR/samurai_wallpaper.png"
 	if [ -f "$WALLPAPER_SOURCE" ]; then
 		mkdir -p "$AWESOMES_DIR"
@@ -180,12 +184,29 @@ move_dotfiles() {
 install_extras() {
 	print_msg "Installing extras..."
 	sudo -u "$SUDO_USER" git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$USER_HOME/.config/oh-my-zsh/themes/powerlevel10k"
-	sudo -u "$SUDO_USER" git clone https://github.com/zsh-users/zsh-autosuggestions "$USER_HOME/.config/oh-my-zsh/plugins"
-	sudo -u "$SUDO_USER" git clone https://github.com/marlonrichert/zsh-autocomplete.git "$USER_HOME/.config/oh-my-zsh/plugins"
-	sudo -u "$SUDO_USER" sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	sudo -u "$SUDO_USER" git clone https://github.com/zsh-users/zsh-autosuggestions "$USER_HOME/.config/oh-my-zsh/plugins/zsh-autosuggestions"
+	sudo -u "$SUDO_USER" git clone https://github.com/zsh-users/zsh-syntax-highlighting "$USER_HOME/.config/oh-my-zsh/plugins/zsh-syntax-highlighting"
+	sudo -u "$SUDO_USER" sh -c "RUNZSH=no CHSH=no $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 }
 
-# Main installation flow
+move_zsh_config() {
+	for dotfile in ".zshrc" ".p10k.zsh"; do
+		SOURCE_PATH="$SCRIPT_DIR/$dotfile"
+		if [ -f "$SOURCE_PATH" ]; then
+			cp "$SOURCE_PATH" "$USER_HOME/"
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/$dotfile"
+			echo "Moved $dotfile to $USER_HOME"
+		else
+			print_error "$dotfile not found in $SCRIPT_DIR, skipping..."
+		fi
+	done
+}
+
+cleanup() {
+	print_msg "Cleaning up temporary files..."
+	rm -rf /tmp/yay
+}
+
 main() {
 	print_msg "Starting installation..."
 	update_system
@@ -195,6 +216,8 @@ main() {
 	enable_services
 	move_dotfiles
 	install_extras
+	move_zsh_config
+	cleanup
 	print_success "Installation completed!"
 	print_msg "Please reboot your system"
 }
