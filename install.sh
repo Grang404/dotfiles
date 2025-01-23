@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# TODO: move .zshrc after ohmyzsh fucks it
 # TODO: ignore install.sh and README.md
-# TODO: fix the autosuggestions and shizz
+# TODO: Add input for resolution and display drivers maybe?
 
 # Colors for output
 RED='\033[0;31m'
