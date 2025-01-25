@@ -43,6 +43,10 @@
             "type": "terminal"
         },
         {
+            "key": "║ {#36} font    {#keys}║",
+            "type": "terminalfont"
+        },
+        {
             "key": "║ {#32} shell   {#keys}║",
             "type": "shell"
         },

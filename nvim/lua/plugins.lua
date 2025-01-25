@@ -7,7 +7,6 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 		error("Error cloning lazy.nvim:\n" .. out)
 	end
 end
-
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
