@@ -29,6 +29,8 @@ source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
 alias todo='nvim ~/Programming/Python/TODO/tasks.txt'
 alias gpwd='cat ~/Documents/token.txt | xclip -selection clipboard'
+alias kali='sudo docker run -it kali'
+
 precmd() {
     print ""
 }
