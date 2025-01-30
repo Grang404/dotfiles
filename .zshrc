@@ -20,6 +20,7 @@ if [[ -n $SSH_CONNECTION ]]; then
 fi
 
 export EDITOR='nvim'
+export PATH=$PATH:~/go/bin/
 
 # Compilation flags
 export ARCHFLAGS="-arch $(uname -m)"
@@ -27,7 +28,7 @@ export ARCHFLAGS="-arch $(uname -m)"
 # Set autosuggestion color
 source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
-alias todo='nvim ~/Programming/Python/TODO/tasks.txt'
+alias todo='nvim ~/Documents/tasks.txt'
 alias gpwd='cat ~/Documents/token.txt | xclip -selection clipboard'
 alias kali='sudo docker run -it kali'
 
@@ -45,3 +46,6 @@ export LS_COLORS="ow=1;34;40:di=34"
 #     echo "$(date "+%Y-%m-%d %H:%M:%S") $(fc -ln -1)" >> ~/Vault/Security/WriteUps/agent_sudo_shell.md
 #     print ""
 # }
+
+export GTK_CSD=0
+export LD_PRELOAD=/usr/lib/libgtk3-nocsd.so.0
