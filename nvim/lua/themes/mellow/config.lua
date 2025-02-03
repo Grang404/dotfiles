@@ -26,7 +26,7 @@ end
 
 M.config = {
 	transparent = opt("transparent", false),
-	comment_style = style(opt("italic_comments", true), opt("bold_comments", false)),
+	comment_style = style(opt("italic_comments", false), opt("bold_comments", false)),
 	keyword_style = style(opt("italic_keywords", false), opt("bold_keywords", false)),
 	boolean_style = style(opt("italic_booleans", false), opt("bold_booleans", false)),
 	function_style = style(opt("italic_functions", false), opt("bold_functions", false)),

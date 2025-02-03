@@ -31,7 +31,7 @@ source ~/.config/oh-my-zsh/.zsh_highlight_styles
 alias todo='nvim ~/Documents/tasks.txt'
 alias gpwd='cat ~/Documents/token.txt | xclip -selection clipboard'
 alias kali='sudo docker run -it kali'
-alias venv='[[ -d .venv ]] && source .venv/bin/activate || echo "No .venv found"'
+alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
 
 precmd() {
     print ""
