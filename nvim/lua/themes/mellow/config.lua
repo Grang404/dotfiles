@@ -14,9 +14,9 @@ end
 
 local function style(italic, bold)
 	if italic and bold then
-		return { bold = true, italic = true }
+		return { bold = true, italic = false }
 	elseif italic then
-		return { italic = true }
+		return { italic = false }
 	elseif bold then
 		return { bold = true }
 	else
