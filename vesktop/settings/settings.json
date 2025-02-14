@@ -3,9 +3,7 @@
     "autoUpdateNotification": true,
     "useQuickCss": true,
     "themeLinks": [],
-    "enabledThemes": [
-        "chillax.theme.css"
-    ],
+    "enabledThemes": [],
     "enableReactDevtools": true,
     "frameless": false,
     "transparent": true,
@@ -579,6 +577,15 @@
         },
         "HideMedia": {
             "enabled": false
+        },
+        "FullUserInChatbox": {
+            "enabled": false
+        },
+        "IrcColors": {
+            "enabled": false
+        },
+        "BadgeAPI": {
+            "enabled": true
         }
     },
     "notifications": {
@@ -591,6 +598,6 @@
         "authenticated": false,
         "url": "https://api.vencord.dev/",
         "settingsSync": false,
-        "settingsSyncVersion": 1738508050331
+        "settingsSyncVersion": 1739556448741
     }
 }
