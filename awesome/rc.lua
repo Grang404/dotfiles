@@ -509,8 +509,6 @@ end)
 -- Autostart applications
 -- Autostart xrandr script with output redirection
 awful.spawn.with_shell("~/.config/autostart/xrandr.sh > ~/.config/awesome/xrandr.log 2>&1")
--- awful.spawn.with_shell('xinput set-prop "Logitech USB Receiver" "libinput Accel Profile Enabled" 0, 1')
--- awful.spawn.with_shell('xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 2 0 0 0 2 0 0 0 1')
 
 awful.spawn.with_shell(
 	'xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 0.8 0 0 0 0.8 0 0 0 1'

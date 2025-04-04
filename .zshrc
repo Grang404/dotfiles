@@ -1,4 +1,5 @@
-fastfetch
+# fastfetch
+
 
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -47,3 +48,6 @@ export LS_COLORS="ow=1;34;40:di=34"
 #     echo "$(date "+%Y-%m-%d %H:%M:%S") $(fc -ln -1)" >> ~/Vault/Security/WriteUps/agent_sudo_shell.md
 #     print ""
 # }
+
+
+setopt NO_PROMPT_PERCENT
