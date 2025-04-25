@@ -44,7 +44,7 @@
         },
         {
             "key": "║ {#36} font    {#keys}║",
-            "type": "terminalfont"
+            "type": "font"
         },
         {
             "key": "║ {#32} shell   {#keys}║",
