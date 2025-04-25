@@ -90,10 +90,35 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
+-- Create a VPN indicator widget
+local vpn_indicator = wibox.widget.textbox()
+vpn_indicator.font = "monospace 12" -- Adjust size as needed
+
+-- Function to check if OpenVPN is running and update the indicator
+local function update_vpn_status()
+	awful.spawn.easy_async("pgrep -x openvpn", function(stdout)
+		if stdout and stdout ~= "" then
+			-- OpenVPN is running - show green circle
+			vpn_indicator.markup = '<span color="#9DC6AC">  ●</span> '
+		else
+			-- OpenVPN is not running - show nothing
+			vpn_indicator.markup = ""
+		end
+	end)
+end
+
+-- Update VPN status initially and setup a timer to update it regularly
+update_vpn_status()
+local vpn_timer = gears.timer({
+	timeout = 5, -- Check every 5 seconds
+	autostart = true,
+	callback = update_vpn_status,
+})
+
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
 
-mytextclock.format = "  %H:%M   "
+mytextclock.format = " %H:%M "
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -147,6 +172,7 @@ awful.screen.connect_for_each_screen(function(s)
 
 	-- Create a promptbox for each screen
 	s.mypromptbox = awful.widget.prompt()
+
 	-- Create an imagebox widget which will contain an icon indicating which layout we're using.
 	-- We need one layoutbox per screen.
 	s.mylayoutbox = awful.widget.layoutbox(s)
@@ -199,6 +225,7 @@ awful.screen.connect_for_each_screen(function(s)
 			layout = wibox.layout.fixed.horizontal,
 			-- mykeyboardlayout,
 			-- wibox.widget.systray(),
+			vpn_indicator,
 			mytextclock,
 			s.mylayoutbox,
 			wibox.widget.textbox(" "),
@@ -289,10 +316,6 @@ globalkeys = gears.table.join(
 			c:emit_signal("request::activate", "key.unminimize", { raise = true })
 		end
 	end, { description = "restore minimized", group = "client" }),
-
-	-- Prompt
-	-- awful.key({ "Control" },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-	--           {description = "run prompt", group = "launcher"}),
 
 	awful.key({ modkey }, "r", function()
 		awful.spawn(os.getenv("HOME") .. "/.config/rofi/scripts/launcher_t1")

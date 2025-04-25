@@ -33,7 +33,7 @@ alias todo='nvim ~/Documents/tasks.txt'
 alias gpwd='cat ~/Documents/token.txt | xclip -selection clipboard'
 alias kali='sudo docker run -it kali'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
-alias vpn='./VPN/vpn.py'
+alias vpn='~/VPN/vpn.py'
 
 precmd() {
     print ""
