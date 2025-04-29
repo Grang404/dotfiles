@@ -1,0 +1,39 @@
+font-family="Hack Nerd Font Mono"
+font-size=13
+
+window-decoration=none
+window-save-state=never
+resize-overlay=never
+confirm-close-surface=false
+cursor-style=block
+
+# Colors
+foreground=#c9c7cd
+background=#161617
+selection-foreground=#161617
+selection-background=#E19ECA
+cursor-color=#CAC9DD
+# url-color=#ACA0CF
+
+# ANSI colors
+palette = 0=#27272A
+palette = 1=#E78284
+palette = 2=#90B99F
+palette = 3=#E6B99D
+palette = 4=#ACA1CF
+palette = 5=#E29ECA
+palette = 6=#EA83A5
+palette = 7=#C1C0D4
+palette = 8=#353539
+palette = 9=#EA999C
+palette = 10=#9DC6AC
+palette = 11=#F0C5A9
+palette = 12=#B9AEDA
+palette = 13=#ECAAD6
+palette = 14=#F591B2
+palette = 15=#CAC9DD
+
+# Optional extended colors
+palette = 16=#ffa066
+palette = 17=#ff5d62
+
