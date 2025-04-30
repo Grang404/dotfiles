@@ -71,7 +71,14 @@ install_packages() {
 		openvpn \
 		feh \
 		rofi \
-		ranger \
+		yazi \
+		ffmpeg \
+		jq \
+		poppler \
+		fd \
+		fzf \
+		zoxide \
+		imagemagick \
 		btop \
 		fastfetch \
 		firefox \
@@ -108,13 +115,13 @@ install_packages() {
 install_yay() {
 	print_msg "Installing yay..."
 	if ! command -v yay &>/dev/null; then
-		cd /tmp
+		cd /tmp || exit
 		git clone https://aur.archlinux.org/yay.git || {
 			print_error "Failed to clone yay"
 			exit 1
 		}
 		chown -R "$SUDO_USER:$SUDO_USER" yay
-		cd yay
+		cd yay || exit
 		sudo -u "$SUDO_USER" makepkg -si --noconfirm || {
 			print_error "Failed to install yay"
 			exit 1
