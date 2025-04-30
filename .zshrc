@@ -49,7 +49,4 @@ export LS_COLORS="ow=1;34;40:di=34"
 # }
 
 export RANGER_LOAD_DEFAULT_RC=FALSE
-
-export preview_images_method=kitty
-
 # setopt NO_PROMPT_PERCENT
