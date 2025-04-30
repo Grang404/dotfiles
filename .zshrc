@@ -1,6 +1,3 @@
-# fastfetch
-
-
 typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -37,6 +34,7 @@ alias vpn='~/VPN/vpn.py'
 
 precmd() {
     print ""
+
 }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -50,5 +48,8 @@ export LS_COLORS="ow=1;34;40:di=34"
 #     print ""
 # }
 
+export RANGER_LOAD_DEFAULT_RC=FALSE
 
-setopt NO_PROMPT_PERCENT
+export preview_images_method=kitty
+
+# setopt NO_PROMPT_PERCENT
