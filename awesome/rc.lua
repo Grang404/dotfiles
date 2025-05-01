@@ -100,7 +100,7 @@ local function update_vpn_status()
 	awful.spawn.easy_async("pgrep -x openvpn", function(stdout)
 		if stdout and stdout ~= "" then
 			-- OpenVPN is running - show green circle
-			vpn_indicator.markup = '<span color="#9DC6AC">  ●</span> '
+			vpn_indicator.markup = '<span color="#9DC6AC"></span> '
 		else
 			-- OpenVPN is not running - show nothing
 			vpn_indicator.markup = ""
@@ -119,7 +119,7 @@ local vpn_timer = gears.timer({
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
 
-mytextclock.format = " %H:%M "
+mytextclock.format = "%H:%M"
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -169,7 +169,7 @@ local tasklist_buttons = gears.table.join(
 
 awful.screen.connect_for_each_screen(function(s)
 	-- Each screen has its own tag table.
-	awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8" }, s, awful.layout.layouts[1])
+	awful.tag({ "1", "2", "3", "4", "5", "6" }, s, awful.layout.layouts[1])
 
 	-- Create a promptbox for each screen
 	s.mypromptbox = awful.widget.prompt()
@@ -205,31 +205,35 @@ awful.screen.connect_for_each_screen(function(s)
 		buttons = tasklist_buttons,
 	})
 
+	local space = wibox.widget.textbox(" ")
+
 	-- Create the wibox
 	s.mywibox = awful.wibar({ position = "top", screen = s, height = 25 })
 
 	-- Add widgets to the wibox
 	s.mywibox:setup({
+
 		layout = wibox.layout.align.horizontal,
 		{ -- Left widgets
 			layout = wibox.layout.fixed.horizontal,
 			mylauncher,
-			wibox.widget.textbox(" "),
+			space,
 			s.mytaglist,
 			s.mypromptbox,
-			wibox.widget.textbox(" "),
+			space,
+			space,
 		},
 		s.mytasklist, -- Middle widget
 		{ -- Right widgets
-			-- wibox.widget.textbox("  |  "),
-			-- wibox.widget.textbox(" "),
+			space,
 			layout = wibox.layout.fixed.horizontal,
-			-- mykeyboardlayout,
-			-- wibox.widget.systray(),
+			space,
 			vpn_indicator,
+			space,
 			mytextclock,
+			space,
 			s.mylayoutbox,
-			wibox.widget.textbox(" "),
+			space,
 		},
 	})
 end)
