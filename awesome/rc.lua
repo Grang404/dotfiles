@@ -253,8 +253,8 @@ globalkeys = gears.table.join(
 	end, { description = "Lockscreen", group = "hotkeys" }),
 
 	awful.key({ modkey }, "b", function()
-		awful.spawn("firefox")
-	end, { description = "Firefox", group = "hotkeys" }),
+		awful.spawn("zen")
+	end, { description = "zen", group = "hotkeys" }),
 
 	awful.key({ "Control" }, "k", function()
 		awful.client.focus.byidx(1)
