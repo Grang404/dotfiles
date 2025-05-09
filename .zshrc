@@ -26,7 +26,7 @@ export ARCHFLAGS="-arch $(uname -m)"
 # Set autosuggestion color
 source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
-alias todo='nvim ~/Documents/tasks.txt'
+alias todo='nvim ~/Documents/tasks.md'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
 alias vpn='~/VPN/vpn.py'
 
