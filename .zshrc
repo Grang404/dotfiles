@@ -27,8 +27,6 @@ export ARCHFLAGS="-arch $(uname -m)"
 source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
 alias todo='nvim ~/Documents/tasks.txt'
-alias gpwd='cat ~/Documents/token.txt | xclip -selection clipboard'
-alias kali='sudo docker run -it kali'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
 alias vpn='~/VPN/vpn.py'
 
@@ -41,12 +39,10 @@ precmd() {
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 export LS_COLORS="ow=1;34;40:di=34"
+export MEDIA="/media/alice/MEDIA/media_server"
 
 # precmd() {
 #     # Get the last executed command and append it to the file
 #     echo "$(date "+%Y-%m-%d %H:%M:%S") $(fc -ln -1)" >> ~/Vault/Security/WriteUps/agent_sudo_shell.md
 #     print ""
 # }
-
-export RANGER_LOAD_DEFAULT_RC=FALSE
-# setopt NO_PROMPT_PERCENT
