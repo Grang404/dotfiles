@@ -515,12 +515,6 @@ awful.rules.rules = {
 }
 -- }}}
 
--- BORDER RADIUS
-client.connect_signal("manage", function(c)
-	c.shape = function(cr, width, height)
-		gears.shape.rounded_rect(cr, width, height, 0)
-	end
-end)
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function(c)
@@ -535,9 +529,8 @@ client.connect_signal("manage", function(c)
 end)
 
 -- Autostart applications
--- Autostart xrandr script with output redirection
-awful.spawn.with_shell("~/.config/autostart/xrandr.sh > ~/.config/awesome/xrandr.log 2>&1")
 
+awful.spawn.with_shell("~/.config/autostart/xrandr.sh > ~/.config/awesome/xrandr.log 2>&1")
 awful.spawn.with_shell(
 	'xinput --set-prop "Logitech USB Receiver" "Coordinate Transformation Matrix" 0.8 0 0 0 0.8 0 0 0 1'
 )
@@ -547,6 +540,7 @@ awful.spawn.with_shell("nvidia-settings -l")
 awful.spawn.with_shell("nitrogen --restore &")
 
 -- Enable sloppy focus, so that focus follows mouse.
+
 client.connect_signal("mouse::enter", function(c)
 	c:emit_signal("request::activate", "mouse_enter", { raise = false })
 end)
