@@ -160,9 +160,6 @@
         "DontRoundMyTimestamps": {
             "enabled": false
         },
-        "EmoteCloner": {
-            "enabled": false
-        },
         "Experiments": {
             "enabled": false,
             "toolbarDevMenu": false
@@ -586,6 +583,9 @@
         },
         "BadgeAPI": {
             "enabled": true
+        },
+        "ExpressionCloner": {
+            "enabled": false
         }
     },
     "notifications": {
@@ -598,6 +598,7 @@
         "authenticated": false,
         "url": "https://api.vencord.dev/",
         "settingsSync": false,
-        "settingsSyncVersion": 1740162563090
-    }
+        "settingsSyncVersion": 1748570186540
+    },
+    "eagerPatches": false
 }
