@@ -40,7 +40,6 @@ require("lazy").setup({
 		event = "VimEnter",
 		opts = {
 			icons = {
-				-- set icon mappings to true if you have a Nerd Font
 				mappings = vim.g.have_nerd_font,
 				-- If you are using a Nerd Font: set icons.keys to an empty table which will use the
 				-- default whick-key.nvim defined Nerd Font icons, otherwise define a string table
@@ -91,7 +90,7 @@ require("lazy").setup({
 	},
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
-		dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" }, -- if you use the mini.nvim suite
+		dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" },
 		---@module 'render-markdown'
 		---@type render.md.UserConfig
 		opts = {},
@@ -524,6 +523,7 @@ require("lazy").setup({
 		},
 		opts = {
 			notify_on_error = false,
+			-- format_on_save = false,
 			format_on_save = function(bufnr)
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
@@ -549,37 +549,10 @@ require("lazy").setup({
 				javascript = { "prettierd", "prettier", stop_after_first = true },
 				html = { "prettier" },
 				htmldjango = { "prettier" },
+				css = { "prettier" },
 			},
 		},
 	},
-
-	-- { -- Autoformat
-	-- 	"stevearc/conform.nvim",
-	-- 	event = { "BufWritePre" },
-	-- 	cmd = { "ConformInfo" },
-	-- 	keys = {
-	-- 		{
-	-- 			"<leader>F",
-	-- 			function()
-	-- 				require("conform").format({ async = true, lsp_format = "fallback" })
-	-- 			end,
-	-- 			mode = "",
-	-- 			desc = "[F]ormat buffer",
-	-- 		},
-	-- 	},
-	-- 	opts = {
-	-- 		notify_on_error = false,
-	-- 		format_on_save = false, -- Completely disable autoformat on save
-	-- 		formatters_by_ft = {
-	-- 			lua = { "stylua" },
-	-- 			python = { "black" },
-	-- 			sh = { "shfmt" },
-	-- 			javascript = { "prettierd", "prettier", stop_after_first = true },
-	-- 			html = { "prettier" },
-	-- 			htmldjango = { "prettier" },
-	-- 		},
-	-- 	},
-	-- },
 
 	{ -- Autocompletion
 		"hrsh7th/nvim-cmp",
@@ -610,7 +583,6 @@ require("lazy").setup({
 				},
 			},
 			"saadparwaiz1/cmp_luasnip",
-
 			-- Adds other completion capabilities.
 			--  nvim-cmp does not ship with all sources by default. They are split
 			--  into multiple repos for maintenance purposes.
@@ -827,24 +799,4 @@ require("lazy").setup({
 	-- require 'kickstart.plugins.lint',
 	-- require 'kickstart.plugins.autopairs',
 	-- require 'kickstart.plugins.neo-tree',
-}, {
-	ui = {
-		-- If you are using a Nerd Font: set icons to an empty table which will use the
-		-- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-		icons = vim.g.have_nerd_font and {} or {
-			cmd = "⌘",
-			config = "🛠",
-			event = "📅",
-			ft = "📂",
-			init = "⚙",
-			keys = "🗝",
-			plugin = "🔌",
-			runtime = "💻",
-			require = "🌙",
-			source = "📄",
-			start = "🚀",
-			task = "📌",
-			lazy = "💤 ",
-		},
-	},
 })
