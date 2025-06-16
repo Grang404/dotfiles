@@ -50,79 +50,162 @@ def parse_config_files(directory=DIR):
     return sorted_configs
 
 
-def display_menu_with_search(stdscr, title, options, selected_idx=0, search_query=""):
-    """Display a menu with the given title and options with search functionality."""
+def safe_addstr(stdscr, y, x, text, attr=0):
+    """Safely add string to screen, handling window boundaries."""
+    try:
+        h, w = stdscr.getmaxyx()
+        if y >= 0 and y < h and x >= 0:
+            # Truncate text if it would exceed window width
+            max_len = w - x - 1
+            if len(text) > max_len:
+                text = text[:max_len-3] + "..."
+            stdscr.addstr(y, x, text, attr)
+    except curses.error:
+        # Ignore errors from trying to write outside screen bounds
+        pass
+
+
+def display_menu_with_search(stdscr, title, options, selected_idx=0, search_query="", scroll_offset=0):
+    """Display a menu with the given title and options with search functionality and scrolling."""
     stdscr.clear()
     h, w = stdscr.getmaxyx()
+    
+    # Minimum window size check
+    if h < 10 or w < 30:
+        safe_addstr(stdscr, h//2, max(0, (w-20)//2), "Window too small!", curses.A_BOLD)
+        stdscr.refresh()
+        return options, scroll_offset
 
-    # Print title
-    title = f"===== {title} ====="
-    stdscr.addstr(1, (w - len(title)) // 2, title)
+    # Calculate available space for menu items
+    header_lines = 4  # Title, search, blank line, and one more for padding
+    footer_lines = 3  # Instructions and padding
+    available_lines = max(1, h - header_lines - footer_lines)
+    
+    # Print title (truncate if necessary)
+    title_text = f"===== {title} ====="
+    if len(title_text) > w - 4:
+        title_text = title[:w-12] + "... ====="
+    safe_addstr(stdscr, 1, max(0, (w - len(title_text)) // 2), title_text, curses.A_BOLD)
 
-    # Display search box if a search is active
+    # Display search box or search prompt
     if search_query:
         search_text = f"Search: {search_query}"
-        stdscr.addstr(2, 2, search_text)
-
+        if len(search_text) > w - 4:
+            search_text = f"Search: {search_query[:w-15]}..."
+        safe_addstr(stdscr, 2, 2, search_text)
+        
         # Filter options based on search query
         filtered_options = [
             opt for opt in options if search_query.lower() in opt.lower()
         ]
     else:
         filtered_options = options
-        stdscr.addstr(2, 2, "Press '/' to search")
+        safe_addstr(stdscr, 2, 2, "Press '/' to search")
 
-    # Adjust selected index if it's out of bounds after filtering
-    if filtered_options and selected_idx >= len(filtered_options):
-        selected_idx = len(filtered_options) - 1
-
-    # Print options
-    start_y = 4
+    # Adjust selected index and scroll offset if out of bounds after filtering
     if filtered_options:
-        for i, option in enumerate(filtered_options):
-            x = (w - len(option)) // 2
-            y = start_y + i
+        if selected_idx >= len(filtered_options):
+            selected_idx = len(filtered_options) - 1
+        
+        # Adjust scroll offset to keep selected item visible
+        if selected_idx < scroll_offset:
+            scroll_offset = selected_idx
+        elif selected_idx >= scroll_offset + available_lines:
+            scroll_offset = selected_idx - available_lines + 1
+        
+        # Ensure scroll offset doesn't go negative or too high
+        scroll_offset = max(0, min(scroll_offset, len(filtered_options) - available_lines))
+    else:
+        scroll_offset = 0
 
-            if i == selected_idx:
-                stdscr.attron(curses.A_REVERSE)
-                stdscr.addstr(y, x, option)
-                stdscr.attroff(curses.A_REVERSE)
+    # Print options with scrolling
+    start_y = header_lines
+    if filtered_options:
+        visible_options = filtered_options[scroll_offset:scroll_offset + available_lines]
+        
+        for i, option in enumerate(visible_options):
+            actual_idx = i + scroll_offset
+            y = start_y + i
+            
+            # Center the option text, but truncate if too long
+            display_text = option
+            max_option_width = w - 4
+            if len(display_text) > max_option_width:
+                display_text = display_text[:max_option_width-3] + "..."
+            
+            x = max(2, (w - len(display_text)) // 2)
+            
+            if actual_idx == selected_idx:
+                safe_addstr(stdscr, y, x, display_text, curses.A_REVERSE)
             else:
-                stdscr.addstr(y, x, option)
+                safe_addstr(stdscr, y, x, display_text)
+        
+        # Show scroll indicators if needed
+        if len(filtered_options) > available_lines:
+            if scroll_offset > 0:
+                safe_addstr(stdscr, start_y - 1, w - 5, "↑", curses.A_BOLD)
+            if scroll_offset + available_lines < len(filtered_options):
+                safe_addstr(stdscr, start_y + available_lines, w - 5, "↓", curses.A_BOLD)
+            
+            # Show position indicator
+            pos_info = f"({selected_idx + 1}/{len(filtered_options)})"
+            if len(pos_info) < w - 4:
+                safe_addstr(stdscr, start_y + available_lines + 1, w - len(pos_info) - 2, pos_info)
     else:
         no_match = "No matches found"
-        stdscr.addstr(start_y, (w - len(no_match)) // 2, no_match)
+        safe_addstr(stdscr, start_y, max(0, (w - len(no_match)) // 2), no_match)
 
-    # Print instructions
-    instructions = "Use J/K or UP/DOWN keys to navigate, ENTER to select, Q to quit, / to search, ESC to clear search"
-    # Make sure it fits on screen
-    if len(instructions) > w:
-        instructions = (
-            "J/K to navigate, ENTER to select, Q to quit, / search, ESC clear"
-        )
-    stdscr.addstr(h - 2, (w - len(instructions)) // 2, instructions)
+    # Print instructions (adaptive based on window width)
+    if w >= 80:
+        instructions = "J/K or ↑/↓ to navigate, ENTER to select, Q to quit, / to search, ESC to clear search"
+    elif w >= 60:
+        instructions = "J/K or ↑/↓: navigate, ENTER: select, Q: quit, /: search, ESC: clear"
+    else:
+        instructions = "J/K:move ENTER:select Q:quit /:search"
+    
+    instruction_y = h - 2
+    safe_addstr(stdscr, instruction_y, max(0, (w - len(instructions)) // 2), instructions)
 
     stdscr.refresh()
-
-    return filtered_options
+    return filtered_options, scroll_offset
 
 
 def get_search_input(stdscr, current_search=""):
-    """Get search input from user."""
-    curses.curs_set(1)
+    """Get search input from user with improved window size handling."""
     h, w = stdscr.getmaxyx()
-    search_win = stdscr.derwin(1, w - 10, 2, 10)  # Create a subwindow for search input
-    search_win.clear()
-    curses.echo()  # Enable echo mode to see what's being typed
-
+    
+    # Check if window is too small for search input
+    if w < 20:
+        return current_search
+    
+    curses.curs_set(1)
+    
+    # Create search input area
+    search_y = 2
+    search_x = 10
+    max_search_width = w - search_x - 2
+    
+    # Clear the search area
+    try:
+        stdscr.move(search_y, search_x)
+        stdscr.clrtoeol()
+    except curses.error:
+        pass
+    
+    curses.echo()
     search_query = current_search
-    search_win.addstr(0, 0, search_query)
+
+    # Display current search query
+    display_query = search_query
+    if len(display_query) > max_search_width:
+        display_query = "..." + display_query[-(max_search_width-3):]
+    
+    safe_addstr(stdscr, search_y, search_x, display_query)
     stdscr.refresh()
-    search_win.refresh()
 
     while True:
         try:
-            key = search_win.getch()
+            key = stdscr.getch()
 
             if key == 27:  # Escape
                 search_query = ""
@@ -132,18 +215,25 @@ def get_search_input(stdscr, current_search=""):
             elif key == curses.KEY_BACKSPACE or key == 127:  # Backspace
                 if search_query:
                     search_query = search_query[:-1]
-                    search_win.clear()
-                    search_win.addstr(0, 0, search_query)
             elif key in range(32, 127):  # Printable characters
                 search_query += chr(key)
-                search_win.addstr(0, 0, search_query)
-
-            search_win.refresh()
+            
+            # Update display
+            stdscr.move(search_y, search_x)
+            stdscr.clrtoeol()
+            
+            display_query = search_query
+            if len(display_query) > max_search_width:
+                display_query = "..." + display_query[-(max_search_width-3):]
+            
+            safe_addstr(stdscr, search_y, search_x, display_query)
+            stdscr.refresh()
+            
         except curses.error:
-            # Handle window size errors
-            pass
+            # Handle any curses errors gracefully
+            break
 
-    curses.noecho()  # Disable echo mode
+    curses.noecho()
     curses.curs_set(0)
     return search_query
 
@@ -180,195 +270,138 @@ def connect_vpn(config_file, username, password):
             os.remove(cred_file)
 
 
+def handle_selection_menu(stdscr, title, options, configs=None, selected_country=None, selected_city=None):
+    """Generic function to handle selection menus with improved navigation."""
+    selected_idx = 0
+    search_query = ""
+    scroll_offset = 0
+    
+    while True:
+        filtered_options, scroll_offset = display_menu_with_search(
+            stdscr, title, options, selected_idx, search_query, scroll_offset
+        )
+        
+        # Handle case where window is too small
+        if not filtered_options and options:
+            key = stdscr.getch()
+            if key == ord("q") or key == ord("Q"):
+                return None, None
+            continue
+        
+        key = stdscr.getch()
+        
+        if key == ord("/"):
+            # Enter search mode
+            new_search = get_search_input(stdscr, search_query)
+            if new_search != search_query:
+                search_query = new_search
+                selected_idx = 0
+                scroll_offset = 0
+        elif key == 27:  # Escape key
+            if search_query:
+                search_query = ""
+                selected_idx = 0
+                scroll_offset = 0
+            else:
+                return None, None  # Exit menu
+        elif (key == ord("k") or key == curses.KEY_UP) and filtered_options and selected_idx > 0:
+            selected_idx -= 1
+        elif (key == ord("j") or key == curses.KEY_DOWN) and filtered_options and selected_idx < len(filtered_options) - 1:
+            selected_idx += 1
+        elif key == curses.KEY_PPAGE:  # Page Up
+            selected_idx = max(0, selected_idx - 10)
+        elif key == curses.KEY_NPAGE:  # Page Down
+            if filtered_options:
+                selected_idx = min(len(filtered_options) - 1, selected_idx + 10)
+        elif key == curses.KEY_HOME:  # Home
+            selected_idx = 0
+        elif key == curses.KEY_END:  # End
+            if filtered_options:
+                selected_idx = len(filtered_options) - 1
+        elif key == 10 and filtered_options:  # Enter key
+            return filtered_options[selected_idx], selected_idx
+        elif key == ord("q") or key == ord("Q"):
+            return None, None
+
+
 def main(stdscr):
     # Set up curses
-    curses.curs_set(0)  # Show cursor for search input
+    curses.curs_set(0)
     curses.start_color()
     curses.use_default_colors()
     stdscr.clear()
     stdscr.keypad(True)  # Enable special keys
+    
+    # Check minimum window size
+    h, w = stdscr.getmaxyx()
+    if h < 10 or w < 30:
+        stdscr.clear()
+        safe_addstr(stdscr, h//2, (w-30)//2, "Terminal too small! Need 30x10", curses.A_BOLD)
+        safe_addstr(stdscr, h//2 + 1, (w-20)//2, "Press any key to exit")
+        stdscr.refresh()
+        stdscr.getch()
+        return
 
     # Parse config files
-    configs = parse_config_files()
+    try:
+        configs = parse_config_files()
+    except Exception as e:
+        stdscr.clear()
+        error_msg = f"Error parsing configs: {str(e)}"
+        safe_addstr(stdscr, h//2, max(0, (w-len(error_msg))//2), error_msg)
+        safe_addstr(stdscr, h//2 + 1, (w-20)//2, "Press any key to exit")
+        stdscr.refresh()
+        stdscr.getch()
+        return
 
-    # Show country selection menu
+    if not configs:
+        stdscr.clear()
+        safe_addstr(stdscr, h//2, (w-25)//2, "No VPN configs found!")
+        safe_addstr(stdscr, h//2 + 1, (w-20)//2, "Press any key to exit")
+        stdscr.refresh()
+        stdscr.getch()
+        return
+
+    # Country selection
     countries = list(configs.keys())
-    country_idx = 0
-    country_search = ""
+    selected_country, _ = handle_selection_menu(stdscr, "Select a Country", countries)
+    
+    if not selected_country:
+        return
 
-    while True:
-        filtered_countries = display_menu_with_search(
-            stdscr, "Select a Country", countries, country_idx, country_search
+    # City selection
+    cities = list(configs[selected_country].keys())
+    
+    # If only one city, skip city selection
+    if len(cities) == 1:
+        selected_city = cities[0]
+    else:
+        selected_city, _ = handle_selection_menu(
+            stdscr, f"Select a City in {selected_country}", cities
         )
+        
+        if not selected_city:
+            return
 
-        # Get user input
-        key = stdscr.getch()
+    # Protocol selection
+    available_protocols = list(configs[selected_country][selected_city].keys())
+    selected_protocol, _ = handle_selection_menu(
+        stdscr, f"Select Protocol for {selected_city}, {selected_country}", available_protocols
+    )
+    
+    if not selected_protocol:
+        return
 
-        if key == ord("/"):
-            # Enter search mode
-            country_search = get_search_input(stdscr, country_search)
-            country_idx = 0  # Reset selection index after search
-        elif key == 27:  # Escape key
-            country_search = ""  # Clear search
-        elif (key == ord("k") or key == curses.KEY_UP) and country_idx > 0:
-            country_idx -= 1
-        elif (
-            (key == ord("j") or key == curses.KEY_DOWN)
-            and filtered_countries
-            and country_idx < len(filtered_countries) - 1
-        ):
-            country_idx += 1
-        elif key == 10 and filtered_countries:  # Enter key and we have filtered results
-            # Selected a country
-            selected_country = filtered_countries[country_idx]
-            cities = list(configs[selected_country].keys())
-            city_idx = 0
-            city_search = ""
+    # Get config file path
+    config_file = os.path.join(
+        DIR, configs[selected_country][selected_city][selected_protocol]
+    )
 
-            # If there's only one city, skip directly to protocol selection
-            if len(cities) == 1:
-                selected_city = cities[0]
-                available_protocols = list(
-                    configs[selected_country][selected_city].keys()
-                )
-                protocol_idx = 0
-                protocol_search = ""
+    # Exit curses mode
+    curses.endwin()
 
-                # Protocol selection loop
-                while True:
-                    filtered_protocols = display_menu_with_search(
-                        stdscr,
-                        f"Select Protocol for {selected_city}, {selected_country}",
-                        available_protocols,
-                        protocol_idx,
-                        protocol_search,
-                    )
-
-                    key = stdscr.getch()
-
-                    if key == ord("/"):
-                        protocol_search = get_search_input(stdscr, protocol_search)
-                        protocol_idx = 0
-                    elif key == 27:  # Escape key
-                        protocol_search = ""  # Clear search
-                    elif (key == ord("k") or key == curses.KEY_UP) and protocol_idx > 0:
-                        protocol_idx -= 1
-                    elif (
-                        (key == ord("j") or key == curses.KEY_DOWN)
-                        and filtered_protocols
-                        and protocol_idx < len(filtered_protocols) - 1
-                    ):
-                        protocol_idx += 1
-                    elif key == 10 and filtered_protocols:  # Enter key
-                        selected_protocol = filtered_protocols[protocol_idx]
-                        config_file = os.path.join(
-                            DIR,
-                            configs[selected_country][selected_city][selected_protocol],
-                        )
-
-                        # Exit curses mode
-                        curses.endwin()
-
-                        # Connect to VPN
-                        connect_vpn(config_file, VPN_USERNAME, VPN_PASSWORD)
-
-                        # Exit after connection attempt
-                        return
-                    elif key == ord("q") or key == ord("Q"):  # q or Q
-                        # Go back to country selection
-                        break
-            else:
-                # Multiple cities available, show city selection
-                city_idx = 0
-                city_search = ""
-
-                # City selection loop
-                while True:
-                    filtered_cities = display_menu_with_search(
-                        stdscr,
-                        f"Select a City in {selected_country}",
-                        cities,
-                        city_idx,
-                        city_search,
-                    )
-
-                    key = stdscr.getch()
-
-                    if key == ord("/"):
-                        city_search = get_search_input(stdscr, city_search)
-                        city_idx = 0
-                    elif key == 27:  # Escape key
-                        city_search = ""  # Clear search
-                    elif (key == ord("k") or key == curses.KEY_UP) and city_idx > 0:
-                        city_idx -= 1
-                    elif (
-                        (key == ord("j") or key == curses.KEY_DOWN)
-                        and filtered_cities
-                        and city_idx < len(filtered_cities) - 1
-                    ):
-                        city_idx += 1
-                    elif key == 10 and filtered_cities:  # Enter key
-                        selected_city = filtered_cities[city_idx]
-                        available_protocols = list(
-                            configs[selected_country][selected_city].keys()
-                        )
-                        protocol_idx = 0
-                        protocol_search = ""
-
-                        # Protocol selection loop
-                        while True:
-                            filtered_protocols = display_menu_with_search(
-                                stdscr,
-                                f"Select Protocol for {selected_city}, {selected_country}",
-                                available_protocols,
-                                protocol_idx,
-                                protocol_search,
-                            )
-
-                            key = stdscr.getch()
-
-                            if key == ord("/"):
-                                protocol_search = get_search_input(
-                                    stdscr, protocol_search
-                                )
-                                protocol_idx = 0
-                            elif key == 27:  # Escape key
-                                protocol_search = ""  # Clear search
-                            elif (
-                                key == ord("k") or key == curses.KEY_UP
-                            ) and protocol_idx > 0:
-                                protocol_idx -= 1
-                            elif (
-                                (key == ord("j") or key == curses.KEY_DOWN)
-                                and filtered_protocols
-                                and protocol_idx < len(filtered_protocols) - 1
-                            ):
-                                protocol_idx += 1
-                            elif key == 10 and filtered_protocols:  # Enter key
-                                selected_protocol = filtered_protocols[protocol_idx]
-                                config_file = os.path.join(
-                                    DIR,
-                                    configs[selected_country][selected_city][
-                                        selected_protocol
-                                    ],
-                                )
-
-                                # Exit curses mode
-                                curses.endwin()
-
-                                # Connect to VPN
-                                connect_vpn(config_file, VPN_USERNAME, VPN_PASSWORD)
-
-                                # Exit after connection attempt
-                                return
-                            elif key == ord("q") or key == ord("Q"):  # q or Q
-                                # Go back to city selection
-                                break
-                    elif key == ord("q") or key == ord("Q"):  # q or Q
-                        # Go back to country selection
-                        break
-        elif key == ord("q") or key == ord("Q"):  # q or Q
-            break
+    # Connect to VPN
+    connect_vpn(config_file, VPN_USERNAME, VPN_PASSWORD)
 
 
 if __name__ == "__main__":
@@ -376,3 +409,6 @@ if __name__ == "__main__":
         curses.wrapper(main)
     except KeyboardInterrupt:
         print("\nExiting OpenVPN selector...")
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Make sure you have the required permissions and OpenVPN configs in the specified directory.")
