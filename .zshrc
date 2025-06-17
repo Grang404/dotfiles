@@ -29,6 +29,7 @@ source ~/.config/oh-my-zsh/.zsh_highlight_styles
 alias todo='nvim ~/Documents/tasks.md'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
 alias vpn='~/VPN/vpn.py'
+alias scratch='nvim /tmp/scratch.md'
 
 precmd() {
     print ""
