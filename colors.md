@@ -1,6 +1,7 @@
 ## Groobacho Color Theme
 
 #161617
+
 #27272A
 #E78284
 #90B99F
