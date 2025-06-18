@@ -35,10 +35,6 @@
             "type": "os"
         },
         {
-            "key": "║ {#35} kernel  {#keys}║",
-            "type": "kernel"
-        },
-        {
             "key": "║ {#31} term    {#keys}║",
             "type": "terminal"
         },
@@ -52,13 +48,13 @@
             "showPeCoreCount": true
         },
         {
+            "key": "║ {#35} memory  {#keys}║",
+            "type": "memory"
+        },
+        {
             "key": "║ {#34}󰉉 disk    {#keys}║",
             "type": "disk",
             "folders": ["/", "/media/alice"]
-        },
-        {
-            "key": "║ {#35} memory  {#keys}║",
-            "type": "memory"
         },
         {
             "key": "╠═══════════╣",
