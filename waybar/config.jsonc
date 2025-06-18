@@ -12,32 +12,10 @@
             "temperature",
             "pulseaudio",
             "network",
-            "battery",
             "clock#time"
     ],
 
     // Modules
-    "battery": {
-            "interval": 10,
-            "states": {
-                    "warning": 30,
-                    "critical": 15
-            },
-            "format-time": "{H}:{M:02}",
-            "format": "{icon} {capacity}%",
-            "format-charging": " {capacity}%",
-            "format-charging-full": " {capacity}%",
-            "format-full": "{icon} {capacity}%",
-            "format-alt": "{icon} {power}W",
-            "format-icons": [
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-            ],
-            "tooltip": false
-    },
 
     "clock#time": {
             "interval": 10,
@@ -103,6 +81,7 @@
     },
 
     "temperature": {
+            "thermal-zone": 2,
             "critical-threshold": 90,
             "interval": 5,
             "format": "{icon}{temperatureC}°",

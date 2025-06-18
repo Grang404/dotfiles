@@ -11,7 +11,7 @@
 
 * {
 	font-family: "JetBrainsMono Nerd Font";
-	font-size: 18px;
+	font-size: 14px;
 	font-weight: bold;
 	min-height: 0;
 }
@@ -83,7 +83,6 @@ button:hover {
 }
 
 #clock,
-#battery,
 #cpu,
 #memory,
 #disk,
@@ -101,7 +100,6 @@ button:hover {
 }
 
 #clock:hover,
-#battery:hover,
 #cpu:hover,
 #memory:hover,
 #disk:hover,
@@ -135,38 +133,12 @@ button:hover {
 	color: @red;
 }
 
-#battery icon {
-	color: @red;
-}
-
-#battery.charging,
-#battery.plugged {
-	color: @green;
-}
 
 @keyframes blink {
 	to {
 		background-color: @white;
 		color: @black;
 	}
-}
-
-#battery.warning:not(.charging) {
-	color: @yellow;
-	animation-name: blink;
-	animation-duration: 0.5s;
-	animation-timing-function: linear;
-	animation-iteration-count: infinite;
-	animation-direction: alternate;
-}
-
-#battery.critical:not(.charging) {
-	color: @red;
-	animation-name: blink;
-	animation-duration: 0.5s;
-	animation-timing-function: linear;
-	animation-iteration-count: infinite;
-	animation-direction: alternate;
 }
 
 label:focus {
