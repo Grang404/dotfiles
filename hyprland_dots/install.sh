@@ -108,8 +108,8 @@ install_packages() {
 		unzip \
 		obs-studio \
 		cronie \
-		lm_sensors
-	vlc || {
+		lm_sensors \
+		vlc || {
 		print_error "Failed to install packages"
 		exit 1
 	}
