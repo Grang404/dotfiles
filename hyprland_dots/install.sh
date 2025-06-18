@@ -3,6 +3,7 @@
 # TODO: ignore install.sh and README.md
 # TODO: Add input for resolution and display drivers maybe?
 # TODO: Fix polkit (use hyprpol?)
+# TODO: Error handling for service enables
 
 # Colors for output
 RED='\033[0;31m'
@@ -58,6 +59,7 @@ install_packages() {
 	pacman -S --needed --noconfirm \
 		base base-devel \
 		git \
+		ly \
 		hyprland \
 		hyprlock \
 		hyprpaper \
