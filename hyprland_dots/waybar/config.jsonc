@@ -6,7 +6,7 @@
     "modules-left": ["hyprland/workspaces"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
-            // "tray",
+            "tray",
             "memory",
             "cpu",
             "temperature",
