@@ -5,7 +5,6 @@
 # TODO: Fix polkit (use hyprpol?)
 # TODO: Error handling for service enables
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -14,11 +13,9 @@ NC='\033[0m' # No Color
 # Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-# Log output
 LOG_FILE="$SCRIPT_DIR/install_script.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-# Print colored output
 print_msg() {
 	echo -e "${BLUE}[*]${NC} $1"
 }
