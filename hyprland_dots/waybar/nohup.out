@@ -1,0 +1,13 @@
+[2025-06-22 22:46:30.595] [info] Using configuration file /home/alice/.config/waybar/config.jsonc
+[2025-06-22 22:46:30.596] [info] Unable to receive desktop appearance: GDBus.Error:org.freedesktop.DBus.Error.UnknownMethod: No such interface “org.freedesktop.portal.Settings” on object at path /org/freedesktop/portal/desktop
+[2025-06-22 22:46:30.596] [info] Using CSS file /home/alice/.config/waybar/style.css
+[2025-06-22 22:46:30.598] [info] Hyprland IPC starting
+[2025-06-22 22:46:30.598] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-06-22 22:46:30.610] [info] Loading persistent workspaces from Hyprland workspace rules
+[2025-06-22 22:46:30.822] [info] Bar configured (width: 1920, height: 25) for output: DP-1
+[2025-06-22 22:46:30.822] [error] Item '': No icon name or pixmap given.
+[2025-06-22 22:46:30.826] [info] Bar configured (width: 1920, height: 25) for output: DP-2
+[2025-06-22 22:46:30.826] [error] Item '': No icon name or pixmap given.
+[2025-06-22 22:50:45.310] [warning] Requested height: 25 is less than the minimum height: 27 required by the modules
+[2025-06-22 22:50:45.310] [info] Bar configured (width: 1920, height: 27) for output: DP-2
+[2025-06-22 22:50:53.567] [info] Bar configured (width: 1920, height: 25) for output: DP-2
