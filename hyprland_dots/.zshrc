@@ -18,7 +18,7 @@ if [[ -n $SSH_CONNECTION ]]; then
 fi
 
 export EDITOR='nvim'
-export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:/us"
+export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:/us:$HOME/.local/bin"
 
 # Compilation flags
 export ARCHFLAGS="-arch $(uname -m)"
