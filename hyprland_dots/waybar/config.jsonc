@@ -6,6 +6,7 @@
     "modules-left": ["hyprland/workspaces"],
     "modules-center": ["hyprland/window"],
     "modules-right": [
+            "custom/capslock",
             "tray",
             "memory",
             "cpu",
@@ -26,7 +27,7 @@
     "cpu": {
             "interval": 5,
             "tooltip": false,
-            "format": " {usage}%",
+            "format": "  {usage}%",
             "format-alt": " {load}",
             "states": {
                     "warning": 70,
@@ -36,7 +37,7 @@
 
     "memory": {
             "interval": 5,
-            "format": " {used:0.1f}G/{total:0.1f}G",
+            "format": "  {used:0.1f}G/{total:0.1f}G",
             "states": {
                     "warning": 70,
                     "critical": 90
@@ -49,7 +50,7 @@
             "format-wifi": " ",
             "format-ethernet": "󰈀 {ifname}",
             "format-disconnected": "󱘖",
-            "format-alt": "  {essid} {signalStrength}%",
+            "format-alt": " {essid} {signalStrength}%",
             "tooltip": false
     },
 
@@ -85,7 +86,7 @@
             "thermal-zone": 2,
             "critical-threshold": 90,
             "interval": 5,
-            "format": "{icon}{temperatureC}°",
+            "format": "{icon} {temperatureC}°",
             "format-icons": [
                     "",
                     "",
@@ -97,6 +98,14 @@
     },
 
     "tray": {
-            "icon-size": 18
+            "icon-size": 18,
+            "spacing": 5
     },
+
+    "custom/capslock": {
+            "exec": "~/.config/hypr/scripts/capslock.sh",
+            "interval": 1,
+            "format": "{}",
+            "tooltip": false
+    }
 }

@@ -49,24 +49,21 @@ button {
 	border-radius: 0;
 }
 
-/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
 button:hover {
 	border-top: 2px solid @white;
 }
 
-#workspaces button:hover {
-	box-shadow: inherit;
-	text-shadow: inherit;
-	color: @black;
-	background: @purple;
-	border: @purple;
-	padding: 0 3px;
-}
-
 #workspaces button {
 	padding: 0 4px;
-
+	border-top: 2px solid @black;
 }
+
+#workspaces button:hover {
+	color: @black;
+	background: @purple;
+	border-top: @purple;
+}
+
 
 #workspaces button.focused {
 	background-color: @gray;
@@ -84,15 +81,21 @@ button:hover {
 	background-color: @red;
 }
 
+#custom-capslock {
+	color: @black;
+	background-color: @blue;
+	margin: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
 #clock,
 #battery,
 #cpu,
 #memory,
-#disk,
 #temperature,
 #network,
 #pulseaudio,
-#wireplumber,
 #tray {
 	margin: 2px;
 	padding-left: 4px;
@@ -101,16 +104,11 @@ button:hover {
 	color: @white;
 }
 
-
 #clock:hover,
 #battery:hover,
 #cpu:hover,
-#memory:hover,
-#disk:hover,
-#temperature:hover,
 #network:hover,
 #pulseaudio:hover,
-#wireplumber:hover,
 #tray:hover {
 	color: @purple;
 }
@@ -125,31 +123,24 @@ button:hover {
 	margin-right: 0;
 }
 
-#clock {
-	font-size: 14px;
-	font-weight: bold;
-}
-
 #battery icon {
-	color: red;
+	color: @white;
 }
 
 #battery.charging,
 #battery.plugged {
-	color: @white;
-	background-color: #26A65B;
+	color: @green;
 }
 
 @keyframes blink {
 	to {
 		background-color: @white;
-		color: #000000;
+		color: @black;
 	}
 }
 
 #battery.warning:not(.charging) {
-	background-color: @red;
-	color: @white;
+	color: @yellow;
 	animation-name: blink;
 	animation-duration: 0.5s;
 	animation-timing-function: linear;
@@ -158,8 +149,7 @@ button:hover {
 }
 
 #battery.critical:not(.charging) {
-	background-color: @red;
-	color: @white;
+	color: @red;
 	animation-name: blink;
 	animation-duration: 0.5s;
 	animation-timing-function: linear;
@@ -167,28 +157,10 @@ button:hover {
 	animation-direction: alternate;
 }
 
-label:focus {
-	background-color: @gray;
-}
-
 #network.disconnected {
-	background-color: @red;
+	color: @red;
 }
 
 #temperature.critical {
-	background-color: @red;
-}
-
-#idle_inhibitor.activated {
-	background-color: #ecf0f1;
-	color: #2d3436;
-}
-
-#tray>.passive {
-	-gtk-icon-effect: dim;
-}
-
-#tray>.needs-attention {
-	-gtk-icon-effect: highlight;
-	background-color: @red;
+	color: @red;
 }

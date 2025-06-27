@@ -10,7 +10,7 @@ THEME=$(ls "$THEME_DIR"/*.css | xargs -n1 basename | sed 's/\.css$//' | fzf --pr
 [ -z "$THEME" ] && exit 0
 
 # Write the import line to style.css
-echo "@import \"themes/$THEME.css\";" > "$STYLE_FILE"
+echo "@import \"themes/$THEME.css\";" >"$STYLE_FILE"
 
 # Reload Waybar
 pkill -USR2 waybar
