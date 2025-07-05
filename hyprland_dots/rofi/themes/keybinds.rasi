@@ -1,13 +1,9 @@
 configuration {
-	modi:                       "drun,window";
+	modi:                       "drun";
 	show-icons:                 true;
-	display-drun:               "";
-	display-window:             "";
-	drun-display-format:        "{name}";
-	window-format:              "{w} · {c} · {t}";
 }
 
-@import                          "colors.rasi"
+@import                          "../colors.rasi"
 
 * {
 
@@ -45,7 +41,8 @@ window {
     location:                    center;
     anchor:                      center;
     fullscreen:                  false;
-    width:                       600px;
+    width:                       800px;
+    height:		         800px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -57,22 +54,13 @@ window {
     border-radius:               10px;
     border-color:                @border-colour;
     cursor:                      "default";
-    /* Backgroud Colors */
     background-color:            @background-colour;
-    /* Backgroud Image */
-    //background-image:          url("/path/to/image.png", none);
-    /* Simple Linear Gradient */
-    //background-image:          linear-gradient(red, orange, pink, purple);
-    /* Directional Linear Gradient */
-    //background-image:          linear-gradient(to bottom, pink, yellow, magenta);
-    /* Angle Linear Gradient */
-    //background-image:          linear-gradient(45, cyan, purple, indigo);
 }
 
 /*****----- Main Box -----*****/
 mainbox {
     enabled:                     true;
-    spacing:                     10px;
+    // spacing:                     10px;
     margin:                      0px;
     padding:                     30px;
     border:                      0px solid;
@@ -176,9 +164,9 @@ scrollbar {
 /*****----- Elements -----*****/
 element {
     enabled:                     true;
-    spacing:                     10px;
+    // spacing:                     10px;
     margin:                      0px;
-    padding:                     5px 10px;
+    // padding:                     5px 10px;
     border:                      0px solid;
     border-radius:               5px;
     border-color:                @border-colour;

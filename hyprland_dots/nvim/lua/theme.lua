@@ -1,6 +1,6 @@
-vim.opt.runtimepath:append(vim.fn.stdpath("config") .. "/lua/themes/mellow/colors")
+vim.opt.runtimepath:append(vim.fn.stdpath("config") .. "/lua/themes/groob/colors")
 
-require("themes.mellow").colorscheme()
+require("themes.groob").colorscheme()
 
 -- Function to set global transparency and UI elements
 local function set_global_transparency_and_ui()
@@ -20,13 +20,13 @@ local function set_global_transparency_and_ui()
 
 	-- Customize StatusLine and StatusLineNC
 	vim.api.nvim_set_hl(0, "StatusLine", {
-		fg = "#ea83a5",
+		fg = "#873c56",
 		bg = "NONE",
 		ctermfg = 223,
 		ctermbg = "NONE",
 	})
 	vim.api.nvim_set_hl(0, "StatusLineNC", {
-		fg = "#ea83a5",
+		fg = "#873c56",
 		bg = "NONE",
 		ctermfg = 223,
 		ctermbg = "NONE",

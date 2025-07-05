@@ -7,12 +7,8 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 ZSH_CUSTOM=$HOME/.config/oh-my-zsh/
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-# plugins=(git zsh-syntax-highlighting)
 source $ZSH/oh-my-zsh.sh
 
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='nvim'
 fi
@@ -26,10 +22,12 @@ export ARCHFLAGS="-arch $(uname -m)"
 # Set autosuggestion color
 source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
+alias v='nvim'
 alias todo='nvim ~/Documents/tasks.md'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
 alias vpn='~/VPN/vpn.py'
 alias scratch='nvim /tmp/scratch.md'
+alias hg='history | grep'
 
 precmd() {
     print ""
@@ -42,8 +40,4 @@ precmd() {
 export LS_COLORS="ow=1;34;40:di=34"
 export MEDIA="/media/alice/MEDIA/media_server"
 
-# precmd() {
-#     # Get the last executed command and append it to the file
-#     echo "$(date "+%Y-%m-%d %H:%M:%S") $(fc -ln -1)" >> ~/Vault/Security/WriteUps/agent_sudo_shell.md
-#     print ""
-# }
+eval "$(zoxide init zsh)"

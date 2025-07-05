@@ -55,7 +55,7 @@ function setup_gitsigns_keymaps(bufnr)
 	map("n", "<leader>gs", gitsigns.stage_hunk, { desc = "git [s]tage hunk" })
 	map("n", "<leader>gr", gitsigns.reset_hunk, { desc = "git [r]eset hunk" })
 	map("n", "<leader>gS", gitsigns.stage_buffer, { desc = "git [S]tage buffer" })
-	map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "git [u]ndo stage hunk" })
+	-- map("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "git [u]ndo stage hunk" })
 	map("n", "<leader>gR", gitsigns.reset_buffer, { desc = "git [R]eset buffer" })
 	map("n", "<leader>gp", gitsigns.preview_hunk, { desc = "git [p]review hunk" })
 	map("n", "<leader>gb", gitsigns.blame_line, { desc = "git [b]lame line" })
@@ -66,5 +66,5 @@ function setup_gitsigns_keymaps(bufnr)
 
 	-- Toggles
 	map("n", "<leader>tb", gitsigns.toggle_current_line_blame, { desc = "[T]oggle git show [b]lame line" })
-	map("n", "<leader>tD", gitsigns.toggle_deleted, { desc = "[T]oggle git show [D]eleted" })
+	-- map("n", "<leader>tD", gitsigns.toggle_deleted, { desc = "[T]oggle git show [D]eleted" })
 end

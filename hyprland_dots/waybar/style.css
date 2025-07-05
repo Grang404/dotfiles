@@ -1,1 +1,155 @@
-@import "themes/sol.css";
+@define-color background #0c0a0a;
+@define-color background-light #28151c;
+@define-color foreground #bea3ab;
+@define-color black #15161e;
+@define-color red #e78284;
+@define-color green #90b99f;
+@define-color yellow #e6b99d;
+@define-color blue #aca1cf;
+@define-color magenta #873c56;
+@define-color cyan #ea83a5;
+@define-color white #c1c0d4;
+@define-color orange #ffa3b1;
+
+@define-color clock-color @magenta;
+@define-color cpu-color @green;
+@define-color memory-color @magenta;
+@define-color temperature-color @yellow;
+@define-color temperature-critical-color @red;
+@define-color battery-color @cyan;
+@define-color battery-charging-color @green;
+@define-color battery-warning-color @yellow;
+@define-color battery-critical-color @red;
+@define-color network-color @blue;
+@define-color network-disconnected-color @red;
+@define-color pulseaudio-color @orange;
+@define-color pulseaudio-muted-color @red;
+@define-color backlight-color @yellow;
+@define-color disk-color @cyan;
+@define-color uptime-color @green;
+@define-color updates-color @orange;
+@define-color quote-color @green;
+@define-color idle-inhibitor-color @foreground;
+@define-color idle-inhibitor-active-color @red;
+
+* {
+  border: none;
+  border-radius: 0;
+  font-family: "JetBrainsMono Nerd Font Mono";
+  font-weight: bold;
+  font-size: 14px;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: rgba(12, 10, 10, 0.8);
+  color: @foreground;
+}
+
+#clock,
+#cpu,
+#memory,
+#temperature,
+#battery,
+#network,
+#pulseaudio {
+  padding: 0 10px;
+  margin: 0 2px;
+  border-bottom: 2px solid transparent;
+  background-color: transparent;
+}
+
+#workspaces button {
+  padding: 0 10px;
+  background-color: transparent;
+  color: @workspaces-color;
+  margin: 0;
+}
+
+#workspaces button:hover {
+  background: @background-light;
+  box-shadow: inherit;
+}
+
+#workspaces button.focused {
+  box-shadow: inset 0 -2px @workspaces-focused-fg;
+  color: @workspaces-focused-fg;
+  font-weight: 900;
+}
+
+#workspaces button.active {
+  box-shadow: inset 0 -2px @workspaces-focused-fg;
+  color: @magenta;
+  font-weight: 900;
+}
+
+#workspaces button.urgent {
+  background-color: @workspaces-urgent-bg;
+  color: @workspaces-urgent-fg;
+}
+
+#clock {
+  color: @clock-color;
+  border-bottom-color: @clock-color;
+}
+
+#cpu {
+  color: @cpu-color;
+  border-bottom-color: @cpu-color;
+}
+
+#memory {
+  color: @memory-color;
+  border-bottom-color: @memory-color;
+}
+
+#temperature {
+  color: @temperature-color;
+  border-bottom-color: @temperature-color;
+}
+
+#temperature.critical {
+  color: @temperature-critical-color;
+  border-bottom-color: @temperature-critical-color;
+}
+
+#battery {
+  color: @battery-color;
+  border-bottom-color: @battery-color;
+}
+
+#battery.charging,
+#battery.plugged {
+  color: @battery-charging-color;
+  border-bottom-color: @battery-charging-color;
+}
+
+#battery.warning:not(.charging) {
+  color: @battery-warning-color;
+  border-bottom-color: @battery-warning-color;
+}
+
+#battery.critical:not(.charging) {
+  color: @battery-critical-color;
+  border-bottom-color: @battery-critical-color;
+}
+
+#network {
+  color: @network-color;
+  border-bottom-color: @network-color;
+}
+
+#network.disconnected {
+  color: @network-disconnected-color;
+  border-bottom-color: @network-disconnected-color;
+}
+
+#pulseaudio {
+  color: @pulseaudio-color;
+  border-bottom-color: @pulseaudio-color;
+}
+
+#pulseaudio.muted {
+  color: @pulseaudio-muted-color;
+  border-bottom-color: @pulseaudio-muted-color;
+}

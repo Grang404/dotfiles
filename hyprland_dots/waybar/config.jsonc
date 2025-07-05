@@ -1,27 +1,117 @@
 {
     "layer": "top",
-    "position": "top", 
-    "spacing": 4,
-
+    "position": "top",
+    "height": 30,
+    "spacing": 1,
+    "margin": 0,
     "modules-left": ["hyprland/workspaces"],
-    "modules-center": ["hyprland/window"],
-    "modules-right": [
-            "custom/capslock",
-            "tray",
-            "memory",
-            "cpu",
-            "temperature",
-            "pulseaudio",
-            "network",
-            "clock#time"
-    ],
 
-    // Modules
-    "clock#time": {
-            "interval": 10,
-            "format": "{:%H:%M}",
-            "tooltip": false,
-            "on-click": "kitty -e sh -c 'cal -3; read'"
+    "modules-center": ["hyprland/window"],
+
+    "modules-right": ["pulseaudio", "network", "cpu", "memory", "temperature", "clock"],
+
+
+    "hyprland/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{name}",
+        "format-icons": {
+            "1": "󰖟",
+            "2": "",
+            "3": "",
+            "4": "󰭹",
+            "5": "󰕧",
+            "6": "",
+            "7": "",
+            "8": "󰣇",
+            "9": "",
+            "10": ""
+        },
+        "persistent_workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": []
+        }
+    },
+
+    "hyprland/mode": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+
+    "custom/playerctl": {
+        "format": " 󰐊 {}",
+        "return-type": "json",
+        "max-length": 40,
+        "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{markup_escape(title)}}\", \"tooltip\": \"{{playerName}} : {{artist}} - {{markup_escape(title)}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F",
+        "on-click": "playerctl play-pause",
+        "on-click-right": "playerctl next",
+    },
+
+    "custom/weather": {
+        "exec": "curl 'https://wttr.in/?format=1'",
+        "interval": 3600,
+        "format": "{}",
+        "tooltip": true
+    },
+
+    "custom/quote": {
+        "format": "󰚛 {}",
+        "interval": 3600,
+        "exec": "fortune -s",
+        "on-click": "fortune | yad --text-info --width=400 --height=200 --title='Fortune'",
+        "tooltip": true
+    },
+
+    "custom/updates": {
+        "format": "󰚰 {}",
+        "exec": "checkupdates | wc -l",
+        "interval": 3600,
+        "on-click": "kitty -e sudo pacman -Syu",
+        "signal": 8
+    },
+
+    "custom/uptime": {
+        "format": "󰔟 {}",
+        "exec": "uptime -p | sed 's/up //; s/ days/d/; s/ hours/h/; s/ minutes/m/'",
+        "interval": 60
+    },
+
+    "idle_inhibitor": {
+        "format": "{icon}",
+        "format-icons": {
+            "activated": "󰈈",
+            "deactivated": "󰈉"
+        },
+        "tooltip": true
+    },
+
+    "clock": {
+        "format": "󰥔 {:%H:%M}",
+        "format-alt": "󰃮 {:%Y-%m-%d}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "calendar": {
+            "mode"          : "month",
+            "mode-mon-col"  : 3,
+            "weeks-pos"     : "right",
+            "on-scroll"     : 1,
+            "on-click-right": "mode",
+            "format": {
+                "months":     "<span color='#d3c6aa'><b>{}</b></span>",
+                "days":       "<span color='#e67e80'>{}</span>",
+                "weeks":      "<span color='#a7c080'><b>W{}</b></span>",
+                "weekdays":   "<span color='#7fbbb3'><b>{}</b></span>",
+                "today":      "<span color='#dbbc7f'><b><u>{}</u></b></span>"
+            }
+        },
+        "actions": {
+            "on-click-right": "mode",
+            "on-click-forward": "tz_up",
+            "on-click-backward": "tz_down",
+            "on-scroll-up": "shift_up",
+            "on-scroll-down": "shift_down"
+        }
     },
 
     "cpu": {
@@ -36,76 +126,66 @@
     },
 
     "memory": {
-            "interval": 5,
-            "format": "  {used:0.1f}G/{total:0.1f}G",
-            "states": {
-                    "warning": 70,
-                    "critical": 90
-            },
-            "tooltip": false
-    },
-
-    "network": {
-            "interval": 5,
-            "format-wifi": " ",
-            "format-ethernet": "󰈀 {ifname}",
-            "format-disconnected": "󱘖",
-            "format-alt": " {essid} {signalStrength}%",
-            "tooltip": false
-    },
-
-    "hyprland/window": {
-            "format": "{}",
-            "max-length": 50,
-            "tooltip": false,
-            "separate-outputs": true
-
-    },
-
-    "hyprland/workspaces": {
-            "disable-scroll-wraparound": true,
-            "smooth-scrolling-threshold": 4,
-            "enable-bar-scroll": true,
-            "format": "{name}"
-    },
-
-    "pulseaudio": {
-            "format": "{icon}",
-            "format-bluetooth": "{icon}",
-            "format-muted": " ",
-            "format-icons": {
-                    "default": [" ", " "]
-            },
-            "scroll-step": 1,
-            "on-click": "pavucontrol",
-            "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-            "tooltip": false
+        "format": "󰍛 {}%",
+        "interval": 1,
+        "on-click": ""
     },
 
     "temperature": {
-            "thermal-zone": 2,
-            "critical-threshold": 90,
-            "interval": 5,
-            "format": "{icon} {temperatureC}°",
-            "format-icons": [
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-            ],
-            "tooltip": false
+        "critical-threshold": 80,
+        "format": "{icon} {temperatureC}°C",
+        "format-icons": ["󱃃", "󰔏", "󱃂"],
+        "on-click": ""
     },
 
-    "tray": {
-            "icon-size": 18,
-            "spacing": 5
+    "battery": {
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
+        "format-alt": "{icon} {time}",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     },
 
-    "custom/capslock": {
-            "exec": "~/.config/hypr/scripts/capslock.sh",
-            "interval": 1,
-            "format": "{}",
-            "tooltip": false
-    }
+    "network": {
+        "format-wifi": "󰖩 {essid} ({signalStrength}%)",
+        "format-ethernet": "󰈀 {ifname}",
+        "format-linked": "󰈀 {ifname} (No IP)",
+        "format-disconnected": "󰖪 Disconnected",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}",
+        "tooltip-format": "{ifname}: {ipaddr}",
+        "on-click": "kitty -e nmtui"
+    },
+
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "󰂰 {volume}%",
+        "format-bluetooth-muted": "󰂲 {icon}",
+        "format-muted": "󰝟",
+        "format-icons": {
+            "headphone": "󰋋",
+            "hands-free": "󰥰",
+            "headset": "󰋎",
+            "phone": "󰏲",
+            "portable": "󰄝",
+            "car": "󰄋",
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "on-click": "pavucontrol",
+        "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+        "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +2%",
+        "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -2%"
+    },
+
+
+    "disk": {
+        "interval": 30,
+        "format": "󰋊 {percentage_used}%",
+        "path": "/",
+        "on-click": "kitty -e gdu /"
+    },
 }

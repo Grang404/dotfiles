@@ -19,3 +19,16 @@
 #F591B2
 #CAC9DD
 
+
+
+## Groobichno Color Theme
+
+#C669B1
+#DE77C6
+#89426B
+#582542
+#7145CA
+#160821
+
+
+

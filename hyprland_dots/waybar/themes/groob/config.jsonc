@@ -1,0 +1,111 @@
+{
+    "layer": "top",
+    "position": "top", 
+    "spacing": 4,
+
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": ["hyprland/window"],
+    "modules-right": [
+            "custom/capslock",
+            "tray",
+            "memory",
+            "cpu",
+            "temperature",
+            "pulseaudio",
+            "network",
+            "clock#time"
+    ],
+
+    // Modules
+    "clock#time": {
+            "interval": 10,
+            "format": "{:%H:%M}",
+            "tooltip": false,
+            "on-click": "kitty -e sh -c 'cal -3; read'"
+    },
+
+    "cpu": {
+            "interval": 5,
+            "tooltip": false,
+            "format": "  {usage}%",
+            "format-alt": " {load}",
+            "states": {
+                    "warning": 70,
+                    "critical": 90
+            }
+    },
+
+    "memory": {
+            "interval": 5,
+            "format": "  {used:0.1f}G/{total:0.1f}G",
+            "states": {
+                    "warning": 70,
+                    "critical": 90
+            },
+            "tooltip": false
+    },
+
+    "network": {
+            "interval": 5,
+            "format-wifi": " ",
+            "format-ethernet": "󰈀 {ifname}",
+            "format-disconnected": "󱘖",
+            "format-alt": " {essid} {signalStrength}%",
+            "tooltip": false
+    },
+
+    "hyprland/window": {
+            "format": "{}",
+            "max-length": 50,
+            "tooltip": false,
+            "separate-outputs": true
+
+    },
+
+    "hyprland/workspaces": {
+            "disable-scroll-wraparound": true,
+            "smooth-scrolling-threshold": 4,
+            "enable-bar-scroll": true,
+            "format": "{name}"
+    },
+
+    "pulseaudio": {
+            "format": "{icon}",
+            "format-bluetooth": "{icon}",
+            "format-muted": " ",
+            "format-icons": {
+                    "default": [" ", " "]
+            },
+            "scroll-step": 1,
+            "on-click": "pavucontrol",
+            "on-click-right": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+            "tooltip": false
+    },
+
+    "temperature": {
+            "thermal-zone": 2,
+            "critical-threshold": 90,
+            "interval": 5,
+            "format": "{icon} {temperatureC}°",
+            "format-icons": [
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""
+            ],
+            "tooltip": false
+    },
+
+    "tray": {
+            "icon-size": 18,
+            "spacing": 5
+    },
+
+    "custom/capslock": {
+            "exec": "~/.config/hypr/scripts/capslock.sh",
+            "interval": 1,
+            "format": "{}",
+            "tooltip": false
+    }
+}
