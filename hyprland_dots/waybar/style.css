@@ -1,44 +1,34 @@
 @define-color background #0c0a0a;
 @define-color background-light #28151c;
-@define-color foreground #bea3ab;
-@define-color black #15161e;
-@define-color red #e78284;
-@define-color green #90b99f;
+@define-color foreground #c1c0d4;
+@define-color black #1b0e13;
+@define-color red #a72449;
+@define-color green #8daa91;
 @define-color yellow #e6b99d;
 @define-color blue #aca1cf;
-@define-color magenta #873c56;
-@define-color cyan #ea83a5;
-@define-color white #c1c0d4;
-@define-color orange #ffa3b1;
-
-@define-color clock-color @magenta;
-@define-color cpu-color @green;
-@define-color memory-color @magenta;
-@define-color temperature-color @yellow;
-@define-color temperature-critical-color @red;
-@define-color battery-color @cyan;
-@define-color battery-charging-color @green;
-@define-color battery-warning-color @yellow;
-@define-color battery-critical-color @red;
-@define-color network-color @blue;
-@define-color network-disconnected-color @red;
-@define-color pulseaudio-color @orange;
-@define-color pulseaudio-muted-color @red;
-@define-color backlight-color @yellow;
-@define-color disk-color @cyan;
-@define-color uptime-color @green;
-@define-color updates-color @orange;
-@define-color quote-color @green;
-@define-color idle-inhibitor-color @foreground;
-@define-color idle-inhibitor-active-color @red;
+@define-color magenta #6b384b;
+@define-color cyan #873c56;
+@define-color white #4e494d;
 
 * {
   border: none;
   border-radius: 0;
-  font-family: "JetBrainsMono Nerd Font Mono";
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
   min-height: 0;
+}
+
+.modules-left {
+  font-family: "Sleep Token Runes", monospace;
+  font-weight: bold;
+}
+
+.modules-center {
+  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
+}
+
+.modules-right {
+  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
 }
 
 window#waybar {
@@ -46,110 +36,158 @@ window#waybar {
   color: @foreground;
 }
 
-#clock,
-#cpu,
-#memory,
-#temperature,
-#battery,
-#network,
-#pulseaudio {
-  padding: 0 10px;
-  margin: 0 2px;
-  border-bottom: 2px solid transparent;
-  background-color: transparent;
-}
-
 #workspaces button {
-  padding: 0 10px;
+  font-family: "Sleep Token Runes", mono;
+  padding: 0 5px;
+  border-top: 1px solid transparent;
   background-color: transparent;
-  color: @workspaces-color;
+  color: @foreground;
   margin: 0;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-top 0.2s ease;
 }
 
 #workspaces button:hover {
   background: @background-light;
-  box-shadow: inherit;
 }
 
 #workspaces button.focused {
-  box-shadow: inset 0 -2px @workspaces-focused-fg;
   color: @workspaces-focused-fg;
-  font-weight: 900;
 }
 
 #workspaces button.active {
-  box-shadow: inset 0 -2px @workspaces-focused-fg;
+  border-top: 1px solid @magenta;
+  background-color: rgba(30, 30, 30, 0.8);
   color: @magenta;
-  font-weight: 900;
 }
 
 #workspaces button.urgent {
-  background-color: @workspaces-urgent-bg;
-  color: @workspaces-urgent-fg;
+  background-color: @red;
+  color: @white;
+}
+
+#custom-separator {
+  color: alpha(@white, 0.4);
+}
+
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#temperature,
+#cpu,
+#memory {
+  color: @foreground;
+  padding: 0 5px 0 5px;
+  margin: 0 0px;
+  background-color: transparent;
+}
+
+#custom-capslock {
+  font-size: 20px;
+  background-color: alpha(@red, 0.4);
+  padding: 0 7px 0 6px;
+}
+
+#clock:hover,
+#network:hover,
+#pulseaudio:hover,
+#battery:hover,
+#cpu:hover {
+  color: @blue;
 }
 
 #clock {
-  color: @clock-color;
-  border-bottom-color: @clock-color;
+  margin-right: 3px;
+  color: @foreground;
+}
+
+#network {
+  color: @foreground;
+}
+
+#network.disconnected {
+  color: @red;
+}
+
+#pulseaudio {
+  font-size: 20px;
+}
+
+#pulseaudio.muted {
+  color: @red;
 }
 
 #cpu {
-  color: @cpu-color;
-  border-bottom-color: @cpu-color;
+  color: @green;
 }
 
-#memory {
-  color: @memory-color;
-  border-bottom-color: @memory-color;
+#cpu.warning {
+  color: @yellow;
+}
+
+#cpu.critical {
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 #temperature {
-  color: @temperature-color;
-  border-bottom-color: @temperature-color;
+  color: @green;
 }
 
 #temperature.critical {
-  color: @temperature-critical-color;
-  border-bottom-color: @temperature-critical-color;
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
-#battery {
-  color: @battery-color;
-  border-bottom-color: @battery-color;
+#memory {
+  color: @green;
+}
+
+#memory.warning {
+  color: @yellow;
+}
+
+#memory.critical {
+  color: @red;
 }
 
 #battery.charging,
 #battery.plugged {
-  color: @battery-charging-color;
-  border-bottom-color: @battery-charging-color;
+  color: @green;
 }
 
 #battery.warning:not(.charging) {
-  color: @battery-warning-color;
-  border-bottom-color: @battery-warning-color;
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 #battery.critical:not(.charging) {
-  color: @battery-critical-color;
-  border-bottom-color: @battery-critical-color;
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
-#network {
-  color: @network-color;
-  border-bottom-color: @network-color;
-}
-
-#network.disconnected {
-  color: @network-disconnected-color;
-  border-bottom-color: @network-disconnected-color;
-}
-
-#pulseaudio {
-  color: @pulseaudio-color;
-  border-bottom-color: @pulseaudio-color;
-}
-
-#pulseaudio.muted {
-  color: @pulseaudio-muted-color;
-  border-bottom-color: @pulseaudio-muted-color;
+@keyframes blink-red {
+  to {
+    background-color: @red;
+    color: @background;
+  }
 }

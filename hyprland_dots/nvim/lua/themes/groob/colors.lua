@@ -2,27 +2,31 @@ local M = {}
 
 M.dark = {
 	-- Basic
+
 	bg = "#0c0a0a",
 	fg = "#c1c0d4",
 	bg_dark = "#131314",
+
 	-- Normal
-	black = "#28151c",
-	red = "#e78284",
-	green = "#657b73",
+	black = "#1b0e13",
+	red = "#ea83a5",
+	green = "#8daa91",
 	yellow = "#e6b99d",
 	blue = "#aca1cf",
-	magenta = "#873c56",
-	cyan = "#6c394b",
-	white = "#c1c0d4",
+	magenta = "#6b384b",
+	cyan = "#873c56",
+	white = "#B7B6CD",
+
 	-- Bright
-	bright_black = "#353539",
-	bright_red = "#ea999c",
-	bright_green = "#9dc6ac",
+	bright_black = "#28151c",
+	bright_red = "#ea83a5",
+	bright_green = "#a1baa4",
 	bright_yellow = "#f0c5a9",
 	bright_blue = "#b9aeda",
-	bright_magenta = "#ecaad6",
-	bright_cyan = "#f591b2",
-	bright_white = "#cfcede",
+	bright_magenta = "#6c394b",
+	bright_cyan = "#b96482",
+	bright_white = "#CFCEDE",
+
 	-- Grays
 	gray00 = "#18181a",
 	gray01 = "#1b1b1d",
