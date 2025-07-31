@@ -1,0 +1,238 @@
+{
+  "layer": "top",
+  "position": "left",
+  "width": 46,
+  "margin": "5 2 5 0",
+  "reload_style_on_change": true,
+
+  "modules-left": [
+    "hyprland/workspaces",
+    "group/info"
+  ],
+
+  "modules-center": ["hyprland/window"],
+
+  "modules-right": [
+    "tray",
+    "privacy",
+    "group/audio",
+    "bluetooth",
+    "network",
+    "custom/taskmanager",
+    "custom/power",
+    "clock"
+  ],
+
+  "hyprland/window": {
+    "format": "{}",
+    "max-length": 50,
+    "tooltip": false,
+    "rotate": 90,
+    "justify": "center",
+    // "icon":true,
+    "separate-outputs": true
+
+  },
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "on-click": "activate",
+    "all-outputs": true,
+    // "format-icons": {
+    //   "1": "一",
+    //   "2": "二",
+    //   "3": "三",
+    //   "4": "四",
+    //   "5": "五",
+    //   "6": "六",
+    //   "7": "七",
+    //   "8": "八",
+    //   "9": "九",
+    //   "10": "十"
+    // }
+    "format-icons": {
+      "1": "A",
+      "2": "B",
+      "3": "C",
+      "4": "D",
+      "5": "E",
+      "6": "F",
+      "7": "G",
+      "8": "H",
+      "9": "I",
+      "10": "J"
+    }
+  },
+  "group/info": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 800,
+      "transition-left-to-right": false
+    },
+    "modules": [
+      "custom/dmark",
+      "custom/cpu-icon",
+      "cpu",
+      "custom/memory-icon",
+      "memory",
+      "custom/disk-icon",
+      "disk"
+    ]
+  },
+  "custom/dmark": {
+    "format": "",
+    "tooltip": false
+  },
+  "custom/cpu-icon": {
+    "format": "",
+    "tooltip": false
+  },
+  "cpu": {
+    "interval": 5,
+    "tooltip": false,
+    "format": "{usage}󱉸",
+      "states": {
+          "warning": 70,
+          "critical": 90
+    }
+  },
+
+  "custom/memory-icon": {
+    "format": "",
+    "tooltip": false
+  },
+  "memory": {
+    "format": "{:2}󱉸",
+    "tooltip": true,
+    "tooltip-format": "{used:0.1f}G/{total:0.1f}G"
+  },
+  "custom/disk-icon": {
+    "format": "󰋊",
+    "tooltip": false
+  },
+  "disk": {
+    "interval": 600,
+    "format": "{percentage_used}󱉸",
+    "path": "/"
+  },
+
+
+  "privacy": {
+    "orientation": "vertical",
+    "icon-spacing": 4,
+    "icon-size": 14,
+    "transition-duration": 250,
+    "modules": [
+      {
+        "type": "screenshare",
+        "tooltip": true,
+        "tooltip-icon-size": 24
+      }
+    ]
+  },
+  "group/audio": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 500,
+      "transition-left-to-right": false
+    },
+    "modules": [
+      "pulseaudio",
+      // "pulseaudio#mic",
+      "pulseaudio/slider"
+    ]
+  },
+  "tray": {
+    "icon-size": 18,
+    "spacing": 10
+  },
+  "pulseaudio": {
+    "format": "{icon}",
+    "format-bluetooth": "{icon}",
+    "tooltip-format": "{volume}% {icon} | {desc}",
+    "format-muted": "󰖁",
+    "format-icons": {
+      "default": [
+        "󰕿",
+        "󰖀",
+        "󰕾"
+      ]
+    },
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-middle": "pavucontrol",
+    "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+    "smooth-scrolling-threshold": 1
+  },
+  "pulseaudio#mic": {
+    "format": "{format_source}",
+    "format-source": "",
+    "format-source-muted": "",
+    "tooltip-format": "{volume}% {source_desc} ",
+    "on-click": "pactl set-source-mute 0 toggle",
+    // "on-scroll-down": "pactl set-source-volume 0 -1%",
+    // "on-scroll-up": "pactl set-source-volume 0 +1%"
+  },
+  "pulseaudio/slider": {
+    "min": 0,
+    "max": 140,
+    "orientation": "vertical"
+  },
+  "network": {
+    "format": "{icon}",
+    "format-icons": {
+      "wifi": [
+        "󰤨"
+      ],
+      "ethernet": [
+        "󰈀"
+      ],
+      "disconnected": [
+        "󰖪"
+      ]
+    },
+    "format-wifi": "󰤨",
+    "format-ethernet": "󰈀",
+    "format-disconnected": "󱘖",
+    "format-linked": "󰈁",
+    "tooltip": true,
+    "tooltip-format": "{ifname}",
+    "on-click": "nm-connection-editor"
+  },
+  "bluetooth": {
+    "format-on": "",
+    "format-off": "󰂲",
+    "format-disabled": "",
+    "format-connected": "<b></b>",
+    "tooltip-format": "Devices: {num_connections} connected",
+    "tooltip-format-connected": "Devices: {num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_battery_percentage}%",
+    "on-click": "blueman-manager"
+  },
+
+  "custom/taskmanager": {
+    "format": "",
+    "tooltip": false,
+    "on-click":"GTK_THEME=Adwaita:dark gnome-system-monitor"
+
+  },
+
+  "clock": {
+    "format": "{:%H\n%M}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+  "calendar": {
+    "mode": "month",
+    "format": {
+      "today": "<span foreground='#873c56'><b>{}</b></span>",
+      "weekdays": "<span foreground='#999999'><i>{}</i></span>",
+    }
+  }
+  },
+
+  "custom/power": {
+    "format": "⏻",
+    "tooltip": false,
+    "on-click": "~/.config/rofi/scripts/power.sh"
+  },
+}

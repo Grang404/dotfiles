@@ -87,9 +87,6 @@ EOF
     echo -e "$NC"
 }
 
-mpg123 -q --scale 1500 doom.mp3 &
-MUSIC_PID=$!
-
 display_startup() {
     print_border "$CYAN" 0.005
     echo
@@ -100,8 +97,7 @@ display_startup() {
 }
 
 cleanup() {
-
-    kill $MUSIC_PID 2>/dev/null
+    pass
 }
 
 display_startup
@@ -110,6 +106,3 @@ trap cleanup EXIT
 trap cleanup SIGINT
 trap cleanup SIGTERM
 trap cleanup SIGHUP
-
-sleep 200
-kill $MUSIC_PID 2>/dev/null
