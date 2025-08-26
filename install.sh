@@ -346,28 +346,12 @@ enable_services() {
 		# "fstrim.timer"
 	)
 
-	local user_services=(
-		"pipewire.service"
-		"pipewire-pulse.service"
-		"wireplumber.service"
-	)
-
 	for service in "${system_services[@]}"; do
 		print_msg "Enabling $service..."
 		if systemctl enable --now "$service"; then
 			print_success "Successfully enabled $service!"
 		else
 			print_error "Failed to enable $service"
-			return 1
-		fi
-	done
-
-	for service in "${user_services[@]}"; do
-		print_msg "Enabling user $service..."
-		if sudo -u "$SUDO_USER" systemctl --user enable --now "$service"; then
-			print_success "Successfully enabled $service!"
-		else
-			print_error "Failed to enable user $service"
 			return 1
 		fi
 	done
@@ -414,7 +398,6 @@ install_zsh_plugins() {
 		print_msg "powerlevel10k already exists, skipping..."
 	fi
 
-	# Set proper ownership
 	chown -R "$SUDO_USER:$SUDO_USER" "$ZSH_CONFIG_DIR"
 
 	print_success "ZSH plugins and theme installed successfully"
@@ -440,9 +423,9 @@ move_dotfiles() {
 
 	for item in "$dots_dir"/*; do
 		if [ -e "$item" ]; then
-			local item_name=$(basename "$item")
+			local item_name
+			item_name=$(basename "$item")
 
-			# Handle zsh files
 			if [[ "$item_name" == "zshrc" ]]; then
 				cp "$item" "$USER_HOME/.zshrc" || return 1
 				chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
@@ -457,7 +440,6 @@ move_dotfiles() {
 				continue
 			fi
 
-			# Handle config files
 			if [ -d "$item" ]; then
 				cp -r "$item" "$config_dir/" || return 1
 			else
