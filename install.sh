@@ -57,7 +57,7 @@ handle_error() {
 		rollback_installation
 	fi
 
-	exit $exit_code
+	exit "$exit_code"
 }
 
 handle_interrupt() {
@@ -72,7 +72,6 @@ handle_interrupt() {
 }
 
 final_cleanup() {
-	# Only do maintenance cleanup, not rollback
 	cleanup_temp_files
 	cleanup_package_manager
 
@@ -86,12 +85,10 @@ final_cleanup() {
 cleanup_temp_files() {
 	print_msg "Cleaning up temporary files..."
 
-	# Remove paru build directory
 	if [ -d "/tmp/paru" ]; then
 		rm -rf /tmp/paru
 	fi
 
-	# Clean any other temp directories we might have created
 	if [ -d "/tmp/install_script_temp" ]; then
 		rm -rf /tmp/install_script_temp
 	fi
@@ -100,17 +97,14 @@ cleanup_temp_files() {
 cleanup_package_manager() {
 	print_msg "Cleaning package manager state..."
 
-	# Clean package cache
 	pacman -Sc --noconfirm >/dev/null 2>&1 || true
 
-	# Kill any hanging package manager processes
 	if pgrep -x "pacman" >/dev/null; then
 		print_msg "Killing hanging pacman processes..."
 		pkill -x pacman || true
 		sleep 2
 	fi
 
-	# Remove pacman lock if it exists
 	if [ -f "/var/lib/pacman/db.lck" ]; then
 		print_msg "Removing pacman lock file..."
 		rm -f /var/lib/pacman/db.lck
@@ -187,12 +181,10 @@ rollback_packages() {
 rollback_installation() {
 	print_error "Rolling back installation due to failure..."
 
-	# Restore dotfiles/configs first
 	if [[ "$DOTFILES_MOVED" == true ]]; then
 		restore_backups
 	fi
 
-	# Disable services
 	rollback_services
 
 	# Note: We generally DON'T rollback packages unless specifically requested
@@ -209,7 +201,7 @@ rollback_installation() {
 # Check if script is run as root
 if [ "$EUID" -ne 0 ]; then
 	print_error "Please run as sudo."
-	exit 1
+	false
 fi
 
 # Check if SUDO_USER is set
@@ -650,9 +642,9 @@ main() {
 	# install_gpu_driver "$gpu_choice" || return 1
 
 	safe_install_packages || return 1
-	install_paru || return 1
-	install_paru_packages || return 1
-	safe_enable_services || return 1
+	# install_paru || return 1
+	# install_paru_packages || return 1
+	# safe_enable_services || return 1
 	safe_move_dotfiles || return 1
 	install_zsh_plugins || return 1
 
