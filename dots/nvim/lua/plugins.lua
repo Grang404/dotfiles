@@ -89,13 +89,21 @@ require("lazy").setup({
 			},
 		},
 	},
-	{
-		"MeanderingProgrammer/render-markdown.nvim",
-		dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" }, -- if you use the mini.nvim suite
-		---@module 'render-markdown'
-		---@type render.md.UserConfig
-		opts = {},
-	},
+{
+  "MeanderingProgrammer/render-markdown.nvim",
+  dependencies = {
+    "nvim-treesitter/nvim-treesitter",
+    "echasnovski/mini.nvim",
+  },
+  ---@module 'render-markdown'
+  ---@type render.md.UserConfig
+  opts = {
+    heading = {
+      icons = { "", "", "", "", "", "" },
+      signs = { "" },
+    },
+  },
+},
 
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
@@ -789,6 +797,7 @@ require("lazy").setup({
 				"c",
 				"diff",
 				"html",
+				"htmldjango",
 				"lua",
 				"luadoc",
 				"markdown",
@@ -816,19 +825,6 @@ require("lazy").setup({
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
-
-	-- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
-	-- init.lua. If you want these files, they are in the repository, so you can just download them and
-	-- place them in the correct locations.
-
-	--  Here are some example plugins that I've included in the Kickstart repository.
-	--  Uncomment any of the lines below to enable them (you will need to restart nvim).
-	--
-	-- require 'kickstart.plugins.debug',
-	-- require 'kickstart.plugins.indent_line',
-	-- require 'kickstart.plugins.lint',
-	-- require 'kickstart.plugins.autopairs',
-	-- require 'kickstart.plugins.neo-tree',
 }, {
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the

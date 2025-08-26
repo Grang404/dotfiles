@@ -9,7 +9,7 @@
 
     "modules-center": ["hyprland/window"],
 
-    "modules-right": ["custom/capslock", "memory", "custom/separator", "cpu", "custom/separator", "temperature","custom/separator", "pulseaudio","custom/separator", "network","custom/separator", "clock"],
+    "modules-right": ["custom/capslock", "custom/vpn", "memory", "custom/separator", "cpu", "custom/separator", "temperature","custom/separator", "pulseaudio","custom/separator", "network","custom/separator", "clock"],
 
   "hyprland/window": {
     "format": "{}",
@@ -23,19 +23,19 @@
     "hyprland/workspaces": {
         "disable-scroll": true,
         "all-outputs": true,
-        "format": "{icon}",
-        "format-icons": {
-          "1": "B",
-          "2": "C",
-          "3": "D",
-          "4": "F",
-          "5": "G",
-          "6": "H",
-          "7": "I",
-          "8": "J",
-          "9": "S",
-          "10": "T"
-        }
+        // "format": "{icon}",
+        // "format-icons": {
+        //   "1": "一",
+        //   "2": "二",
+        //   "3": "三",
+        //   "4": "四",
+        //   "5": "五",
+        //   "6": "六",
+        //   "7": "七",
+        //   "8": "八",
+        //   "9": "九",
+        //   "10": "十"
+        // }
     },
 
     "custom/separator": {
@@ -73,6 +73,13 @@
         "format-linked": "󰈀 {ifname} (No IP)",
         "format-disconnected": "󰖪",
         "format-alt": "{ipaddr}/{cidr}",
+        "tooltip": false
+    },
+
+    "custom/vpn": {
+        "exec": "~/.config/waybar/scripts/vpn.sh",
+        "interval": 5,
+        "return-type": "json",
         "tooltip": false
     },
 

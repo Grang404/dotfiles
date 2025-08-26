@@ -11,6 +11,7 @@
 @define-color white #4e494d;
 
 * {
+  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
   border: none;
   border-radius: 0;
   font-weight: bold;
@@ -18,18 +19,14 @@
   min-height: 0;
 }
 
-.modules-left {
-  font-family: "Sleep Token Runes", monospace;
-  font-weight: bold;
-}
-
-.modules-center {
-  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
-}
-
-.modules-right {
-  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
-}
+/* .modules-left { */
+/* } */
+/**/
+/* .modules-center { */
+/* } */
+/**/
+/* .modules-right { */
+/* } */
 
 window#waybar {
   background-color: rgba(12, 10, 10, 0.8);
@@ -37,7 +34,6 @@ window#waybar {
 }
 
 #workspaces button {
-  font-family: "Sleep Token Runes", mono;
   padding: 0 5px;
   border-top: 1px solid transparent;
   background-color: transparent;
@@ -85,6 +81,12 @@ window#waybar {
   background-color: transparent;
 }
 
+#custom-vpn {
+  color: @cyan;
+  padding: 0 10px 0 5px;
+  margin: 0 0px;
+  background-color: transparent;
+}
 #custom-capslock {
   font-size: 20px;
   background-color: alpha(@red, 0.4);
