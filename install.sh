@@ -15,7 +15,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 # Global variables to track installation state
 INSTALLATION_SUCCESSFUL=false
 INSTALLATION_STARTED=false
-BACKUPS_CREATED=false
 PACKAGES_INSTALLED=false
 SERVICES_ENABLED=false
 DOTFILES_MOVED=false
@@ -223,28 +222,28 @@ show_banner() {
 	echo -e "$RED"
 	cat <<'EOF'
                                                                 
- @@@@@@@@  @@@@@@@    @@@@@@    @@@@@@   @@@@@@@                
-@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@               
-!@@        @@!  @@@  @@!  @@@  @@!  @@@  @@!  @@@               
-!@!        !@!  @!@  !@!  @!@  !@!  @!@  !@   @!@               
-!@! @!@!@  @!@!!@!   @!@  !@!  @!@  !@!  @!@!@!@                
-!!! !!@!!  !!@!@!    !@!  !!!  !@!  !!!  !!!@!!!!               
-:!!   !!:  !!: :!!   !!:  !!!  !!:  !!!  !!:  !!!               
-:!:   !::  :!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!               
- ::: ::::  ::   :::  ::::: ::  ::::: ::   :: ::::               
- :: :: :    :   : :   : :  :    : :  :   :: : ::                
-                                                                
-                                                                
-@@@  @@@  @@@   @@@@@@   @@@@@@@   @@@@@@   @@@       @@@       
-@@@  @@@@ @@@  @@@@@@@   @@@@@@@  @@@@@@@@  @@@       @@@       
-@@!  @@!@!@@@  !@@         @@!    @@!  @@@  @@!       @@!       
-!@!  !@!!@!@!  !@!         !@!    !@!  @!@  !@!       !@!       
-!!@  @!@ !!@!  !!@@!!      @!!    @!@!@!@!  @!!       @!!       
-!!!  !@!  !!!   !!@!!!     !!!    !!!@!!!!  !!!       !!!       
-!!:  !!:  !!!       !:!    !!:    !!:  !!!  !!:       !!:       
-:!:  :!:  !:!      !:!     :!:    :!:  !:!   :!:       :!:      
- ::   ::   ::  :::: ::      ::    ::   :::   :: ::::   :: ::::  
-:    ::    :   :: : :       :      :   : :  : :: : :  : :: : :  
+	 @@@@@@@@  @@@@@@@    @@@@@@    @@@@@@   @@@@@@@                
+	@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@               
+	!@@        @@!  @@@  @@!  @@@  @@!  @@@  @@!  @@@               
+	!@!        !@!  @!@  !@!  @!@  !@!  @!@  !@   @!@               
+	!@! @!@!@  @!@!!@!   @!@  !@!  @!@  !@!  @!@!@!@                
+	!!! !!@!!  !!@!@!    !@!  !!!  !@!  !!!  !!!@!!!!               
+	:!!   !!:  !!: :!!   !!:  !!!  !!:  !!!  !!:  !!!               
+	:!:   !::  :!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!               
+	 ::: ::::  ::   :::  ::::: ::  ::::: ::   :: ::::               
+	 :: :: :    :   : :   : :  :    : :  :   :: : ::                
+									
+									
+	@@@  @@@  @@@   @@@@@@   @@@@@@@   @@@@@@   @@@       @@@       
+	@@@  @@@@ @@@  @@@@@@@   @@@@@@@  @@@@@@@@  @@@       @@@       
+	@@!  @@!@!@@@  !@@         @@!    @@!  @@@  @@!       @@!       
+	!@!  !@!!@!@!  !@!         !@!    !@!  @!@  !@!       !@!       
+	!!@  @!@ !!@!  !!@@!!      @!!    @!@!@!@!  @!!       @!!       
+	!!!  !@!  !!!   !!@!!!     !!!    !!!@!!!!  !!!       !!!       
+	!!:  !!:  !!!       !:!    !!:    !!:  !!!  !!:       !!:       
+	:!:  :!:  !:!      !:!     :!:    :!:  !:!   :!:       :!:      
+	 ::   ::   ::  :::: ::      ::    ::   :::   :: ::::   :: ::::  
+	:    ::    :   :: : :       :      :   : :  : :: : :  : :: : :  
 EOF
 	echo -e "$NC"
 	echo
@@ -285,7 +284,7 @@ enable_multilib() {
 	print_success "Multilib enabled successfully"
 }
 
-safe_install_packages() {
+install_packages() {
 	print_msg "Installing base packages..."
 	INSTALLATION_STARTED=true
 
@@ -322,7 +321,6 @@ safe_install_packages() {
 		cronie lm_sensors
 	)
 
-	# Install each group with individual error handling
 	for group_name in "core" "system" "desktop" "application" "font" "utility"; do
 		local -n current_group="${group_name}_packages"
 
@@ -338,104 +336,6 @@ safe_install_packages() {
 	done
 
 	PACKAGES_INSTALLED=true
-}
-
-install_driver() {
-	print_msg "Installing $1..."
-	if pacman -S --noconfirm --needed "$1"; then
-		INSTALLED_PACKAGES+=("$1")
-		print_success "Successfully installed $1"
-	else
-		print_error "Failed to install $1"
-		return 1
-	fi
-}
-
-install_vm_driver() {
-	if grep -q 'QEMU' /sys/class/dmi/id/product_name 2>/dev/null; then
-		print_msg "QEMU VM detected, installing virtio video driver..."
-		install_driver xf86-video-virtio || return 1
-		return 0
-	fi
-	return 1
-}
-
-detect_gpu() {
-	lspci | grep -Ei 'vga|3d' | head -n1 | grep -oEi 'nvidia|amd|advanced micro devices|intel' | tr '[:upper:]' '[:lower:]'
-}
-
-map_gpu_to_choice() {
-	case "$1" in
-	nvidia) echo 1 ;;
-	amd | advanced\ micro\ devices) echo 2 ;;
-	intel) echo 3 ;;
-	*) echo "" ;;
-	esac
-}
-
-manual_choice() {
-	echo "Please select your GPU driver to install:"
-	echo "1) nvidia"
-	echo "2) amd"
-	echo "3) intel"
-	read -rp "Enter choice [1-3]: " choice
-	echo "$choice"
-}
-
-choose_gpu_driver() {
-	local detected_gpu detected_choice choice confirm
-
-	detected_gpu=$(detect_gpu)
-	detected_choice=$(map_gpu_to_choice "$detected_gpu")
-
-	if [[ -n "$detected_choice" ]]; then
-		print_msg "Detected GPU vendor: $detected_gpu"
-		read -rp "Use detected GPU driver? [Y/n]: " confirm
-		if [[ "$confirm" =~ ^[Nn]$ ]]; then
-			choice=$(manual_choice)
-		else
-			choice=$detected_choice
-		fi
-	else
-		print_msg "Could not auto-detect GPU."
-		choice=$(manual_choice)
-	fi
-
-	echo "$choice"
-}
-
-install_gpu_driver() {
-	if install_vm_driver; then
-		return 0
-	fi
-
-	local choice=$1
-
-	case $choice in
-	1)
-		install_driver linux-headers || return 1
-		install_driver dkms || return 1
-		install_driver nvidia-dkms || return 1
-		install_driver nvidia-settings || return 1
-		install_driver lib32-nvidia-utils || return 1
-		;;
-	2)
-		install_driver linux-headers || return 1
-		install_driver xf86-video-amdgpu || return 1
-		install_driver lib32-mesa || return 1
-		install_driver lib32-vulkan-radeon || return 1
-		;;
-	3)
-		install_driver linux-headers || return 1
-		install_driver xf86-video-intel || return 1
-		install_driver lib32-mesa || return 1
-		install_driver lib32-vulkan-intel || return 1
-		;;
-	*)
-		print_error "Invalid GPU choice: $choice"
-		return 1
-		;;
-	esac
 }
 
 install_paru() {
@@ -462,8 +362,7 @@ install_paru() {
 install_paru_packages() {
 	print_msg "Installing paru packages..."
 	local paru_packages=(
-		qdirstat
-		nvibrant-bin
+		# nvibrant-bin TEST: READD THIS FOR MAINSCRIPTO OR POP OUT FOR MULTIPLE CONFIGS
 		noisetorch
 	)
 
@@ -480,16 +379,16 @@ install_paru_packages() {
 	print_success "Successfully installed all paru packages!"
 }
 
-safe_enable_services() {
+enable_services() {
 	print_msg "Enabling system services..."
 
 	local system_services=(
 		"NetworkManager"
 		"ly.service"
 		"cronie.service"
-		"lm_sensors.service"
-		"bluetooth.service"
-		"fstrim.timer"
+		# "lm_sensors.service" TEST:
+		# "bluetooth.service"
+		# "fstrim.timer"
 	)
 
 	local user_services=(
@@ -498,7 +397,6 @@ safe_enable_services() {
 		"wireplumber.service"
 	)
 
-	# Enable system services one by one
 	for service in "${system_services[@]}"; do
 		print_msg "Enabling $service..."
 		if systemctl enable --now "$service"; then
@@ -509,7 +407,6 @@ safe_enable_services() {
 		fi
 	done
 
-	# Enable user services
 	for service in "${user_services[@]}"; do
 		print_msg "Enabling user $service..."
 		if sudo -u "$SUDO_USER" systemctl --user enable --now "$service"; then
@@ -521,7 +418,7 @@ safe_enable_services() {
 	done
 
 	SERVICES_ENABLED=true
-	print_success "Services enabled successfully"
+	print_success "Services enabled successfully!"
 }
 
 install_zsh_plugins() {
@@ -543,7 +440,6 @@ install_zsh_plugins() {
 		print_msg "zsh-autosuggestions already exists, skipping..."
 	fi
 
-	# Install zsh-syntax-highlighting
 	if [ ! -d "$PLUGINS_DIR/zsh-syntax-highlighting" ]; then
 		git clone https://github.com/zsh-users/zsh-syntax-highlighting "$PLUGINS_DIR/zsh-syntax-highlighting" || {
 			print_error "Failed to install zsh-syntax-highlighting"
@@ -554,7 +450,6 @@ install_zsh_plugins() {
 		print_msg "zsh-syntax-highlighting already exists, skipping..."
 	fi
 
-	# Install powerlevel10k theme
 	if [ ! -d "$THEMES_DIR/powerlevel10k" ]; then
 		git clone --depth=1 https://github.com/romkatv/powerlevel10k "$THEMES_DIR/powerlevel10k" || {
 			print_error "Failed to install powerlevel10k"
@@ -571,7 +466,7 @@ install_zsh_plugins() {
 	print_success "ZSH plugins and theme installed successfully"
 }
 
-safe_move_dotfiles() {
+move_dotfiles() {
 	print_msg "Moving config files..."
 
 	local config_dir="$USER_HOME/.config"
@@ -586,8 +481,6 @@ safe_move_dotfiles() {
 	create_backup "$config_dir" ".backup" || return 1
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
-
-	BACKUPS_CREATED=true
 
 	# Now proceed with moves
 	mkdir -p "$config_dir"
@@ -637,15 +530,11 @@ main() {
 	update_system || return 1
 	enable_multilib || return 1
 
-	# local gpu_choice
-	# gpu_choice=$(choose_gpu_driver)
-	# install_gpu_driver "$gpu_choice" || return 1
-
-	safe_install_packages || return 1
-	# install_paru || return 1
-	# install_paru_packages || return 1
-	# safe_enable_services || return 1
-	safe_move_dotfiles || return 1
+	install_packages || return 1
+	install_paru || return 1
+	install_paru_packages || return 1
+	enable_services || return 1
+	move_dotfiles || return 1
 	install_zsh_plugins || return 1
 
 	# Mark installation as successful
