@@ -1,14 +1,8 @@
 #!/bin/bash
 
-# TODO: ignore install.sh and README.md
-# TODO: Add input for resolution and display drivers maybe?
-# TODO: Error handling for failed mid way
-# TODO: Fix polkit (use hyprpol?)
-# TODO: Error handling for service enables
+# TODO: Add input for resolution and monitors
+# TODO: Error handling (particularly if anything fails mid way)
 # TODO: Ensure the permissions are not broad
-# TODO: Check for disk space
-# TODO: ADD MULTILIB
-# TODO: Syncthing?
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -21,6 +15,11 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+
+trap cleanup EXIT
+trap cleanup SIGINT
+trap cleanup SIGTERM
+trap cleanup SIGHUP
 
 LOG_FILE="$SCRIPT_DIR/install_script.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -49,6 +48,53 @@ if [ -z "$SUDO_USER" ]; then
 	exit 1
 fi
 
+show_banner() {
+	clear
+
+	# Print top border
+	echo -e "$CYAN"
+	printf '%.0s═' {1..80}
+	echo -e "$NC"
+	echo
+
+	# Print ASCII art
+	echo -e "$RED"
+	cat <<'EOF'
+                                                                
+ @@@@@@@@  @@@@@@@    @@@@@@    @@@@@@   @@@@@@@                
+@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@               
+!@@        @@!  @@@  @@!  @@@  @@!  @@@  @@!  @@@               
+!@!        !@!  @!@  !@!  @!@  !@!  @!@  !@   @!@               
+!@! @!@!@  @!@!!@!   @!@  !@!  @!@  !@!  @!@!@!@                
+!!! !!@!!  !!@!@!    !@!  !!!  !@!  !!!  !!!@!!!!               
+:!!   !!:  !!: :!!   !!:  !!!  !!:  !!!  !!:  !!!               
+:!:   !::  :!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!               
+ ::: ::::  ::   :::  ::::: ::  ::::: ::   :: ::::               
+ :: :: :    :   : :   : :  :    : :  :   :: : ::                
+                                                                
+                                                                
+@@@  @@@  @@@   @@@@@@   @@@@@@@   @@@@@@   @@@       @@@       
+@@@  @@@@ @@@  @@@@@@@   @@@@@@@  @@@@@@@@  @@@       @@@       
+@@!  @@!@!@@@  !@@         @@!    @@!  @@@  @@!       @@!       
+!@!  !@!!@!@!  !@!         !@!    !@!  @!@  !@!       !@!       
+!!@  @!@ !!@!  !!@@!!      @!!    @!@!@!@!  @!!       @!!       
+!!!  !@!  !!!   !!@!!!     !!!    !!!@!!!!  !!!       !!!       
+!!:  !!:  !!!       !:!    !!:    !!:  !!!  !!:       !!:       
+:!:  :!:  !:!      !:!     :!:    :!:  !:!   :!:       :!:      
+ ::   ::   ::  :::: ::      ::    ::   :::   :: ::::   :: ::::  
+:    ::    :   :: : :       :      :   : :  : :: : :  : :: : :  
+EOF
+	echo -e "$NC"
+	echo
+
+	# Print bottom border
+	echo -e "$CYAN"
+	printf '%.0s═' {1..80}
+	echo -e "$NC"
+	echo
+	echo
+}
+
 USER_HOME=$(eval echo ~"$SUDO_USER")
 
 update_system() {
@@ -57,6 +103,24 @@ update_system() {
 		print_error "Failed to update system."
 		exit 1
 	}
+}
+
+enable_multilib() {
+	print_msg "Enabling multilib repository..."
+
+	if grep -q "^\[multilib\]" /etc/pacman.conf; then
+		print_msg "Multilib already enabled, skipping..."
+		return 0
+	fi
+
+	sed -i '/^\#\[multilib\]/,/^\#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
+
+	pacman -Sy --noconfirm || {
+		print_error "Failed to update package database after enabling multilib"
+		exit 1
+	}
+
+	print_success "Multilib enabled successfully"
 }
 
 install_packages() {
@@ -218,14 +282,19 @@ install_gpu_driver() {
 		install_driver dkms
 		install_driver nvidia-dkms
 		install_driver nvidia-settings
+		install_driver lib32-nvidia-utils
 		;;
 	2)
 		install_driver linux-headers
 		install_driver xf86-video-amdgpu
+		install_driver lib32-mesa
+		install_driver lib32-vulkan-radeon
 		;;
 	3)
 		install_driver linux-headers
 		install_driver xf86-video-intel
+		install_driver lib32-mesa
+		install_driver lib32-vulkan-intel
 		;;
 	*)
 		print_error "Invalid GPU choice: $choice"
@@ -269,11 +338,19 @@ install_paru_packages() {
 }
 
 enable_services() {
-	print_msg "Enabling services..."
-	systemctl enable --now NetworkManager ly.service cronie.service lm_sensors.service || {
-		print_error "Failed to enable services"
+	print_msg "Enabling system services..."
+	systemctl enable --now NetworkManager ly.service cronie.service lm_sensors.service bluetooth.service fstrim.timer || {
+		print_error "Failed to enable system services"
 		exit 1
 	}
+
+	print_msg "Enabling user services..."
+	sudo -u "$SUDO_USER" systemctl --user enable --now pipewire.service pipewire-pulse.service wireplumber.service || {
+		print_error "Failed to enable user services"
+		exit 1
+	}
+
+	print_success "Services enabled successfully"
 }
 
 move_dotfiles() {
@@ -282,7 +359,7 @@ move_dotfiles() {
 
 	mkdir -p "$CONFIG_DIR"
 
-	dirs_to_move_to_config=("hypr" "waybar" "kitty" "btop" "nvim" "../dotfiles.sh" "gtk-2.0" "gtk-3.0" "gtk-4.0" "oh-my-zsh" "fastfetch" "rofi")
+	dirs_to_move_to_config=("hypr" "waybar" "kitty" "btop" "nvim" "gtk-2.0" "gtk-3.0" "gtk-4.0" "fastfetch" "rofi")
 
 	for dir in "${dirs_to_move_to_config[@]}"; do
 		SOURCE_PATH="$SCRIPT_DIR/$dir"
@@ -319,13 +396,14 @@ cleanup() {
 }
 
 main() {
+	show_banner
+	sleep 2
 	print_msg "Starting installation..."
 	update_system
-
+	enable_multilib
 	local gpu_choice
 	gpu_choice=$(choose_gpu_driver)
 	install_gpu_driver "$gpu_choice"
-
 	install_packages
 	install_paru
 	install_paru_packages
@@ -334,6 +412,7 @@ main() {
 	install_extras
 	move_zsh_config
 	cleanup
+
 	print_success "Installation completed!"
 	print_msg "Please reboot your system"
 }
