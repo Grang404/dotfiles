@@ -363,9 +363,21 @@ move_dotfiles() {
 		return 1
 	fi
 
+	# Backup existing .config directory
 	if [ -d "$CONFIG_DIR" ]; then
-		print_msg "Backing up existing config..."
+		print_msg "Backing up existing ~/.config..."
 		cp -r "$CONFIG_DIR" "$USER_HOME/.config.backup"
+	fi
+
+	# Backup existing zsh files
+	if [ -f "$USER_HOME/.zshrc" ]; then
+		print_msg "Backing up existing .zshrc..."
+		cp "$USER_HOME/.zshrc" "$USER_HOME/.zshrc.backup"
+	fi
+
+	if [ -f "$USER_HOME/.p10k.zsh" ]; then
+		print_msg "Backing up existing .p10k.zsh..."
+		cp "$USER_HOME/.p10k.zsh" "$USER_HOME/.p10k.zsh.backup"
 	fi
 
 	mkdir -p "$CONFIG_DIR"
@@ -374,6 +386,28 @@ move_dotfiles() {
 		if [ -e "$item" ]; then
 			item_name=$(basename "$item")
 
+			# Handle zsh files separately
+			if [[ "$item_name" == "zshrc" ]]; then
+				cp "$item" "$USER_HOME/.zshrc" || {
+					print_error "Failed to copy .zshrc"
+					return 1
+				}
+				chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
+				print_success "Moved zshrc to $USER_HOME/.zshrc"
+				continue
+			fi
+
+			if [[ "$item_name" == "p10k.zsh" ]]; then
+				cp "$item" "$USER_HOME/.p10k.zsh" || {
+					print_error "Failed to copy .p10k.zsh"
+					return 1
+				}
+				chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
+				print_success "Moved p10k.zsh to $USER_HOME/.p10k.zsh"
+				continue
+			fi
+
+			# Handle regular config files
 			if [ -d "$item" ]; then
 				cp -r "$item" "$CONFIG_DIR/" || {
 					print_error "Failed to copy $item_name"
@@ -392,19 +426,6 @@ move_dotfiles() {
 
 	print_msg "Previous ~/.config moved to ~/.config.backup"
 	print_success "Dotfiles moved successfully"
-}
-
-move_zsh_config() {
-	for dotfile in ".zshrc" ".p10k.zsh"; do
-		SOURCE_PATH="$SCRIPT_DIR/$dotfile"
-		if [ -f "$SOURCE_PATH" ]; then
-			cp "$SOURCE_PATH" "$USER_HOME/"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/$dotfile"
-			echo "Moved $dotfile to $USER_HOME"
-		else
-			print_error "$dotfile not found in $SCRIPT_DIR, skipping..."
-		fi
-	done
 }
 
 cleanup() {
@@ -459,7 +480,6 @@ main() {
 	enable_services
 	move_dotfiles
 	install_extras
-	move_zsh_config
 
 	print_success "Installation completed!"
 	print_msg "Please reboot your system"

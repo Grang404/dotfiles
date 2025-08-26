@@ -1,27 +1,73 @@
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
-ZSH_CUSTOM=$HOME/.config/oh-my-zsh/
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
-source $ZSH/oh-my-zsh.sh
+# Load powerlevel10k theme
+source ~/.config/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
 
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='nvim'
-fi
+# Load zsh plugins
+source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
+# Load custom syntax highlighting styles (MUST come after zsh-syntax-highlighting)
+source ~/.config/zsh/highlight_styles.zsh
+
+# Basic zsh options
+setopt AUTO_CD              # cd by typing directory name if it's not a command
+setopt CORRECT              # auto correct mistakes
+setopt INTERACTIVECOMMENTS  # allow comments in interactive mode
+setopt MAGICEQUALSUBST      # enable filename expansion for arguments of the form 'anything=expression'
+setopt NONOMATCH            # hide error message if there is no match for the pattern
+setopt NUMERICGLOBSORT      # sort filenames numerically when it makes sense
+setopt PROMPTSUBST          # enable command substitution in prompt
+
+# History settings
+HISTFILE=~/.zhistory
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_EXPIRE_DUPS_FIRST    # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_IGNORE_DUPS          # ignore duplicated commands history list
+setopt HIST_IGNORE_SPACE         # ignore commands that start with space
+setopt HIST_VERIFY               # show command with history expansion to user before running it
+setopt INC_APPEND_HISTORY        # add commands to HISTFILE in order of execution
+setopt SHARE_HISTORY             # share command history data
+
+# Enable and configure completions
+autoload -Uz compinit
+compinit
+
+# Completion styling - more explicit approach
+zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# Force completion colors to match ls exactly
+zstyle ':completion:*:*:*:*:*' list-colors ${(s.:.)LS_COLORS}
+
+# Enhanced LS_COLORS - includes executable files (ex=01;32 makes them green)
+export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=1;34;40:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31"
+
+# Update completion colors after LS_COLORS is set
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# Environment variables
 export EDITOR='nvim'
-export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:/us:$HOME/.local/bin"
-
-# Compilation flags
+export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:$HOME/.local/bin"
 export ARCHFLAGS="-arch $(uname -m)"
+# Enhanced LS_COLORS - includes executable files (ex=01;32 makes them green)
+export MEDIA="/media/alice/MEDIA/media_server"
 
-# Set autosuggestion color
-source ~/.config/oh-my-zsh/.zsh_highlight_styles
 
+export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=1;34;40:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31"
+
+# Autosuggestion settings
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+# Aliases
 alias v='nvim'
 alias todo='nvim ~/Documents/tasks.md'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
@@ -30,15 +76,19 @@ alias scratch='nvim /tmp/scratch.md'
 alias hg='history | grep'
 alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
 
+# Enable colors for ls commands
+alias ls='ls --color=auto'
+alias ll='ls -alF --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+
+# Add empty line before each prompt
 precmd() {
     print ""
-
 }
+
+# Initialize zoxide
+eval "$(zoxide init zsh)"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-export LS_COLORS="ow=1;34;40:di=34"
-export MEDIA="/media/alice/MEDIA/media_server"
-
-eval "$(zoxide init zsh)"
