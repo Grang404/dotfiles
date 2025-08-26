@@ -356,25 +356,42 @@ enable_services() {
 move_dotfiles() {
 	print_msg "Moving config files..."
 	CONFIG_DIR="$USER_HOME/.config"
+	DOTS_DIR="$SCRIPT_DIR/dots"
+
+	if [ ! -d "$DOTS_DIR" ]; then
+		print_error "dots directory not found: $DOTS_DIR"
+		return 1
+	fi
+
+	if [ -d "$CONFIG_DIR" ]; then
+		print_msg "Backing up existing config..."
+		cp -r "$CONFIG_DIR" "$USER_HOME/.config.backup"
+	fi
 
 	mkdir -p "$CONFIG_DIR"
 
-	dirs_to_move_to_config=("hypr" "waybar" "kitty" "btop" "nvim" "gtk-2.0" "gtk-3.0" "gtk-4.0" "fastfetch" "rofi")
+	for item in "$DOTS_DIR"/*; do
+		if [ -e "$item" ]; then
+			item_name=$(basename "$item")
 
-	for dir in "${dirs_to_move_to_config[@]}"; do
-		SOURCE_PATH="$SCRIPT_DIR/$dir"
-		if [ -e "$SOURCE_PATH" ]; then
-			if [ -d "$SOURCE_PATH" ]; then
-				cp -r "$SOURCE_PATH" "$CONFIG_DIR/"
+			if [ -d "$item" ]; then
+				cp -r "$item" "$CONFIG_DIR/" || {
+					print_error "Failed to copy $item_name"
+					return 1
+				}
 			else
-				cp "$SOURCE_PATH" "$CONFIG_DIR/"
+				cp "$item" "$CONFIG_DIR/" || {
+					print_error "Failed to copy $item_name"
+					return 1
+				}
 			fi
-			chown -R "$SUDO_USER:$SUDO_USER" "$CONFIG_DIR/$dir"
-			echo "Moved $dir to $CONFIG_DIR"
-		else
-			print_error "$dir not found in $SCRIPT_DIR, skipping..."
+			chown -R "$SUDO_USER:$SUDO_USER" "$CONFIG_DIR/$item_name"
+			echo "Moved $item_name to $CONFIG_DIR"
 		fi
 	done
+
+	print_msg "Previous ~/.config moved to ~/.config.backup"
+	print_success "Dotfiles moved successfully"
 }
 
 move_zsh_config() {
@@ -391,8 +408,40 @@ move_zsh_config() {
 }
 
 cleanup() {
-	print_msg "Cleaning up temporary files..."
-	rm -rf /tmp/paru
+	print_msg "Cleaning up..."
+
+	if [ -d "/tmp/paru" ]; then
+		print_msg "Removing paru build directory..."
+		rm -rf /tmp/paru
+	fi
+
+	if [ -d "$USER_HOME/.config.backup" ]; then
+		print_msg "Found backup config, restoring..."
+		rm -rf "$USER_HOME/.config"
+		mv "$USER_HOME/.config.backup" "$USER_HOME/.config"
+		chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config"
+	fi
+
+	# Clean up any partial package installations
+	print_msg "Cleaning package cache..."
+	pacman -Sc --noconfirm >/dev/null 2>&1
+
+	# Kill any hanging package manager processes
+	if pgrep -x "pacman" >/dev/null; then
+		print_msg "Killing hanging pacman processes..."
+		pkill -x pacman
+	fi
+
+	# Remove pacman lock if it exists
+	if [ -f "/var/lib/pacman/db.lck" ]; then
+		print_msg "Removing pacman lock file..."
+		rm -f /var/lib/pacman/db.lck
+	fi
+
+	# Reset to original directory
+	cd "$SCRIPT_DIR" 2>/dev/null || true
+
+	print_msg "Cleanup completed"
 }
 
 main() {
@@ -411,7 +460,6 @@ main() {
 	move_dotfiles
 	install_extras
 	move_zsh_config
-	cleanup
 
 	print_success "Installation completed!"
 	print_msg "Please reboot your system"
