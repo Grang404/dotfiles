@@ -645,9 +645,9 @@ main() {
 	update_system || return 1
 	enable_multilib || return 1
 
-	local gpu_choice
-	gpu_choice=$(choose_gpu_driver)
-	install_gpu_driver "$gpu_choice" || return 1
+	# local gpu_choice
+	# gpu_choice=$(choose_gpu_driver)
+	# install_gpu_driver "$gpu_choice" || return 1
 
 	safe_install_packages || return 1
 	install_paru || return 1
