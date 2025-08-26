@@ -15,17 +15,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 # Global variables to track installation state
 INSTALLATION_SUCCESSFUL=false
 INSTALLATION_STARTED=false
-PACKAGES_INSTALLED=false
-SERVICES_ENABLED=false
 DOTFILES_MOVED=false
 
-# Arrays to track what we've done for selective rollback
-INSTALLED_PACKAGES=()
-ENABLED_SERVICES=()
 BACKUP_LOCATIONS=()
 
-# Set error handling
-set -eE # Exit on error and inherit ERR trap in functions
+set -eE
 trap 'handle_error $? $LINENO' ERR
 trap 'final_cleanup' EXIT
 trap 'handle_interrupt' INT TERM
@@ -146,37 +140,6 @@ restore_backups() {
 	done
 }
 
-rollback_services() {
-	if [[ "$SERVICES_ENABLED" == true ]]; then
-		print_msg "Disabling services..."
-
-		for service in "${ENABLED_SERVICES[@]}"; do
-			print_msg "Disabling $service..."
-			if [[ "$service" == *"--user"* ]]; then
-				# User service - extract actual service name
-				local service_name=${service#*--user }
-				sudo -u "$SUDO_USER" systemctl --user disable --now "$service_name" 2>/dev/null || true
-			else
-				# System service
-				systemctl disable --now "$service" 2>/dev/null || true
-			fi
-		done
-	fi
-}
-
-rollback_packages() {
-	if [[ "$PACKAGES_INSTALLED" == true ]] && [[ ${#INSTALLED_PACKAGES[@]} -gt 0 ]]; then
-		print_msg "Removing installed packages..."
-
-		# Remove packages in reverse order
-		for ((i = ${#INSTALLED_PACKAGES[@]} - 1; i >= 0; i--)); do
-			local package="${INSTALLED_PACKAGES[$i]}"
-			print_msg "Removing $package..."
-			pacman -Rns --noconfirm "$package" 2>/dev/null || true
-		done
-	fi
-}
-
 rollback_installation() {
 	print_error "Rolling back installation due to failure..."
 
@@ -184,10 +147,6 @@ rollback_installation() {
 		restore_backups
 	fi
 
-	rollback_services
-
-	# Note: We generally DON'T rollback packages unless specifically requested
-	# because partial package removal can break the system worse than leaving them
 	print_msg "Packages left installed (removing them could cause issues)"
 	print_msg "If you want to remove packages, run: pacman -Rns [package_names]"
 
@@ -197,13 +156,11 @@ rollback_installation() {
 	print_error "Rollback completed"
 }
 
-# Check if script is run as root
 if [ "$EUID" -ne 0 ]; then
 	print_error "Please run as sudo."
 	false
 fi
 
-# Check if SUDO_USER is set
 if [ -z "$SUDO_USER" ]; then
 	print_error "SUDO_USER is not set. Run the script using 'sudo -E'."
 	exit 1
@@ -222,28 +179,28 @@ show_banner() {
 	echo -e "$RED"
 	cat <<'EOF'
                                                                 
-	 @@@@@@@@  @@@@@@@    @@@@@@    @@@@@@   @@@@@@@                
-	@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@               
-	!@@        @@!  @@@  @@!  @@@  @@!  @@@  @@!  @@@               
-	!@!        !@!  @!@  !@!  @!@  !@!  @!@  !@   @!@               
-	!@! @!@!@  @!@!!@!   @!@  !@!  @!@  !@!  @!@!@!@                
-	!!! !!@!!  !!@!@!    !@!  !!!  !@!  !!!  !!!@!!!!               
-	:!!   !!:  !!: :!!   !!:  !!!  !!:  !!!  !!:  !!!               
-	:!:   !::  :!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!               
-	 ::: ::::  ::   :::  ::::: ::  ::::: ::   :: ::::               
-	 :: :: :    :   : :   : :  :    : :  :   :: : ::                
-									
-									
-	@@@  @@@  @@@   @@@@@@   @@@@@@@   @@@@@@   @@@       @@@       
-	@@@  @@@@ @@@  @@@@@@@   @@@@@@@  @@@@@@@@  @@@       @@@       
-	@@!  @@!@!@@@  !@@         @@!    @@!  @@@  @@!       @@!       
-	!@!  !@!!@!@!  !@!         !@!    !@!  @!@  !@!       !@!       
-	!!@  @!@ !!@!  !!@@!!      @!!    @!@!@!@!  @!!       @!!       
-	!!!  !@!  !!!   !!@!!!     !!!    !!!@!!!!  !!!       !!!       
-	!!:  !!:  !!!       !:!    !!:    !!:  !!!  !!:       !!:       
-	:!:  :!:  !:!      !:!     :!:    :!:  !:!   :!:       :!:      
-	 ::   ::   ::  :::: ::      ::    ::   :::   :: ::::   :: ::::  
-	:    ::    :   :: : :       :      :   : :  : :: : :  : :: : :  
+		 @@@@@@@@  @@@@@@@    @@@@@@    @@@@@@   @@@@@@@                
+		@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@               
+		!@@        @@!  @@@  @@!  @@@  @@!  @@@  @@!  @@@               
+		!@!        !@!  @!@  !@!  @!@  !@!  @!@  !@   @!@               
+		!@! @!@!@  @!@!!@!   @!@  !@!  @!@  !@!  @!@!@!@                
+		!!! !!@!!  !!@!@!    !@!  !!!  !@!  !!!  !!!@!!!!               
+		:!!   !!:  !!: :!!   !!:  !!!  !!:  !!!  !!:  !!!               
+		:!:   !::  :!:  !:!  :!:  !:!  :!:  !:!  :!:  !:!               
+		 ::: ::::  ::   :::  ::::: ::  ::::: ::   :: ::::               
+		 :: :: :    :   : :   : :  :    : :  :   :: : ::                
+										
+										
+		@@@  @@@  @@@   @@@@@@   @@@@@@@   @@@@@@   @@@       @@@       
+		@@@  @@@@ @@@  @@@@@@@   @@@@@@@  @@@@@@@@  @@@       @@@       
+		@@!  @@!@!@@@  !@@         @@!    @@!  @@@  @@!       @@!       
+		!@!  !@!!@!@!  !@!         !@!    !@!  @!@  !@!       !@!       
+		!!@  @!@ !!@!  !!@@!!      @!!    @!@!@!@!  @!!       @!!       
+		!!!  !@!  !!!   !!@!!!     !!!    !!!@!!!!  !!!       !!!       
+		!!:  !!:  !!!       !:!    !!:    !!:  !!!  !!:       !!:       
+		:!:  :!:  !:!      !:!     :!:    :!:  !:!   :!:       :!:      
+		 ::   ::   ::  :::: ::      ::    ::   :::   :: ::::   :: ::::  
+		:    ::    :   :: : :       :      :   : :  : :: : :  : :: : :  
 EOF
 	echo -e "$NC"
 	echo
@@ -327,7 +284,6 @@ install_packages() {
 		print_msg "Installing $group_name packages..."
 
 		if pacman -S --needed --noconfirm "${current_group[@]}"; then
-			INSTALLED_PACKAGES+=("${current_group[@]}")
 			print_success "Successfully installed $group_name packages"
 		else
 			print_error "Failed to install $group_name packages"
@@ -335,7 +291,6 @@ install_packages() {
 		fi
 	done
 
-	PACKAGES_INSTALLED=true
 }
 
 install_paru() {
@@ -400,7 +355,7 @@ enable_services() {
 	for service in "${system_services[@]}"; do
 		print_msg "Enabling $service..."
 		if systemctl enable --now "$service"; then
-			ENABLED_SERVICES+=("$service")
+			print_success "Successfully enabled $service!"
 		else
 			print_error "Failed to enable $service"
 			return 1
@@ -410,14 +365,13 @@ enable_services() {
 	for service in "${user_services[@]}"; do
 		print_msg "Enabling user $service..."
 		if sudo -u "$SUDO_USER" systemctl --user enable --now "$service"; then
-			ENABLED_SERVICES+=("--user $service")
+			print_success "Successfully enabled $service!"
 		else
 			print_error "Failed to enable user $service"
 			return 1
 		fi
 	done
 
-	SERVICES_ENABLED=true
 	print_success "Services enabled successfully!"
 }
 
@@ -482,7 +436,6 @@ move_dotfiles() {
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
 
-	# Now proceed with moves
 	mkdir -p "$config_dir"
 
 	for item in "$dots_dir"/*; do
@@ -529,7 +482,6 @@ main() {
 	# Each function should return 1 on failure, 0 on success
 	update_system || return 1
 	enable_multilib || return 1
-
 	install_packages || return 1
 	install_paru || return 1
 	install_paru_packages || return 1
@@ -537,7 +489,6 @@ main() {
 	move_dotfiles || return 1
 	install_zsh_plugins || return 1
 
-	# Mark installation as successful
 	INSTALLATION_SUCCESSFUL=true
 
 	print_success "Installation completed successfully!"
