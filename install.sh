@@ -398,11 +398,11 @@ choose_gpu_driver() {
 
 	if [[ -n "$detected_choice" ]]; then
 		print_msg "Detected GPU vendor: $detected_gpu"
-		read -rp "Is this correct? [y/N]: " confirm
-		if [[ "$confirm" =~ ^[Yy]$ ]]; then
-			choice=$detected_choice
-		else
+		read -rp "Use detected GPU driver? [Y/n]: " confirm
+		if [[ "$confirm" =~ ^[Nn]$ ]]; then
 			choice=$(manual_choice)
+		else
+			choice=$detected_choice
 		fi
 	else
 		print_msg "Could not auto-detect GPU."
