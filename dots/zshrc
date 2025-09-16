@@ -67,6 +67,17 @@ export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 # Autosuggestion settings
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
+# Key bindings for word movement and editing
+bindkey "^[[1;5C" forward-word      # Ctrl+Right arrow
+bindkey "^[[1;5D" backward-word     # Ctrl+Left arrow
+bindkey "^[[3~" delete-char         # Delete key
+bindkey "^[[H" beginning-of-line    # Home key
+bindkey "^[[F" end-of-line          # End key
+bindkey "^[[1;3C" forward-word      # Alt+Right arrow
+bindkey "^[[1;3D" backward-word     # Alt+Left arrow
+bindkey "^H" backward-kill-word     # Ctrl+Backspace
+bindkey "^[[3;5~" kill-word         # Ctrl+Delete
+
 # Aliases
 alias v='nvim'
 alias todo='nvim ~/Documents/tasks.md'
@@ -78,7 +89,7 @@ alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/Vencor
 
 # Enable colors for ls commands
 alias ls='ls --color=auto'
-alias ll='ls -alF --color=auto'
+alias ll='ls -lF --color=auto'
 alias la='ls -A --color=auto'
 alias l='ls -CF --color=auto'
 
