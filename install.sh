@@ -317,8 +317,9 @@ install_paru() {
 install_paru_packages() {
 	print_msg "Installing paru packages..."
 	local paru_packages=(
-		# nvibrant-bin TEST: READD THIS FOR MAINSCRIPTO OR POP OUT FOR MULTIPLE CONFIGS
-		noisetorch
+		TODO: RE-ADD THIS FOR MAINSCRIPT OR POP OUT FOR MULTIPLE CONFIGS
+		# nvibrant-bin
+		# noisetorch
 	)
 
 	for package in "${paru_packages[@]}"; do
