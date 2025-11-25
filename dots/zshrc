@@ -1,3 +1,16 @@
+# History settings
+HISTFILE=~/.zhistory
+HISTSIZE=50000
+SAVEHIST=50000
+LISTMAX=0
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST    # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_IGNORE_DUPS          # ignore duplicated commands history list
+setopt HIST_IGNORE_SPACE         # ignore commands that start with space
+setopt HIST_VERIFY               # show command with history expansion to user before running it
+setopt INC_APPEND_HISTORY        # add commands to HISTFILE in order of execution
+setopt SHARE_HISTORY             # share command history data
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -68,6 +81,48 @@ export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 # Key bindings for word movement and editing
+bindkey -v
+export KEYTIMEOUT=1
+
+# ===== FIX BACKSPACE/DELETE IN INSERT MODE =====
+bindkey -v '^?' backward-delete-char
+bindkey -v '^H' backward-delete-char
+bindkey -v '^W' backward-kill-word
+bindkey -v '^U' backward-kill-line
+bindkey -v '^[[3~' delete-char
+
+# ===== FIX YANK/PASTE WITH WAYLAND =====
+function vi-yank-wl {
+    zle vi-yank
+    echo -n "$CUTBUFFER" | wl-copy
+}
+zle -N vi-yank-wl
+bindkey -M vicmd 'y' vi-yank-wl
+
+function vi-put-wl {
+    CUTBUFFER=$(wl-paste)
+    zle vi-put-after
+}
+zle -N vi-put-wl
+bindkey -M vicmd 'p' vi-put-wl
+
+# Capital Y to yank whole line to clipboard
+function vi-yank-whole-line-wl {
+    echo -n "$BUFFER" | wl-copy
+}
+zle -N vi-yank-whole-line-wl
+bindkey -M vicmd 'Y' vi-yank-whole-line-wl
+
+# ===== VISUAL MODE INDICATOR =====
+function zle-line-init zle-keymap-select {
+    case ${KEYMAP} in
+        vicmd)      print -n '\e[1 q';; # Block cursor
+        viins|main) print -n '\e[5 q';; # Beam cursor
+    esac
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+
 bindkey "^[[1;5C" forward-word      # Ctrl+Right arrow
 bindkey "^[[1;5D" backward-word     # Ctrl+Left arrow
 bindkey "^[[3~" delete-char         # Delete key
@@ -84,7 +139,7 @@ alias todo='nvim ~/Documents/tasks.md'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
 alias vpn='~/VPN/vpn.py'
 alias scratch='nvim /tmp/scratch.md'
-alias hg='history | grep'
+alias hg='history 1 | grep'
 alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
 
 # Enable colors for ls commands
