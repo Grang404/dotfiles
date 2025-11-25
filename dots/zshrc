@@ -109,7 +109,7 @@ function vi-yank-whole-line-wl {
 zle -N vi-yank-whole-line-wl
 bindkey -M vicmd 'Y' vi-yank-whole-line-wl
 
-# ===== VISUAL MODE INDICATOR =====
+# Visual mode indicator
 function zle-line-init zle-keymap-select {
     case ${KEYMAP} in
         vicmd)      print -n '\e[1 q';; # Block cursor
@@ -137,6 +137,7 @@ alias vpn='~/VPN/vpn.py'
 alias scratch='nvim /tmp/scratch.md'
 alias hg='history 1 | grep'
 alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
+alias sdn='shutdown now'
 
 # Enable colors for ls commands
 alias ls='ls --color=auto'
@@ -147,8 +148,6 @@ alias l='ls -CF --color=auto'
 mkcd() {
   mkdir -p "$1" && cd "$1"
 }
-
-
 
 # Add empty line before each prompt
 precmd() {
