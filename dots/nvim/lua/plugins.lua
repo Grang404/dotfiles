@@ -89,21 +89,21 @@ require("lazy").setup({
 			},
 		},
 	},
-{
-  "MeanderingProgrammer/render-markdown.nvim",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter",
-    "echasnovski/mini.nvim",
-  },
-  ---@module 'render-markdown'
-  ---@type render.md.UserConfig
-  opts = {
-    heading = {
-      icons = { "", "", "", "", "", "" },
-      signs = { "" },
-    },
-  },
-},
+	{
+		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"echasnovski/mini.nvim",
+		},
+		---@module 'render-markdown'
+		---@type render.md.UserConfig
+		opts = {
+			heading = {
+				icons = { "", "", "", "", "", "" },
+				signs = { "" },
+			},
+		},
+	},
 
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
@@ -209,32 +209,51 @@ require("lazy").setup({
 			end, { desc = "[F]ind [N]eovim files" })
 		end,
 	},
-
 	{
-		"norcalli/nvim-colorizer.lua",
+		"brenoprata10/nvim-highlight-colors",
 		config = function()
-			require("colorizer").setup({
-				"*", -- Highlight all files
-				css = { rgb_fn = true }, -- Enable parsing rgb(...) functions in css.
-				html = { names = false }, -- Disable parsing "names" like Blue or Gray in html.
-			})
+			require("nvim-highlight-colors").setup({})
 
 			local function toggle_colorizer()
 				if vim.g.colorizer_enabled then
-					require("colorizer").detach_from_buffer()
+					vim.cmd("HighlightColors Off")
 					vim.g.colorizer_enabled = false
 					print("Colorizer disabled")
 				else
-					require("colorizer").attach_to_buffer()
+					vim.cmd("HighlightColors On")
 					vim.g.colorizer_enabled = true
 					print("Colorizer enabled")
 				end
 			end
 
-			-- Set the keymap to toggle colorizer
 			vim.keymap.set("n", "<leader>tc", toggle_colorizer, { desc = "Toggle colorizer" })
 		end,
 	},
+	-- {
+	-- 	"norcalli/nvim-colorizer.lua",
+	-- 	config = function()
+	-- 		require("colorizer").setup({
+	-- 			"*", -- Highlight all files
+	-- 			css = { rgb_fn = true }, -- Enable parsing rgb(...) functions in css.
+	-- 			html = { names = false }, -- Disable parsing "names" like Blue or Gray in html.
+	-- 		})
+	--
+	-- 		local function toggle_colorizer()
+	-- 			if vim.g.colorizer_enabled then
+	-- 				require("colorizer").detach_from_buffer()
+	-- 				vim.g.colorizer_enabled = false
+	-- 				print("Colorizer disabled")
+	-- 			else
+	-- 				require("colorizer").attach_to_buffer()
+	-- 				vim.g.colorizer_enabled = true
+	-- 				print("Colorizer enabled")
+	-- 			end
+	-- 		end
+	--
+	-- 		-- Set the keymap to toggle colorizer
+	-- 		vim.keymap.set("n", "<leader>tc", toggle_colorizer, { desc = "Toggle colorizer" })
+	-- 	end,
+	-- },
 
 	{
 		-- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
