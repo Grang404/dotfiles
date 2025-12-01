@@ -140,10 +140,17 @@ alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/Vencor
 alias sdn='shutdown now'
 
 # Enable colors for ls commands
-alias ls='ls --color=auto'
-alias ll='ls -lF --color=auto'
-alias la='ls -A --color=auto'
-alias l='ls -CF --color=auto'
+
+# alias ls='ls --color=auto'
+# alias ll='ls -lF --color=auto'
+# alias la='ls -A --color=auto'
+# alias l='ls -CF --color=auto'
+
+
+alias ls='eza'
+alias ll='eza -lF'
+alias la='eza -A'
+alias l='eza -CF'
 
 mkcd() {
   mkdir -p "$1" && cd "$1"
