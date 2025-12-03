@@ -1,4 +1,3 @@
-vim.opt.runtimepath:append(vim.fn.stdpath("config") .. "/lua/themes/groob/colors")
 require("themes.groob").colorscheme()
 
 -- Function to set global transparency and UI elements
