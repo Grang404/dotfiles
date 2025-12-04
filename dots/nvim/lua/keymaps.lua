@@ -1,16 +1,8 @@
--- ============================================================================
--- GENERAL KEYMAPS
--- ============================================================================
-
--- Clear highlights on search when pressing <Esc> in normal mode
+-- Clear highlights on search when pressing <Esc> in normal modekey
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
--- ============================================================================
--- WINDOW MANAGEMENT
--- ============================================================================
-
 -- Vertical split
-vim.keymap.set("n", "<leader>vs", ":vsplit<CR>", { desc = "Open vertical split" })
+vim.keymap.set("n", "<leader>sv", ":vsplit<CR>", { desc = "[V]ertical split" })
 
 -- Window navigation
 vim.keymap.set("n", "<A-j>", "<C-w><C-h>", { desc = "Move focus to the left window" })
@@ -20,22 +12,14 @@ vim.keymap.set("n", "<A-l>", "<C-w><C-k>", { desc = "Move focus to the upper win
 
 -- Close buffer and return to directory
 vim.keymap.set("n", "<leader>wq", ":bd<CR>:e .<CR>", { desc = "Quit to directory list" })
-
--- ============================================================================
--- TERMINAL
--- ============================================================================
-
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
--- ============================================================================
--- DIAGNOSTICS
--- ============================================================================
-
+-- Diagnostics
 vim.keymap.set("n", "<leader>cq", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
--- ============================================================================
--- TELESCOPE (set in setup_telescope_keymaps function)
--- ============================================================================
+-- Buffer navigation
+vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "[B]uffer [N]ext" })
+vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "[B]uffer [P]revious" })
 
 function setup_telescope_keymaps()
 	local builtin = require("telescope.builtin")
@@ -48,8 +32,8 @@ function setup_telescope_keymaps()
 	vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "[F]ind by [G]rep" })
 	vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[F]ind [D]iagnostics" })
 	vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[F]ind [R]esume" })
-	vim.keymap.set("n", "<leader>f.", builtin.oldfiles, { desc = '[F]ind Recent Files ("." for repeat)' })
-	vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+	vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "[F]ind existing [B]uffers" })
+	vim.keymap.set("n", "<leader>fo", builtin.buffers, { desc = "[F]ind [O]ld Files" })
 
 	-- Fuzzy search in current buffer
 	vim.keymap.set("n", "<leader>/", function()
@@ -73,9 +57,7 @@ function setup_telescope_keymaps()
 	end, { desc = "[F]ind [N]eovim files" })
 end
 
--- ============================================================================
 -- COLORIZER
--- ============================================================================
 
 function setup_colorizer_keymaps()
 	local function toggle_colorizer()
@@ -90,12 +72,10 @@ function setup_colorizer_keymaps()
 		end
 	end
 
-	vim.keymap.set("n", "<leader>tc", toggle_colorizer, { desc = "Toggle colorizer" })
+	vim.keymap.set("n", "<leader>cc", toggle_colorizer, { desc = "Toggle [C]olorizer" })
 end
 
--- ============================================================================
--- LSP (set when LSP attaches to buffer)
--- ============================================================================
+-- LSP
 
 function setup_lsp_keymaps(event)
 	local map = function(keys, func, desc, mode)
@@ -119,23 +99,21 @@ function setup_lsp_keymaps(event)
 	map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 
 	-- Diagnostics
-	map("<leader>td", _G.toggle_diagnostics, "[T]oggle [D]iagnostics")
-	map("<leader>hd", _G.toggle_hover_diagnostics, "[H]ide [D]iagnostics")
-	map("<leader>de", _G.show_only_errors_and_warnings, "[D]iagnostics [E]rrors Only")
-	map("<leader>e", vim.diagnostic.open_float, "Show line diagnostics")
+	map("<leader>ct", _G.toggle_diagnostics, "[T]oggle Diagnostics")
+	map("<leader>ch", _G.toggle_hover_diagnostics, "[H]ide Diagnostics")
+	map("<leader>ce", _G.show_only_errors_and_warnings, "Diagnostics [E]rrors Only")
+	map("<leader>cd", vim.diagnostic.open_float, "Show line diagnostics")
 
 	-- Inlay hints toggle
 	local client = vim.lsp.get_client_by_id(event.data.client_id)
 	if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-		map("<leader>th", function()
+		map("<leader>ch", function()
 			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-		end, "[T]oggle Inlay [H]ints")
+		end, "Toggle Inlay [H]ints")
 	end
 end
 
--- ============================================================================
 -- CONFORM (Formatting)
--- ============================================================================
 
 function setup_conform_keymaps()
 	vim.keymap.set("", "<leader>F", function()
@@ -143,28 +121,43 @@ function setup_conform_keymaps()
 	end, { desc = "[F]ormat buffer" })
 end
 
--- ============================================================================
 -- HARPOON
--- ============================================================================
 
 function setup_harpoon_keymaps()
-	vim.keymap.set("n", "<leader>ha", ':lua require("harpoon.mark").add_file()<CR>', { desc = "[A]dd file to Harpoon" })
-	vim.keymap.set("n", "<leader>hq", ':lua require("harpoon.ui").toggle_quick_menu()<CR>', { desc = "[Q]uick Menu" })
+	local mark = require("harpoon.mark")
+	local ui = require("harpoon.ui")
 
-	-- Navigate to files 0-9
+	-- Configure which-key to ignore these
+	local wk = require("which-key")
+	wk.add({
+		{ "<leader>a", hidden = true },
+		{ "<leader>q", hidden = true },
+		{ "<leader>n", hidden = true },
+		{ "<leader>p", hidden = true },
+		{ "<leader>0", hidden = true },
+		{ "<leader>1", hidden = true },
+		{ "<leader>2", hidden = true },
+		{ "<leader>3", hidden = true },
+		{ "<leader>4", hidden = true },
+		{ "<leader>5", hidden = true },
+		{ "<leader>6", hidden = true },
+		{ "<leader>7", hidden = true },
+		{ "<leader>8", hidden = true },
+		{ "<leader>9", hidden = true },
+	})
+
+	vim.keymap.set("n", "<leader>a", mark.add_file)
+	vim.keymap.set("n", "<leader>q", ui.toggle_quick_menu)
+	vim.keymap.set("n", "<leader>n", ui.nav_next)
+	vim.keymap.set("n", "<leader>p", ui.nav_prev)
 	for i = 0, 9 do
-		vim.keymap.set(
-			"n",
-			"<leader>h" .. i,
-			':lua require("harpoon.ui").nav_file(' .. i .. ")<CR>",
-			{ desc = "Navigate to file " .. i }
-		)
+		vim.keymap.set("n", "<leader>" .. i, function()
+			ui.nav_file(i)
+		end)
 	end
 end
 
--- ============================================================================
--- GITSIGNS (set when gitsigns attaches to buffer)
--- ============================================================================
+-- GITSIGNS
 
 function setup_gitsigns_keymaps(bufnr)
 	local gitsigns = require("gitsigns")
@@ -216,3 +209,21 @@ function setup_gitsigns_keymaps(bufnr)
 	-- Toggles
 	map("n", "<leader>tb", gitsigns.toggle_current_line_blame, { desc = "[T]oggle git show [b]lame line" })
 end
+
+local M = {}
+
+M.which_key_spec = {
+
+	{ "<leader>c", group = "[C]ode", mode = { "n", "x" } },
+	{ "<leader>d", group = "[D]ocument" },
+	{ "<leader>h", group = "[H]arpoon" },
+	{ "<leader>r", group = "[R]ename" },
+	{ "<leader>f", group = "[F]ind" },
+	{ "<leader>w", group = "[W]orkspace" },
+	{ "<leader>t", group = "[T]oggle" },
+	{ "<leader>g", group = "[G]it" },
+	{ "<leader>s", group = "[S]plit" },
+	{ "<leader>b", group = "[B]uffer" },
+}
+
+return M

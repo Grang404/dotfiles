@@ -1,7 +1,4 @@
--- Load keymaps module
-require("keymaps")
-
--- Load package lazy package manager
+-- Load lazy package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -16,6 +13,16 @@ require("lazy").setup({
 	"tpope/vim-sleuth",
 
 	{
+		"folke/lazydev.nvim",
+		ft = "lua",
+		opts = {
+			library = {
+				{ path = "luvit-meta/library", words = { "vim%.uv" } },
+			},
+		},
+	},
+
+	{
 		"startup-nvim/startup.nvim",
 		dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
 		config = function()
@@ -24,17 +31,27 @@ require("lazy").setup({
 	},
 
 	{
-		"lewis6991/gitsigns.nvim",
+		"nvim-treesitter/nvim-treesitter",
+		build = ":TSUpdate",
+		main = "nvim-treesitter.configs",
 		opts = {
-			signs = {
-				add = { text = "+" },
-				change = { text = "~" },
-				delete = { text = "_" },
-				topdelete = { text = "‾" },
-				changedelete = { text = "~" },
-				untracked = { text = "┆" },
+			ensure_installed = {
+				"bash",
+				"c",
+				"diff",
+				"html",
+				"htmldjango",
+				"lua",
+				"luadoc",
+				"markdown",
+				"markdown_inline",
+				"query",
+				"vim",
+				"vimdoc",
+				"python",
 			},
-			on_attach = setup_gitsigns_keymaps, -- Function from keymaps.lua
+			auto_install = true,
+			highlight = { enable = true },
 		},
 	},
 
@@ -75,30 +92,7 @@ require("lazy").setup({
 					F12 = "<F12>",
 				},
 			},
-			spec = {
-				{ "<leader>c", group = "[C]ode", mode = { "n", "x" } },
-				{ "<leader>d", group = "[D]ocument" },
-				{ "<leader>h", group = "[H]arpoon" },
-				{ "<leader>r", group = "[R]ename" },
-				{ "<leader>f", group = "[F]ind" },
-				{ "<leader>w", group = "[W]orkspace" },
-				{ "<leader>t", group = "[T]oggle" },
-				{ "<leader>g", group = "[G]it" },
-			},
-		},
-	},
-
-	{
-		"MeanderingProgrammer/render-markdown.nvim",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"echasnovski/mini.nvim",
-		},
-		opts = {
-			heading = {
-				icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
-				signs = { "󰫎 " },
-			},
+			spec = require("keymaps").which_key_spec,
 		},
 	},
 
@@ -129,31 +123,37 @@ require("lazy").setup({
 
 			pcall(require("telescope").load_extension, "fzf")
 			pcall(require("telescope").load_extension, "ui-select")
-
-			-- Setup keymaps from keymaps.lua
 			setup_telescope_keymaps()
 		end,
+	},
+
+	{
+		"lewis6991/gitsigns.nvim",
+		opts = {
+			signs = {
+				add = { text = "+" },
+				change = { text = "~" },
+				delete = { text = "_" },
+				topdelete = { text = "‾" },
+				changedelete = { text = "~" },
+				untracked = { text = "┆" },
+			},
+			on_attach = setup_gitsigns_keymaps,
+		},
 	},
 
 	{
 		"brenoprata10/nvim-highlight-colors",
 		config = function()
 			require("nvim-highlight-colors").setup({})
-			setup_colorizer_keymaps() -- Function from keymaps.lua
+			setup_colorizer_keymaps()
 		end,
 	},
 
 	{
-		"folke/lazydev.nvim",
-		ft = "lua",
-		opts = {
-			library = {
-				{ path = "luvit-meta/library", words = { "vim%.uv" } },
-			},
-		},
+		"Bilal2453/luvit-meta",
+		lazy = true,
 	},
-
-	{ "Bilal2453/luvit-meta", lazy = true },
 
 	{
 		"neovim/nvim-lspconfig",
@@ -198,17 +198,15 @@ require("lazy").setup({
 				print("Showing only errors and warnings")
 			end
 
-			-- LSP Attach - setup keymaps from keymaps.lua
 			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
 				callback = function(event)
-					setup_lsp_keymaps(event) -- Function from keymaps.lua
+					setup_lsp_keymaps(event)
 
 					-- Document highlight setup
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-						local highlight_augroup =
-							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
+						local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 							buffer = event.buf,
 							group = highlight_augroup,
@@ -222,10 +220,10 @@ require("lazy").setup({
 						})
 
 						vim.api.nvim_create_autocmd("LspDetach", {
-							group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
+							group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
 							callback = function(event2)
 								vim.lsp.buf.clear_references()
-								vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event2.buf })
+								vim.api.nvim_clear_autocmds({ group = "lsp-highlight", buffer = event2.buf })
 							end,
 						})
 					end
@@ -397,7 +395,7 @@ require("lazy").setup({
 	{
 		"ThePrimeagen/harpoon",
 		config = function()
-			setup_harpoon_keymaps() -- Function from keymaps.lua
+			setup_harpoon_keymaps()
 		end,
 	},
 
@@ -427,26 +425,16 @@ require("lazy").setup({
 	},
 
 	{
-		"nvim-treesitter/nvim-treesitter",
-		build = ":TSUpdate",
-		main = "nvim-treesitter.configs",
+		"MeanderingProgrammer/render-markdown.nvim",
+		dependencies = {
+			"nvim-treesitter/nvim-treesitter",
+			"echasnovski/mini.nvim",
+		},
 		opts = {
-			ensure_installed = {
-				"bash",
-				"c",
-				"diff",
-				"html",
-				"htmldjango",
-				"lua",
-				"luadoc",
-				"markdown",
-				"markdown_inline",
-				"query",
-				"vim",
-				"vimdoc",
+			heading = {
+				icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+				signs = { "󰫎 " },
 			},
-			auto_install = true,
-			highlight = { enable = true },
 		},
 	},
 }, {

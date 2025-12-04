@@ -1,5 +1,4 @@
 local settings = {
-	-- every line should be same width without escaped \
 	header = {
 		type = "text",
 		oldfiles_directory = false,
@@ -35,8 +34,8 @@ local settings = {
 		content = {
 			{ " Find File", "Telescope find_files", "<leader>ff" },
 			{ "󰍉 Find Word", "Telescope live_grep", "<leader>fg" },
-			{ " Recent Files", "Telescope oldfiles", "<leader>of" },
-			{ " Colorschemes", "Telescope colorscheme", "<leader>cs" },
+			{ " Recent Files", "Telescope oldfiles", "<leader>fo" },
+			{ " Colorschemes", "Telescope colorscheme", "<leader>[]" },
 			{ " New File", "lua require'startup'.new_file()", "<leader>nf" },
 		},
 		highlight = "Keyword",
