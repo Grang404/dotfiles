@@ -187,17 +187,6 @@ require("lazy").setup({
 				end
 			end
 
-			function _G.show_only_errors_and_warnings()
-				vim.diagnostic.config({
-					virtual_text = {
-						severity = {
-							min = vim.diagnostic.severity.WARN,
-						},
-					},
-				})
-				print("Showing only errors and warnings")
-			end
-
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
 				callback = function(event)
@@ -327,25 +316,30 @@ require("lazy").setup({
 	},
 
 	{
+		"L3MON4D3/LuaSnip",
+		dependencies = {
+			"rafamadriz/friendly-snippets",
+		},
+		config = function()
+			require("luasnip.loaders.from_vscode").lazy_load()
+		end,
+	},
+
+	{
 		"hrsh7th/nvim-cmp",
 		event = "InsertEnter",
 		dependencies = {
-			{
-				"L3MON4D3/LuaSnip",
-				build = (function()
-					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-						return
-					end
-					return "make install_jsregexp"
-				end)(),
-			},
+			"L3MON4D3/LuaSnip",
 			"saadparwaiz1/cmp_luasnip",
+			"rafamadriz/friendly-snippets",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-path",
 		},
 		config = function()
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
+
+			require("luasnip.loaders.from_vscode").lazy_load()
 			luasnip.config.setup({})
 
 			cmp.setup({
@@ -382,6 +376,10 @@ require("lazy").setup({
 					{ name = "path" },
 				},
 			})
+
+			-- Autopairs integration
+			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+			cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 		end,
 	},
 
@@ -422,6 +420,13 @@ require("lazy").setup({
 				return "%2l:%-2v"
 			end
 		end,
+	},
+
+	{
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		dependencies = { "hrsh7th/nvim-cmp" },
+		opts = {},
 	},
 
 	{

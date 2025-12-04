@@ -100,20 +100,28 @@ function setup_lsp_keymaps(event)
 
 	-- Diagnostics
 	map("<leader>ct", _G.toggle_diagnostics, "[T]oggle Diagnostics")
-	map("<leader>ch", _G.toggle_hover_diagnostics, "[H]ide Diagnostics")
-	map("<leader>ce", _G.show_only_errors_and_warnings, "Diagnostics [E]rrors Only")
 	map("<leader>cd", vim.diagnostic.open_float, "Show line diagnostics")
+
+	map("<leader>e", function()
+		local diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+		if #diagnostics > 0 then
+			local message = diagnostics[1].message
+			vim.fn.setreg("+", message)
+		else
+			vim.notify("cooked", vim.log.levels.WARN)
+		end
+	end, "Yank line diagnostics")
 
 	-- Inlay hints toggle
 	local client = vim.lsp.get_client_by_id(event.data.client_id)
 	if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-		map("<leader>ch", function()
+		map("<leader>ci", function()
 			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-		end, "Toggle Inlay [H]ints")
+		end, "Toggle [I]nlay Hints")
 	end
 end
 
--- CONFORM (Formatting)
+-- CONFORM
 
 function setup_conform_keymaps()
 	vim.keymap.set("", "<leader>F", function()
