@@ -132,7 +132,6 @@ alias poke='/sbin/pokemon-colorscripts-go'
 alias ls='eza'
 alias ll='eza -lF'
 alias la='eza -A'
-alias l='eza -CF'
 
 mkcd() {
   mkdir -p "$1" && cd "$1"
