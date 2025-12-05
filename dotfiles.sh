@@ -80,18 +80,25 @@ EOF
 }
 
 get_sync_mode() {
-    # If run non-interactively (e.g., cron), default to full sync
     if [[ ! -t 0 ]]; then
-        echo "1"
+        RET_MODE="1"
         return
     fi
 
-    # Send menu to stderr so it doesn't get captured by command substitution
+    echo "" >&2
     echo "Select sync mode:" >&2
-    echo "1) Full sync (all dotfiles)" >&2
-    echo "2) Profile-only (hypr + waybar)" >&2
-    read -r -p "Choice [1]: " mode
-    echo "${mode:-1}"
+    echo "  1) Full sync (all dotfiles)" >&2
+    echo "  2) Profile-only (hypr + waybar)" >&2
+    echo "  3) Exit" >&2
+    echo "" >&2
+    read -r -p "Enter your choice (default: 1): " choice
+
+    if [[ "$choice" == "3" ]]; then
+        echo "Exiting..." >&2
+        exit 0
+    fi
+
+    RET_MODE="${choice:-1}"
 }
 
 sync_dotfile() {
@@ -160,7 +167,8 @@ main() {
 
     # Get sync mode (from args or prompt)
     if [[ -z "${mode:-}" ]]; then
-        mode=$(get_sync_mode)
+        get_sync_mode
+        mode="$RET_MODE"
     fi
     log "Sync mode: $([[ "$mode" == "1" ]] && echo "Full" || echo "Profile-only")"
 
