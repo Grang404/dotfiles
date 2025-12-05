@@ -1,12 +1,12 @@
 {
     "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
     "logo": {
-        "source": "~/Pictures/akira.jpg",
+        "source": "~/.config/fastfetch/hell.png",
         "type": "kitty",
-        "height": 17,
+        "height": 15,
         "width": 25,
         "padding": {
-            "top": 0,
+            // "top": 1,
             "left": 2
         }
     },
@@ -59,10 +59,16 @@
             "key": "║ {#35} memory  {#keys}║",
             "type": "memory"
         },
+
         {
             "key": "║ {#34}󰉉 disk    {#keys}║",
             "type": "disk",
             "folders": ["/", "/media/alice"]
+        },
+        {
+            "key": "║ {#36}󰉉 battery    {#keys}║",
+            "type": "battery",
+            "temp": true,
         },
         {
             "key": "╠═══════════╣",
