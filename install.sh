@@ -270,7 +270,7 @@ install_packages() {
 
 	local application_packages=(
 		discord steam firefox kitty neovim obsidian
-		vlc pavucontrol gparted
+		mpv pavucontrol gparted
 	)
 
 	local font_packages=(
