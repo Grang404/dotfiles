@@ -1,0 +1,166 @@
+* {
+	font-family: "JetBrainsMono Nerd Font";
+	font-size: 15px;
+	font-weight: bold;
+	min-height: 0;
+}
+
+@define-color white #c1c0d4;
+@define-color bg2 #27272a;
+@define-color black #161617;
+@define-color gray #3e3e43;
+
+@define-color red #e78284;
+@define-color green #90b99f;
+@define-color yellow #e6b99d;
+@define-color blue #aca1cf;
+@define-color purple #e29eca;
+@define-color aqua #ea83a5;
+
+window#waybar {
+	background: transparent;
+	color: @white;
+	transition-property: background-color;
+	transition-duration: .5s;
+}
+
+window#waybar.hidden {
+	opacity: 0.2;
+}
+
+#waybar.empty #window {
+	background-color: transparent;
+}
+
+#workspaces {
+	color: @white;
+}
+
+#window {
+	margin: 2px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+button {
+	color: @white;
+	box-shadow: inset 0 -3px transparent;
+	border: none;
+	border-radius: 0;
+}
+
+button:hover {
+	border-top: 2px solid @white;
+}
+
+#workspaces button {
+	padding: 0 4px;
+	border-top: 2px solid @black;
+}
+
+#workspaces button:hover {
+	color: @black;
+	background: @purple;
+	border-top: @purple;
+}
+
+
+#workspaces button.focused {
+	background-color: @gray;
+	color: @purple;
+	border-top: 2px solid @purple;
+}
+
+#workspaces button.active {
+	background-color: @gray;
+	color: @purple;
+	border-top: 2px solid @purple;
+}
+
+#workspaces button.urgent {
+	background-color: @red;
+}
+
+#custom-capslock {
+	color: @black;
+	background-color: @blue;
+	margin: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#temperature,
+#network,
+#pulseaudio,
+#tray {
+	margin: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+	background-color: transparent;
+	color: @white;
+}
+
+#clock:hover,
+#battery:hover,
+#cpu:hover,
+#network:hover,
+#pulseaudio:hover,
+#tray:hover {
+	color: @purple;
+}
+
+/* If workspaces is the leftmost module, omit left margin */
+.modules-left>widget:first-child>#workspaces {
+	margin-left: 0;
+}
+
+/* If workspaces is the rightmost module, omit right margin */
+.modules-right>widget:last-child>#workspaces {
+	margin-right: 0;
+}
+
+#battery icon {
+	color: @white;
+}
+
+#battery.charging,
+#battery.plugged {
+	color: @green;
+}
+
+@keyframes blink {
+	to {
+		background-color: @white;
+		color: @black;
+	}
+}
+
+#battery.warning:not(.charging) {
+	color: @yellow;
+	animation-name: blink;
+	animation-duration: 0.5s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+
+#battery.critical:not(.charging) {
+	color: @red;
+	animation-name: blink;
+	animation-duration: 0.5s;
+	animation-timing-function: linear;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+
+#network.disconnected {
+	color: @red;
+}
+
+#temperature.critical {
+	color: @red;
+}
