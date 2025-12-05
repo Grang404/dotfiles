@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# TODO: Add input for resolution and monitors
-# TODO: Ensure the permissions are not broad
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -213,6 +210,16 @@ EOF
 	echo
 }
 
+detect_battery() {
+	[[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]
+}
+
+if detect_battery; then
+	PROFILE=laptop
+else
+	PROFILE=desktop
+fi
+
 USER_HOME=$(eval echo ~"$SUDO_USER")
 
 update_system() {
@@ -256,7 +263,7 @@ install_packages() {
 	)
 
 	local desktop_packages=(
-		hyprland hyprlock hyprpaper hyprshot hyprpicker
+		hyprland hyprlock hyprshot hyprpicker
 		hyprpolkitagent waybar wireplumber wl-clipboard
 		wtype xdg-desktop-portal-hyprland xdg-utils
 	)
@@ -339,12 +346,11 @@ enable_services() {
 	print_msg "Enabling system services..."
 
 	local system_services=(
-		"NetworkManager"
 		"ly.service"
 		"cronie.service"
-		# "lm_sensors.service" TEST:
+		"lm_sensors.service"
 		# "bluetooth.service"
-		# "fstrim.timer"
+		"fstrim.timer"
 	)
 
 	for service in "${system_services[@]}"; do
@@ -409,48 +415,67 @@ move_dotfiles() {
 
 	local config_dir="$USER_HOME/.config"
 	local dots_dir="$SCRIPT_DIR/dots"
+	local shared="$dots_dir/shared"
+	local profile_dir="$dots_dir/profiles/$PROFILE"
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
 		return 1
 	fi
 
-	# Create all backups first, before making any changes
+	# Backup before making changes
 	create_backup "$config_dir" ".backup" || return 1
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
 
 	mkdir -p "$config_dir"
 
-	for item in "$dots_dir"/*; do
-		if [ -e "$item" ]; then
+	# Move profile-specific files
+	if [ -d "$profile_dir" ]; then
+		for item in "$profile_dir"/*; do
+			[ -e "$item" ] || continue
 			local item_name
 			item_name=$(basename "$item")
-
-			if [[ "$item_name" == "zshrc" ]]; then
-				cp "$item" "$USER_HOME/.zshrc" || return 1
-				chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
-				print_success "Moved zshrc to $USER_HOME/.zshrc"
-				continue
-			fi
-
-			if [[ "$item_name" == "p10k.zsh" ]]; then
-				cp "$item" "$USER_HOME/.p10k.zsh" || return 1
-				chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
-				print_success "Moved p10k.zsh to $USER_HOME/.p10k.zsh"
-				continue
-			fi
 
 			if [ -d "$item" ]; then
 				cp -r "$item" "$config_dir/" || return 1
 			else
 				cp "$item" "$config_dir/" || return 1
 			fi
-			chown -R "$SUDO_USER:$SUDO_USER" "$config_dir/$item_name"
+
 			print_msg "Moved $item_name to $config_dir"
-		fi
+		done
+	fi
+
+	# Move shared files
+	for item in "$shared"/*; do
+		[ -e "$item" ] || continue
+		local item_name
+		item_name=$(basename "$item")
+
+		case "$item_name" in
+		zshrc)
+			cp "$item" "$USER_HOME/.zshrc" || return 1
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
+			print_success "Moved zshrc to $USER_HOME/.zshrc"
+			;;
+		p10k.zsh)
+			cp "$item" "$USER_HOME/.p10k.zsh" || return 1
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
+			print_success "Moved p10k.zsh to $USER_HOME/.p10k.zsh"
+			;;
+		*)
+			if [ -d "$item" ]; then
+				cp -r "$item" "$config_dir/" || return 1
+			else
+				cp "$item" "$config_dir/" || return 1
+			fi
+			print_msg "Moved $item_name to $config_dir"
+			;;
+		esac
 	done
 
+	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
 	DOTFILES_MOVED=true
 	print_success "Dotfiles moved successfully"
 }
