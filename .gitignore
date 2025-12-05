@@ -1,3 +1,4 @@
 # dotfiles.sh
 .auto-commit.sh
 .dotfiles-backup.log
+logs/
