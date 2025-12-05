@@ -4,23 +4,25 @@ detect_battery() {
     [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]
 }
 
+if ! command -v rsync >/dev/null; then
+    echo "rsync not found"
+    exit 1
+fi
+
 SHARED_DIR="$HOME/dotfiles/dots/shared/"
+
 if detect_battery; then
     PROFILE_DIR="$HOME/dotfiles/dots/profiles/laptop/"
 else
     PROFILE_DIR="$HOME/dotfiles/dots/profiles/desktop/"
 fi
 
-echo -e "$PROFILE_DIR $SHARED_DIR"
 mkdir -p "$SHARED_DIR" "$PROFILE_DIR"
 
-# rsync options:
-# -r: recursive
-# -l: copy symlinks as symlinks
-# -v: verbose
-# -h: human-readable sizes
-# --progress: show progress during transfer
-# --exclude: exclude specified patterns
+echo "1) Full sync"
+echo "2) Profile-only"
+read -r mode
+
 RSYNC_OPTS=(-r -l -v -h --progress --exclude='plugins/zsh-*' --exclude='themes/powerlevel10k')
 
 DOTFILES=(
@@ -38,7 +40,6 @@ DOTFILES=(
     "$HOME/.p10k.zsh"
 )
 
-# Special handling for files that need renaming
 special_files=(
     "$HOME/.zshrc:zshrc"
     "$HOME/.p10k.zsh:p10k.zsh"
@@ -50,6 +51,7 @@ for dotfile in "${DOTFILES[@]}"; do
     if [[ "$base" == "hypr" || "$base" == "waybar" ]]; then
         target="$PROFILE_DIR"
     else
+        [[ "$mode" == "2" ]] && continue
         target="$SHARED_DIR"
     fi
 
@@ -57,14 +59,15 @@ for dotfile in "${DOTFILES[@]}"; do
         continue
     fi
 
-    if [ -e "$dotfile" ]; then
-        rsync "${RSYNC_OPTS[@]}" "$dotfile" "$target/"
-    fi
+    [ -e "$dotfile" ] && rsync "${RSYNC_OPTS[@]}" "$dotfile" "$target/"
 done
 
 for special in "${special_files[@]}"; do
     source_file="${special%:*}"
     dest_name="${special#*:}"
+
+    [[ "$mode" == "2" ]] && continue
+
     rsync -l -v -h --progress "$source_file" "$SHARED_DIR$dest_name"
 done
 
