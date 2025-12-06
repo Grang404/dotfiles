@@ -4,8 +4,8 @@ set -o pipefail
 
 # Configuration
 readonly DOTFILES_ROOT="$HOME/dotfiles"
-readonly SHARED_DIR="$DOTFILES_ROOT/dots/shared"
-readonly PROFILE_DIR_BASE="$DOTFILES_ROOT/dots/profiles"
+readonly DOTS_DIR="$DOTFILES_ROOT/dots"
+readonly SHARED_DIR="$DOTS_DIR/shared"
 readonly LOG_DIR="$DOTFILES_ROOT/logs"
 
 # Color output
@@ -14,12 +14,10 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m'
 
-# Initialize log file (will be set after LOG_DIR is created)
 LOG_FILE=""
 
 log() {
-    local msg
-    msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
     if [[ -n "$LOG_FILE" ]]; then
         echo "$msg" | tee -a "$LOG_FILE"
     else
@@ -43,8 +41,12 @@ success() {
     log "$*"
 }
 
-detect_battery() {
-    [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]
+detect_device() {
+    if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
+        echo "laptop"
+    else
+        echo "desktop"
+    fi
 }
 
 check_dependencies() {
@@ -57,211 +59,218 @@ check_dependencies() {
 }
 
 setup_directories() {
-    local profile_dir="$1"
-    mkdir -p "$SHARED_DIR" "$profile_dir" "$LOG_DIR" || error "Failed to create directories"
+    local device="$1"
+    mkdir -p "$SHARED_DIR" \
+        "$DOTS_DIR/hypr/shared" \
+        "$DOTS_DIR/hypr/$device" \
+        "$DOTS_DIR/waybar/$device" \
+        "$LOG_DIR" || error "Failed to create directories"
 
-    # Set log file after directory is created
     LOG_FILE="$LOG_DIR/backup-$(date +%Y%m%d-%H%M%S).log"
-    log "Directories initialized"
+    log "Directories initialized for device: $device"
 }
 
-usage() {
-    cat <<EOF
-Usage: $(basename "$0") [OPTIONS]
-
-Options:
-    -f, --full       Full sync (all dotfiles) [default for cron]
-    -p, --profile    Profile-only sync (hypr + waybar)
-    -h, --help       Show this help message
-
-If run interactively without arguments, you'll be prompted to choose.
-EOF
-    exit 0
-}
-
-get_sync_mode() {
-    if [[ ! -t 0 ]]; then
-        RET_MODE="1"
-        return
-    fi
-
-    echo "" >&2
-    echo "Select sync mode:" >&2
-    echo "  1) Full sync (all dotfiles)" >&2
-    echo "  2) Profile-only (hypr + waybar)" >&2
-    echo "  3) Exit" >&2
-    echo "" >&2
-    read -r -p "Enter your choice (default: 1): " choice
-
-    if [[ "$choice" == "3" ]]; then
-        echo "Exiting..." >&2
-        exit 0
-    fi
-
-    RET_MODE="${choice:-1}"
-}
-
-sync_dotfile() {
+sync_file() {
     local source="$1"
     local target="$2"
-    local name
-    name="$(basename "$source")"
+    local display_name="${3:-$(basename "$source")}"
 
     if [[ ! -e "$source" ]]; then
-        warn "Skipping $name - source does not exist: $source"
+        warn "Skipping $display_name - source does not exist: $source"
         return 1
     fi
 
-    log "Syncing $name from $source to $target/"
+    # Create parent directory if needed
+    mkdir -p "$(dirname "$target")"
 
-    # Run rsync and capture output
+    log "Syncing $display_name"
+
     local rsync_output
-    if rsync_output=$(rsync "${RSYNC_OPTS[@]}" "$source" "$target/" 2>&1); then
-        echo "$rsync_output" | tee -a "$LOG_FILE"
-        success "✓ Synced $name"
-        return 0
+    if [[ -d "$source" ]]; then
+        # For directories, sync contents
+        if rsync_output=$(rsync -r -l -v -h --progress --delete "$source/" "$target/" 2>&1); then
+            echo "$rsync_output" | tee -a "$LOG_FILE"
+            success "✓ Synced $display_name"
+            return 0
+        fi
     else
-        echo "$rsync_output" | tee -a "$LOG_FILE"
-        warn "Failed to sync $name"
-        return 1
+        # For files, sync directly
+        if rsync_output=$(rsync -l -v -h --progress "$source" "$target" 2>&1); then
+            echo "$rsync_output" | tee -a "$LOG_FILE"
+            success "✓ Synced $display_name"
+            return 0
+        fi
     fi
+
+    echo "$rsync_output" | tee -a "$LOG_FILE"
+    warn "Failed to sync $display_name"
+    return 1
 }
 
-main() {
-    local mode sync_count=0 fail_count=0 profile_dir
+sync_hypr() {
+    local device="$1"
+    local sync_count=0 fail_count=0
 
-    # Parse command-line arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-        -f | --full)
-            mode="1"
-            shift
-            ;;
-        -p | --profile)
-            mode="2"
-            shift
-            ;;
-        -h | --help)
-            usage
-            ;;
-        *)
-            error "Unknown option: $1. Use -h for help."
-            ;;
-        esac
-    done
+    log "=== Syncing Hypr Configs ==="
 
-    log "=== Dotfiles Backup Started ==="
-
-    check_dependencies
-
-    # Determine profile directory
-    if detect_battery; then
-        profile_dir="$PROFILE_DIR_BASE/laptop"
-        log "Detected laptop profile"
-    else
-        profile_dir="$PROFILE_DIR_BASE/desktop"
-        log "Detected desktop profile"
-    fi
-
-    setup_directories "$profile_dir"
-
-    # Get sync mode (from args or prompt)
-    if [[ -z "${mode:-}" ]]; then
-        get_sync_mode
-        mode="$RET_MODE"
-    fi
-    log "Sync mode: $([[ "$mode" == "1" ]] && echo "Full" || echo "Profile-only")"
-
-    # Rsync options
-    readonly RSYNC_OPTS=(
-        -r -l -v -h
-        --progress
-        --delete-excluded
-        --exclude='plugins/zsh-*'
-        --exclude='themes/powerlevel10k'
-        --exclude='.git'
-        --exclude='*.swp'
-        --exclude='*.bak'
+    # Sync shared hypr configs (from hyprland/ subdirectory in ~/.config/hypr/)
+    log "Syncing shared hypr configs..."
+    local -a shared_configs=(
+        "animations.conf"
+        "decor.conf"
+        "keybinds.conf"
+        "rules.conf"
     )
 
-    # Profile-specific files (always sync)
-    local -a profile_files=(
-        "$HOME/.config/hypr"
-        "$HOME/.config/waybar"
-    )
-
-    # Shared files (only in full sync)
-    local -a shared_files=(
-        "$HOME/.config/kitty"
-        "$HOME/.config/nvim"
-        "$HOME/.config/rofi"
-        "$HOME/.config/zsh"
-        "$HOME/.config/fastfetch"
-        "$HOME/.config/gtk-2.0"
-        "$HOME/.config/gtk-3.0"
-        "$HOME/.config/gtk-4.0"
-    )
-
-    # Special files with custom names
-    declare -A special_files=(
-        ["$HOME/.zshrc"]="zshrc"
-        ["$HOME/.p10k.zsh"]="p10k.zsh"
-    )
-
-    # Sync profile-specific files
-    log "Syncing profile-specific files to $profile_dir..."
-    for dotfile in "${profile_files[@]}"; do
-        log "Attempting to sync: $dotfile"
-        if sync_dotfile "$dotfile" "$profile_dir"; then
+    for config in "${shared_configs[@]}"; do
+        if sync_file "$HOME/.config/hypr/hyprland/$config" "$DOTS_DIR/hypr/shared/$config" "hypr/shared/$config"; then
             ((sync_count++))
         else
             ((fail_count++))
         fi
     done
 
-    log "Profile sync complete. Mode is: $mode"
+    # Sync device-specific hypr configs
+    log "Syncing device-specific hypr configs..."
+    local -a device_configs=(
+        "autostart.conf"
+        "device-keybinds.conf"
+        "devices.conf"
+        "env.conf"
+        "workspaces.conf"
+    )
 
-    # Sync shared files (full sync only)
-    if [[ "$mode" == "1" ]]; then
-        log "Syncing shared files to $SHARED_DIR..."
-        for dotfile in "${shared_files[@]}"; do
-            log "Attempting to sync: $dotfile"
-            if sync_dotfile "$dotfile" "$SHARED_DIR"; then
-                ((sync_count++))
-            else
-                ((fail_count++))
-            fi
-        done
+    for config in "${device_configs[@]}"; do
+        # These come from the device subdirectory in ~/.config/hypr/
+        if sync_file "$HOME/.config/hypr/hyprland/$config" "$DOTS_DIR/hypr/$device/$config" "hypr/$device/$config"; then
+            ((sync_count++))
+        else
+            ((fail_count++))
+        fi
+    done
 
-        # Sync special files
-        log "Syncing special files to $SHARED_DIR..."
-        for source in "${!special_files[@]}"; do
-            local dest_name="${special_files[$source]}"
-            log "Attempting to sync special file: $source -> $dest_name"
-            if [[ -e "$source" ]]; then
-                log "Syncing $(basename "$source") as $dest_name"
-                local rsync_output
-                if rsync_output=$(rsync -l -v -h --progress "$source" "$SHARED_DIR/$dest_name" 2>&1); then
-                    echo "$rsync_output" | tee -a "$LOG_FILE"
-                    success "✓ Synced $dest_name"
-                    ((sync_count++))
-                else
-                    echo "$rsync_output" | tee -a "$LOG_FILE"
-                    warn "Failed to sync $dest_name"
-                    ((fail_count++))
-                fi
-            else
-                warn "Skipping $dest_name - source does not exist: $source"
-                ((fail_count++))
-            fi
-        done
+    # Sync root hypr files
+    log "Syncing root hypr configs..."
+    local -a root_configs=(
+        "hyprland.conf"
+        "hypridle.conf"
+        "hyprlock.conf"
+    )
+
+    for config in "${root_configs[@]}"; do
+        if sync_file "$HOME/.config/hypr/$config" "$DOTS_DIR/hypr/$config" "hypr/$config"; then
+            ((sync_count++))
+        else
+            ((fail_count++))
+        fi
+    done
+
+    # Sync hypr scripts directory
+    log "Syncing hypr scripts..."
+    if sync_file "$HOME/.config/hypr/scripts" "$DOTS_DIR/hypr/scripts" "hypr/scripts"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
     fi
 
-    # Summary
-    log "=== Backup Complete ==="
-    log "Successfully synced: $sync_count files"
-    [[ $fail_count -gt 0 ]] && warn "Failed/Skipped: $fail_count files"
-    success "Dotfiles backup completed successfully!"
+    log "Hypr sync: $sync_count succeeded, $fail_count failed"
+    return 0
+}
+
+sync_waybar() {
+    local device="$1"
+    local sync_count=0 fail_count=0
+
+    log "=== Syncing Waybar Configs ==="
+
+    # Sync device-specific waybar config
+    log "Syncing device-specific waybar config..."
+    if sync_file "$HOME/.config/waybar/config.jsonc" "$DOTS_DIR/waybar/$device/config.jsonc" "waybar/$device/config.jsonc"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
+    # Sync shared waybar style
+    log "Syncing shared waybar style..."
+    if sync_file "$HOME/.config/waybar/style.css" "$DOTS_DIR/waybar/style.css" "waybar/style.css"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
+    # Sync waybar scripts
+    log "Syncing waybar scripts..."
+    if sync_file "$HOME/.config/waybar/scripts" "$DOTS_DIR/waybar/scripts" "waybar/scripts"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
+    log "Waybar sync: $sync_count succeeded, $fail_count failed"
+    return 0
+}
+
+sync_shared() {
+    local sync_count=0 fail_count=0
+
+    log "=== Syncing Shared Configs ==="
+
+    local -a shared_dirs=(
+        "kitty"
+        "nvim"
+        "rofi"
+        "zsh"
+        "fastfetch"
+        "gtk-2.0"
+        "gtk-3.0"
+        "gtk-4.0"
+    )
+
+    for dir in "${shared_dirs[@]}"; do
+        if sync_file "$HOME/.config/$dir" "$SHARED_DIR/$dir" "shared/$dir"; then
+            ((sync_count++))
+        else
+            ((fail_count++))
+        fi
+    done
+
+    # Sync special files from home directory
+    log "Syncing special dotfiles from home..."
+    if sync_file "$HOME/.zshrc" "$SHARED_DIR/zshrc" "zshrc"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
+    if sync_file "$HOME/.p10k.zsh" "$SHARED_DIR/p10k.zsh" "p10k.zsh"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
+    log "Shared sync: $sync_count succeeded, $fail_count failed"
+    return 0
+}
+
+main() {
+    log "=== Dotfiles Sync Started ==="
+
+    check_dependencies
+
+    local device
+    device=$(detect_device)
+    log "Detected device: $device"
+
+    setup_directories "$device"
+
+    # Sync everything
+    sync_hypr "$device"
+    sync_waybar "$device"
+    sync_shared
+
+    log "=== Sync Complete ==="
+    success "Dotfiles sync completed successfully!"
     log "Log saved to: $LOG_FILE"
 }
 
