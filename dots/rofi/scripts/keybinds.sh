@@ -1,6 +1,7 @@
 #!/bin/bash
 
-CONFIG_FILE="$HOME/.config/hypr/hyprland/keybinds.conf"
+CONFIG_FILE="$HOME/.config/hypr/shared/keybinds.conf"
+DEVICE_CONFIG_FILE="$HOME/.config/hypr/$DEVICE/device-keybinds.conf"
 ROFI_THEME_DIR="$HOME/.config/rofi/themes"
 ROFI_THEME="keybinds"
 
@@ -15,6 +16,9 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
 fi
 
 extract_keybinds() {
+	local file="$1"
+	[[ ! -f "$file" ]] && return
+
 	awk -F= '
 		/^[[:space:]]*bind[[:space:]]*=/ {
 			line = $2
@@ -30,15 +34,23 @@ extract_keybinds() {
 				printf "%-20s → %s\n", "Unknown", line
 			}
 		}
-	' "$CONFIG_FILE" | sort
+	' "$file"
 }
 
 main() {
 	local keybinds
-	keybinds=$(extract_keybinds)
+	keybinds=$(extract_keybinds "$CONFIG_FILE")
+
+	if [[ -f "$DEVICE_CONFIG_FILE" ]]; then
+		local device_keybinds
+		device_keybinds=$(extract_keybinds "$DEVICE_CONFIG_FILE")
+		[[ -n "$device_keybinds" ]] && keybinds+=$'\n'"$device_keybinds"
+	fi
+
+	keybinds=$(echo "$keybinds" | sort)
 
 	if [[ -z "$keybinds" ]]; then
-		rofi -e "No keybinds found in $CONFIG_FILE"
+		rofi -e "No keybinds found"
 		exit 1
 	fi
 
