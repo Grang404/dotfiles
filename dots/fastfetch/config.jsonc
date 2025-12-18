@@ -6,83 +6,76 @@
         "height": 15,
         "width": 25,
         "padding": {
-            // "top": 1,
             "left": 2
         }
     },
     "display": {
-        "separator": " "
+        "separator": " :: ",
+        "color": {
+            "separator": "blue"
+        }
     },
     "modules": [
+        "break",
         {
-            "key": "╔═══════════╗",
-            "type": "custom"
-        },
-        {
-            "key": "║ {#31} user    {#keys}║",
             "type": "title",
-            "format": "{user-name}"
+            "format": "{user-name}@{host-name}"
+        },
+        "break",
+        {
+            "type": "os",
+            "key": "os     "
         },
         {
-            "key": "║ {#32}󰇅 host    {#keys}║",
-            "type": "title",
-            "format": "{host-name}"
+            "type": "kernel",
+            "key": "kernel "
         },
         {
-            "key": "║ {#33}󰅐 uptime  {#keys}║",
-            "type": "uptime"
+            "type": "packages",
+            "key": "pkgs   "
         },
         {
-            "key": "║ {#34}{icon} distro  {#keys}║",
-            "type": "os"
+            "type": "uptime",
+            "key": "uptime "
         },
-
+        "break",
         {
-            "key": "║ {#31}{icon} pacmans {#keys}║",
-            "type": "packages"
-        },
-        
-        {
-            "key": "║ {#31} term    {#keys}║",
-            "type": "terminal"
+            "type": "wm",
+            "key": "wm     "
         },
         {
-            "key": "║ {#32} shell   {#keys}║",
-            "type": "shell"
+            "type": "terminal",
+            "key": "term   "
         },
         {
-            "key": "║ {#33}󰍛 cpu     {#keys}║",
+            "type": "shell",
+            "key": "shell  "
+        },
+        "break",
+        {
             "type": "cpu",
-            "showPeCoreCount": true
+            "key": "cpu    "
         },
         {
-            "key": "║ {#35} memory  {#keys}║",
-            "type": "memory"
+            "type": "gpu",
+            "key": "gpu    "
         },
-
         {
-            "key": "║ {#34}󰉉 disk    {#keys}║",
+            "type": "memory",
+            "key": "mem    "
+        },
+        {
             "type": "disk",
-            "folders": ["/", "/media/alice"]
+            "key": "disk   "
         },
         {
-            "key": "║ {#36}󰉉 battery    {#keys}║",
             "type": "battery",
-            "temp": true,
+            "key": "bat    "
         },
+        "break",
         {
-            "key": "╠═══════════╣",
-            "type": "custom"
-        },
-        {
-            "key": "║ {#39} colors  {#keys}║",
             "type": "colors",
             "symbol": "circle"
-        },
-        {
-            "key": "╚═══════════╝",
-            "type": "custom"
         }
     ]
 }
-
