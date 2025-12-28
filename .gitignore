@@ -1,5 +1,4 @@
 # dotfiles.sh
-dots/hypr/device.conf
 .auto-commit.sh
 .dotfiles-backup.log
 logs/
