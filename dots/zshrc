@@ -1,3 +1,5 @@
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:$HOME/.local/bin:$HOME/go/bin:$HOME/.cargo/bin
+
 # History settings
 DEVICE="desktop"
 HISTFILE=~/.zsh_history
@@ -44,7 +46,7 @@ zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
 # Environment variables
 export EDITOR='nvim'
-export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:$HOME/.local/bin"
+# export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:$HOME/.local/bin"
 export ARCHFLAGS="-arch $(uname -m)"
 export MEDIA="/media/alice/MEDIA/media_server"
 

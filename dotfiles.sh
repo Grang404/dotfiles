@@ -57,7 +57,7 @@ check_dependencies() {
 }
 
 setup_directories() {
-    mkdir -p "$DOTS_DIR/desktop" "$DOTS_DIR/laptop" "$LOG_DIR" || error "Failed to create directories"
+    mkdir -p "$DOTS_DIR" "$LOG_DIR" || error "Failed to create directories"
 
     LOG_FILE="$LOG_DIR/backup-$(date +%Y%m%d-%H%M%S).log"
     log "Directories initialized"
@@ -114,8 +114,6 @@ main() {
 
     setup_directories
 
-    local device_dir="$DOTS_DIR/$device"
-
     local -a config_dirs=(
         "hypr"
         "waybar"
@@ -129,9 +127,9 @@ main() {
         "gtk-4.0"
     )
 
-    log "=== Syncing Config Directories to $device ==="
+    log "=== Syncing Config Directories ==="
     for dir in "${config_dirs[@]}"; do
-        if sync_directory "$HOME/.config/$dir" "$device_dir/$dir"; then
+        if sync_directory "$HOME/.config/$dir" "$DOTS_DIR/$dir"; then
             ((sync_count++))
         else
             ((fail_count++))
@@ -140,10 +138,10 @@ main() {
 
     log "=== Syncing Home Dotfiles ==="
     if [[ -f "$HOME/.zshrc" ]]; then
-        mkdir -p "$device_dir"
+        mkdir -p "$DOTS_DIR"
         log "Syncing .zshrc"
         local rsync_output
-        if rsync_output=$(rsync -l -v -h --progress "$HOME/.zshrc" "$device_dir/zshrc" 2>&1); then
+        if rsync_output=$(rsync -l -v -h --progress "$HOME/.zshrc" "$DOTS_DIR/zshrc" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
             success "✓ Synced .zshrc"
             ((sync_count++))
@@ -157,7 +155,7 @@ main() {
     if [[ -f "$HOME/.p10k.zsh" ]]; then
         log "Syncing .p10k.zsh"
         local rsync_output
-        if rsync_output=$(rsync -l -v -h --progress "$HOME/.p10k.zsh" "$device_dir/p10k.zsh" 2>&1); then
+        if rsync_output=$(rsync -l -v -h --progress "$HOME/.p10k.zsh" "$DOTS_DIR/p10k.zsh" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
             success "✓ Synced .p10k.zsh"
             ((sync_count++))
