@@ -166,6 +166,12 @@ main() {
         fi
     fi
 
+    if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
+        log "Trimming first 2 lines from hyprland.conf"
+        sed -i '1,2d' "$DOTS_DIR/hypr/hyprland.conf"
+        success "✓ Trimmed hyprland.conf"
+    fi
+
     log "=== Sync Complete ==="
     log "Successfully synced: $sync_count items"
     [[ $fail_count -gt 0 ]] && warn "Failed/Skipped: $fail_count items"
