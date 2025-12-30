@@ -1,0 +1,45 @@
+foreground                      #c9c7cd
+background                      #161617
+selection_foreground            #161617
+selection_background            #E19ECA
+
+cursor                          #CAC9DD
+
+url_color                       #ACA0CF
+
+#: black
+color0  #27272A
+color8  #353539
+
+#: red
+color1  #E78284
+color9  #EA999c
+
+#: green
+color2  #90B99F
+color10 #9DC6AC
+
+#: yellow
+color3  #E6B99D
+color11 #F0C5A9
+
+#: blue
+color4  #ACA1CF
+color12 #B9AEDA
+
+#: magenta
+color5  #E29ECA
+color13 #ECAAD6
+
+#: cyan
+color6  #EA83A5
+color14 #F591B2
+
+#: white
+color7  #C1C0D4
+color15 #CAC9DD
+
+
+#: You can set the remaining 240 colors as color16 to color255.
+color16 #ffa066
+color17 #ff5d62

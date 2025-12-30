@@ -1,0 +1,161 @@
+# History settings
+HISTFILE=~/.zhistory
+HISTSIZE=50000
+SAVEHIST=50000
+LISTMAX=0
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST    # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_IGNORE_DUPS          # ignore duplicated commands history list
+setopt HIST_IGNORE_SPACE         # ignore commands that start with space
+setopt HIST_VERIFY               # show command with history expansion to user before running it
+setopt INC_APPEND_HISTORY        # add commands to HISTFILE in order of execution
+setopt SHARE_HISTORY             # share command history data
+
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Load powerlevel10k theme
+source ~/.config/zsh/themes/powerlevel10k/powerlevel10k.zsh-theme
+
+# Load zsh plugins
+source ~/.config/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source ~/.config/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# Load custom syntax highlighting styles (MUST come after zsh-syntax-highlighting)
+source ~/.config/zsh/highlight_styles.zsh
+
+# Basic zsh options
+setopt AUTO_CD              # cd by typing directory name if it's not a command
+setopt CORRECT              # auto correct mistakes
+setopt INTERACTIVECOMMENTS  # allow comments in interactive mode
+setopt MAGICEQUALSUBST      # enable filename expansion for arguments of the form 'anything=expression'
+setopt NONOMATCH            # hide error message if there is no match for the pattern
+setopt NUMERICGLOBSORT      # sort filenames numerically when it makes sense
+setopt PROMPTSUBST          # enable command substitution in prompt
+
+# History settings
+HISTFILE=~/.zhistory
+HISTSIZE=10000
+SAVEHIST=10000
+setopt HIST_EXPIRE_DUPS_FIRST    # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt HIST_IGNORE_DUPS          # ignore duplicated commands history list
+setopt HIST_IGNORE_SPACE         # ignore commands that start with space
+setopt HIST_VERIFY               # show command with history expansion to user before running it
+setopt INC_APPEND_HISTORY        # add commands to HISTFILE in order of execution
+setopt SHARE_HISTORY             # share command history data
+
+# Enable and configure completions
+autoload -Uz compinit
+compinit
+
+# Completion styling - more explicit approach
+zstyle ':completion:*' menu select
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# Force completion colors to match ls exactly
+zstyle ':completion:*:*:*:*:*' list-colors ${(s.:.)LS_COLORS}
+
+# Enhanced LS_COLORS - includes executable files (ex=01;32 makes them green)
+export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=1;34;40:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31"
+
+# Update completion colors after LS_COLORS is set
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# Environment variables
+export EDITOR='nvim'
+export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:$HOME/.local/bin"
+export ARCHFLAGS="-arch $(uname -m)"
+# Enhanced LS_COLORS - includes executable files (ex=01;32 makes them green)
+export MEDIA="/media/alice/MEDIA/media_server"
+
+
+export LS_COLORS="rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=1;34;40:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31"
+
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+bindkey -v
+export KEYTIMEOUT=1
+
+bindkey -v '^?' backward-delete-char
+bindkey -v '^H' backward-delete-char
+bindkey -v '^W' backward-kill-word
+bindkey -v '^U' backward-kill-line
+bindkey -v '^[[3~' delete-char
+
+function vi-yank-wl {
+    zle vi-yank
+    echo -n "$CUTBUFFER" | wl-copy
+}
+zle -N vi-yank-wl
+bindkey -M vicmd 'y' vi-yank-wl
+
+function vi-put-wl {
+    CUTBUFFER=$(wl-paste)
+    zle vi-put-after
+}
+zle -N vi-put-wl
+bindkey -M vicmd 'p' vi-put-wl
+
+# Capital Y to yank whole line to clipboard
+function vi-yank-whole-line-wl {
+    echo -n "$BUFFER" | wl-copy
+}
+zle -N vi-yank-whole-line-wl
+bindkey -M vicmd 'Y' vi-yank-whole-line-wl
+
+# Visual mode indicator
+function zle-line-init zle-keymap-select {
+    case ${KEYMAP} in
+        vicmd)      print -n '\e[1 q';; # Block cursor
+        viins|main) print -n '\e[5 q';; # Beam cursor
+    esac
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+bindkey "^[[1;5C" forward-word      # Ctrl+Right arrow
+bindkey "^[[1;5D" backward-word     # Ctrl+Left arrow
+bindkey "^[[3~" delete-char         # Delete key
+bindkey "^[[H" beginning-of-line    # Home key
+bindkey "^[[F" end-of-line          # End key
+bindkey "^[[1;3C" forward-word      # Alt+Right arrow
+bindkey "^[[1;3D" backward-word     # Alt+Left arrow
+bindkey "^H" backward-kill-word     # Ctrl+Backspace
+bindkey "^[[3;5~" kill-word         # Ctrl+Delete
+
+# Aliases
+alias v='nvim'
+alias todo='nvim ~/Documents/tasks.md'
+alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
+alias vpn='~/VPN/vpn.py'
+alias scratch='nvim /tmp/scratch.md'
+alias hg='history 1 | grep'
+alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
+alias sdn='shutdown now'
+
+# Enable colors for ls commands
+alias ls='ls --color=auto'
+alias ll='ls -lF --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+
+mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
+# Add empty line before each prompt
+precmd() {
+    print ""
+}
+
+# Initialize zoxide
+eval "$(zoxide init zsh)"
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
