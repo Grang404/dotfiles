@@ -117,7 +117,8 @@ main() {
     local -a config_dirs=(
         "hypr"
         "waybar"
-        "kitty"
+        # "kitty"
+        "ghostty"
         "nvim"
         "rofi"
         "zsh"

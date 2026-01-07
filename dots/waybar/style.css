@@ -1,14 +1,14 @@
 @define-color background #0c0a0a;
-@define-color background-light #28151c;
+@define-color background-light #2a2a2d;
 @define-color foreground #c1c0d4;
-@define-color black #1b0e13;
-@define-color red #a72449;
+@define-color black #160d10;
+@define-color red #683032;
 @define-color green #8daa91;
-@define-color yellow #e6b99d;
-@define-color blue #aca1cf;
-@define-color magenta #6b384b;
-@define-color cyan #873c56;
-@define-color white #4e494d;
+@define-color yellow #d6a78a;
+@define-color blue #a096c1;
+@define-color magenta #873c56;
+@define-color cyan #81a8a0;
+@define-color white #cfcede;
 
 * {
   font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
@@ -45,9 +45,9 @@ window#waybar {
 }
 
 #workspaces button.active {
-  border-top: 1px solid @magenta;
+  border-top: 1px solid @cyan;
   background-color: rgba(30, 30, 30, 0.8);
-  color: @magenta;
+  color: @cyan;
 }
 
 #workspaces button.urgent {
@@ -73,7 +73,7 @@ window#waybar {
 }
 
 #custom-vpn {
-  color: @cyan;
+  color: @magenta;
   padding: 0 10px 0 5px;
   margin: 0 0px;
   background-color: transparent;
