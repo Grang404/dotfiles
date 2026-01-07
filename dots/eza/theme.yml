@@ -1,0 +1,29 @@
+perms:
+  user_read:
+    foreground: Magenta
+  user_write:
+    foreground: Yellow
+  user_execute_file:
+    foreground: Red
+  user_execute_other:
+    foreground: Red
+  group_read:
+    foreground: Magenta
+  group_write:
+    foreground: Yellow
+  group_execute:
+    foreground: Red
+  other_read:
+    foreground: Magenta
+  other_write:
+    foreground: Yellow
+  other_execute:
+    foreground: Red
+
+users:
+  user_you:
+    foreground: Cyan
+  
+groups:
+  group_yours:
+    foreground: Green

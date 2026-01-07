@@ -118,6 +118,7 @@ main() {
         "hypr"
         "waybar"
         # "kitty"
+        "eza"
         "ghostty"
         "nvim"
         "rofi"
