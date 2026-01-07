@@ -11,7 +11,7 @@ configuration {
 
 * {
 
-    font: "JetBrains Mono Nerd Font 10";
+    font: "JetBrainsMono Nerd Font Mono 12";
 
     border-colour:               var(selected);
     handle-colour:               var(selected);

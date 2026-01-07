@@ -19,6 +19,12 @@ perms:
     foreground: Yellow
   other_execute:
     foreground: Red
+  special_user_file:
+    foreground: White
+  special_other:
+    foreground: White
+  attribute:
+    foreground: White
 
 users:
   user_you:
@@ -27,3 +33,6 @@ users:
 groups:
   group_yours:
     foreground: Green
+
+punctuation:
+  foreground: White
