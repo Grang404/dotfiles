@@ -57,7 +57,7 @@ check_dependencies() {
 }
 
 setup_directories() {
-    mkdir -p "$DOTS_DIR" "$LOG_DIR" || error "Failed to create directories"
+    mkdir -p "$DOTS_DIR" "$LOG_DIR" || error " Failed to create directories"
 
     LOG_FILE="$LOG_DIR/backup-$(date +%Y%m%d-%H%M%S).log"
     log "Directories initialized"
@@ -85,19 +85,19 @@ sync_directory() {
             --exclude='themes/' \
             "$source/" "$target/" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            success "✓ Synced $name"
+            success " Synced $name"
             return 0
         fi
     else
         if rsync_output=$(rsync -l -v -h --progress "$source" "$target" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            success "✓ Synced $name"
+            success " Synced $name"
             return 0
         fi
     fi
 
     echo "$rsync_output" | tee -a "$LOG_FILE"
-    warn "Failed to sync $name"
+    warn " Failed to sync $name"
     return 1
 }
 
@@ -145,11 +145,11 @@ main() {
         local rsync_output
         if rsync_output=$(rsync -l -v -h --progress "$HOME/.zshrc" "$DOTS_DIR/zshrc" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            success "✓ Synced .zshrc"
+            success " Synced .zshrc"
             ((sync_count++))
         else
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            warn "Failed to sync .zshrc"
+            warn " Failed to sync .zshrc"
             ((fail_count++))
         fi
     fi
@@ -159,11 +159,11 @@ main() {
         local rsync_output
         if rsync_output=$(rsync -l -v -h --progress "$HOME/.p10k.zsh" "$DOTS_DIR/p10k.zsh" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            success "✓ Synced .p10k.zsh"
+            success " Synced .p10k.zsh"
             ((sync_count++))
         else
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            warn "Failed to sync .p10k.zsh"
+            warn " Failed to sync .p10k.zsh"
             ((fail_count++))
         fi
     fi
@@ -171,12 +171,12 @@ main() {
     if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
         log "Trimming first 2 lines from hyprland.conf"
         sed -i '1,2d' "$DOTS_DIR/hypr/hyprland.conf"
-        success "✓ Trimmed hyprland.conf"
+        success " Trimmed hyprland.conf"
     fi
 
     log "=== Sync Complete ==="
     log "Successfully synced: $sync_count items"
-    [[ $fail_count -gt 0 ]] && warn "Failed/Skipped: $fail_count items"
+    [[ $fail_count -gt 0 ]] && warn " Failed/Skipped: $fail_count items"
     success "Dotfiles sync completed successfully!"
     log "Log saved to: $LOG_FILE"
 }
