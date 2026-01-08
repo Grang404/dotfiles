@@ -21,17 +21,15 @@ trap 'handle_error $? $LINENO' ERR
 trap 'final_cleanup' EXIT
 trap 'handle_interrupt' INT TERM
 
-LOG_FILE="$SCRIPT_DIR/install_script.log"
-exec > >(tee -a "$LOG_FILE") 2>&1
+LOG_FILE="$SCRIPT_DIR/logs/install_script.log"
+exec > >(while IFS= read -r line; do echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line"; done | tee -a "$LOG_FILE") 2>&1
 
 print_msg() {
 	echo -e "${BOLD}${BLUE}[*]${NC} $1"
 }
-
 print_success() {
 	echo -e "${BOLD}${GREEN}[+]${NC} $1"
 }
-
 print_error() {
 	echo -e "${BOLD}${RED}[!]${NC} $1"
 }

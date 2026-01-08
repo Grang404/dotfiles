@@ -68,36 +68,34 @@ sync_directory() {
     local target="$2"
     local name
     name="$(basename "$source")"
-
     if [[ ! -e "$source" ]]; then
         warn "Skipping $name - source does not exist: $source"
         return 1
     fi
-
     log "Syncing $name"
-
     mkdir -p "$target"
-
     local rsync_output
+    local rsync_opts=(-r -l -v -h --progress)
+
+    if [[ "$name" == "zsh" ]]; then
+        rsync_opts+=(--exclude='plugins/' --exclude='themes/')
+    fi
+
     if [[ -d "$source" ]]; then
-        if rsync_output=$(rsync -r -l -v -h --progress \
-            --exclude='plugins/' \
-            --exclude='themes/' \
-            "$source/" "$target/" 2>&1); then
-            echo "$rsync_output" | tee -a "$LOG_FILE"
-            success " Synced $name"
+        if rsync_output=$(rsync "${rsync_opts[@]}" "$source/" "$target/" 2>&1); then
+            echo "$rsync_output"
+            success " Synced $name"
             return 0
         fi
     else
         if rsync_output=$(rsync -l -v -h --progress "$source" "$target" 2>&1); then
             echo "$rsync_output" | tee -a "$LOG_FILE"
-            success " Synced $name"
+            success " Synced $name"
             return 0
         fi
     fi
-
     echo "$rsync_output" | tee -a "$LOG_FILE"
-    warn " Failed to sync $name"
+    warn " Failed to sync $name"
     return 1
 }
 
