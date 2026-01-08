@@ -51,7 +51,7 @@ check_dependencies() {
 setup_directories() {
     mkdir -p "$DOTS_DIR" "$LOG_DIR" || error " Failed to create directories"
 
-    LOG_FILE="$LOG_DIR/backup-$(date +%Y%m%d-%H%M%S).log"
+    LOG_FILE="$LOG_DIR/sync-$(date +%Y%m%d-%H%M%S).log"
     log "Directories initialized"
 }
 
