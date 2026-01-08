@@ -17,9 +17,7 @@ log() {
     local msg
     msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
     if [[ -n "$LOG_FILE" ]]; then
-        echo "$msg" | tee -a "$LOG_FILE"
-    else
-        echo "$msg"
+        echo "$msg" >>"$LOG_FILE"
     fi
 }
 
@@ -75,20 +73,20 @@ sync_directory() {
             rsync_opts+=(--exclude='plugins/' --exclude='themes/')
         fi
         if rsync_output=$(rsync "${rsync_opts[@]}" "$source/" "$target/" 2>&1); then
-            echo "$rsync_output"
-            success " Synced $name"
+            log "$rsync_output"
+            success "Synced $name"
             return 0
         fi
     else
         if rsync_output=$(rsync "${rsync_opts[@]}" "$source" "$target" 2>&1); then
-            echo "$rsync_output"
-            success " Synced $name"
+            log "$rsync_output"
+            success "Synced $name"
             return 0
         fi
     fi
 
-    echo "$rsync_output"
-    warn " Failed to sync $name"
+    log "$rsync_output"
+    warn "Failed to sync $name"
     return 1
 }
 
@@ -140,7 +138,7 @@ main() {
     if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
         log "Trimming first 2 lines from hyprland.conf"
         sed -i '1,2d' "$DOTS_DIR/hypr/hyprland.conf"
-        success " Trimmed hyprland.conf"
+        success "Trimmed hyprland.conf"
     fi
 
     log "=== Sync Complete ==="

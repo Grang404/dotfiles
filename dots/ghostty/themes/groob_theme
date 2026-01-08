@@ -30,7 +30,8 @@ background-opacity = 0.8
 
 font-family = "JetBrainsMono Nerd Font Mono"
 font-size = 14
-font-feature = -liga -calt
+font-feature = -liga
+font-feature = -calt
 
 
 window-decoration = none
