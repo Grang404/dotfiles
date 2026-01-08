@@ -39,14 +39,6 @@ success() {
     log "$*"
 }
 
-detect_device() {
-    if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
-        echo "laptop"
-    else
-        echo "desktop"
-    fi
-}
-
 check_dependencies() {
     local deps=("rsync")
     for dep in "${deps[@]}"; do
@@ -57,7 +49,7 @@ check_dependencies() {
 }
 
 setup_directories() {
-    mkdir -p "$DOTS_DIR" "$LOG_DIR" || error " Failed to create directories"
+    mkdir -p "$DOTS_DIR" "$LOG_DIR" || error " Failed to create directories"
 
     LOG_FILE="$LOG_DIR/backup-$(date +%Y%m%d-%H%M%S).log"
     log "Directories initialized"
@@ -73,28 +65,29 @@ sync_directory() {
         return 1
     fi
     log "Syncing $name"
-    mkdir -p "$target"
+    mkdir -p "$(dirname "$target")"
     local rsync_output
-    local rsync_opts=(-r -l -v -h --progress)
-
-    if [[ "$name" == "zsh" ]]; then
-        rsync_opts+=(--exclude='plugins/' --exclude='themes/')
-    fi
+    local rsync_opts=(-l -v -h --progress)
 
     if [[ -d "$source" ]]; then
+        rsync_opts=(-r -l -v -h --progress)
+        if [[ "$name" == "zsh" ]]; then
+            rsync_opts+=(--exclude='plugins/' --exclude='themes/')
+        fi
         if rsync_output=$(rsync "${rsync_opts[@]}" "$source/" "$target/" 2>&1); then
             echo "$rsync_output"
             success " Synced $name"
             return 0
         fi
     else
-        if rsync_output=$(rsync -l -v -h --progress "$source" "$target" 2>&1); then
-            echo "$rsync_output" | tee -a "$LOG_FILE"
+        if rsync_output=$(rsync "${rsync_opts[@]}" "$source" "$target" 2>&1); then
+            echo "$rsync_output"
             success " Synced $name"
             return 0
         fi
     fi
-    echo "$rsync_output" | tee -a "$LOG_FILE"
+
+    echo "$rsync_output"
     warn " Failed to sync $name"
     return 1
 }
@@ -105,11 +98,6 @@ main() {
     log "=== Dotfiles Sync Started ==="
 
     check_dependencies
-
-    local device
-    device=$(detect_device)
-    log "Detected device: $device"
-
     setup_directories
 
     local -a config_dirs=(
@@ -137,44 +125,27 @@ main() {
     done
 
     log "=== Syncing Home Dotfiles ==="
-    if [[ -f "$HOME/.zshrc" ]]; then
-        mkdir -p "$DOTS_DIR"
-        log "Syncing .zshrc"
-        local rsync_output
-        if rsync_output=$(rsync -l -v -h --progress "$HOME/.zshrc" "$DOTS_DIR/zshrc" 2>&1); then
-            echo "$rsync_output" | tee -a "$LOG_FILE"
-            success " Synced .zshrc"
-            ((sync_count++))
-        else
-            echo "$rsync_output" | tee -a "$LOG_FILE"
-            warn " Failed to sync .zshrc"
-            ((fail_count++))
-        fi
+    if sync_directory "$HOME/.zshrc" "$DOTS_DIR/zshrc"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
     fi
 
-    if [[ -f "$HOME/.p10k.zsh" ]]; then
-        log "Syncing .p10k.zsh"
-        local rsync_output
-        if rsync_output=$(rsync -l -v -h --progress "$HOME/.p10k.zsh" "$DOTS_DIR/p10k.zsh" 2>&1); then
-            echo "$rsync_output" | tee -a "$LOG_FILE"
-            success " Synced .p10k.zsh"
-            ((sync_count++))
-        else
-            echo "$rsync_output" | tee -a "$LOG_FILE"
-            warn " Failed to sync .p10k.zsh"
-            ((fail_count++))
-        fi
+    if sync_directory "$HOME/.p10k.zsh" "$DOTS_DIR/p10k.zsh"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
     fi
 
     if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
         log "Trimming first 2 lines from hyprland.conf"
         sed -i '1,2d' "$DOTS_DIR/hypr/hyprland.conf"
-        success " Trimmed hyprland.conf"
+        success " Trimmed hyprland.conf"
     fi
 
     log "=== Sync Complete ==="
     log "Successfully synced: $sync_count items"
-    [[ $fail_count -gt 0 ]] && warn " Failed/Skipped: $fail_count items"
+    [[ $fail_count -gt 0 ]] && warn " Failed/Skipped: $fail_count items"
     success "Dotfiles sync completed successfully!"
     log "Log saved to: $LOG_FILE"
 }
