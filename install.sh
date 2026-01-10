@@ -3,6 +3,7 @@
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
+YELLOW="\033[1;33m"
 CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
@@ -32,6 +33,10 @@ print_success() {
 }
 print_error() {
 	echo -e "${BOLD}${RED}[!]${NC} $1"
+}
+
+print_warning() {
+	echo -e "${BOLD}${YELLOW}[!]${NC} $1"
 }
 
 handle_error() {
@@ -65,8 +70,8 @@ final_cleanup() {
 
 	if [[ "$INSTALLATION_SUCCESSFUL" == true ]]; then
 		print_success "Installation completed successfully!"
-		print_msg "System cleanup completed"
-		print_msg "Please reboot your system"
+		print_success "System cleanup completed"
+		print_warning "Please reboot your system"
 	fi
 }
 
@@ -77,9 +82,6 @@ cleanup_temp_files() {
 		rm -rf /tmp/paru
 	fi
 
-	if [ -d "/tmp/install_script_temp" ]; then
-		rm -rf /tmp/install_script_temp
-	fi
 }
 
 cleanup_package_manager() {
@@ -105,7 +107,7 @@ create_backup() {
 
 	if [ -e "$source_path" ]; then
 		local backup_path="${source_path}${backup_suffix}"
-		print_msg "Creating backup: $backup_path"
+		print_warning "Creating backup: $backup_path"
 
 		if cp -r "$source_path" "$backup_path"; then
 			BACKUP_LOCATIONS+=("$source_path:$backup_path")
@@ -119,7 +121,7 @@ create_backup() {
 }
 
 restore_backups() {
-	print_msg "Restoring backups..."
+	print_warning "Restoring backups..."
 
 	for backup_entry in "${BACKUP_LOCATIONS[@]}"; do
 		IFS=':' read -r original backup <<<"$backup_entry"
@@ -255,11 +257,6 @@ install_packages() {
 		base base-devel git curl wget
 	)
 
-	local system_packages=(
-		alsa-utils inetutils reflector aria2 dmidecode
-		dnsmasq dosfstools dysk evtest exfat-utils
-	)
-
 	local desktop_packages=(
 		hyprland hyprlock hyprshot hyprpicker
 		hyprpolkitagent waybar wireplumber wl-clipboard
@@ -276,14 +273,14 @@ install_packages() {
 	)
 
 	local utility_packages=(
-		zsh ly gamemode lib32-gamemode swww imv rofi-wayland
+		zsh ly awww imv rofi-wayland
 		yazi ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
 		cronie
 	)
 
-	for group_name in "core" "system" "desktop" "application" "font" "utility"; do
+	for group_name in "core" "desktop" "application" "font" "utility"; do
 		local -n current_group="${group_name}_packages"
 
 		print_msg "Installing $group_name packages..."
@@ -298,47 +295,47 @@ install_packages() {
 
 }
 
-install_paru() {
-	print_msg "Installing paru..."
-	if ! command -v paru &>/dev/null; then
-		cd /tmp || return 1
-		git clone https://aur.archlinux.org/paru.git || {
-			print_error "Failed to clone paru"
-			return 1
-		}
-		chown -R "$SUDO_USER:$SUDO_USER" paru
-		cd paru || return 1
-		sudo -u "$SUDO_USER" makepkg -si --noconfirm || {
-			print_error "Failed to install paru"
-			return 1
-		}
-		print_success "Successfully installed paru!"
-		cd "$SCRIPT_DIR" || return 1
-	else
-		print_msg "paru is already installed"
-	fi
-}
+# install_paru() {
+# 	print_msg "Installing paru..."
+# 	if ! command -v paru &>/dev/null; then
+# 		cd /tmp || return 1
+# 		git clone https://aur.archlinux.org/paru.git || {
+# 			print_error "Failed to clone paru"
+# 			return 1
+# 		}
+# 		chown -R "$SUDO_USER:$SUDO_USER" paru
+# 		cd paru || return 1
+# 		sudo -u "$SUDO_USER" makepkg -si --noconfirm || {
+# 			print_error "Failed to install paru"
+# 			return 1
+# 		}
+# 		print_success "Successfully installed paru!"
+# 		cd "$SCRIPT_DIR" || return 1
+# 	else
+# 		print_msg "paru is already installed"
+# 	fi
+# }
 
-install_paru_packages() {
-	print_msg "Installing paru packages..."
-	local paru_packages=(
-		TODO: RE-ADD THIS FOR MAINSCRIPT OR POP OUT FOR MULTIPLE CONFIGS
-		# nvibrant-bin
-		# noisetorch
-	)
-
-	for package in "${paru_packages[@]}"; do
-		print_msg "Installing $package..."
-		if sudo -u "$SUDO_USER" paru -S --needed --noconfirm "$package"; then
-			print_success "Successfully installed $package"
-		else
-			print_error "Failed to install $package"
-			return 1
-		fi
-	done
-
-	print_success "Successfully installed all paru packages!"
-}
+# install_paru_packages() {
+# 	print_msg "Installing paru packages..."
+# 	local paru_packages=(
+# 		TODO: RE-ADD THIS FOR MAINSCRIPT OR POP OUT FOR MULTIPLE CONFIGS
+# 		# nvibrant-bin
+# 		# noisetorch
+# 	)
+#
+# 	for package in "${paru_packages[@]}"; do
+# 		print_msg "Installing $package..."
+# 		if sudo -u "$SUDO_USER" paru -S --needed --noconfirm "$package"; then
+# 			print_success "Successfully installed $package"
+# 		else
+# 			print_error "Failed to install $package"
+# 			return 1
+# 		fi
+# 	done
+#
+# 	print_success "Successfully installed all paru packages!"
+# }
 
 enable_services() {
 	print_msg "Enabling system services..."
@@ -410,47 +407,27 @@ install_zsh_plugins() {
 
 move_dotfiles() {
 	print_msg "Moving config files..."
-
 	local config_dir="$USER_HOME/.config"
 	local dots_dir="$SCRIPT_DIR/dots"
-	local shared="$dots_dir/shared"
-	local profile_dir="$dots_dir/profiles/$PROFILE"
+	local shared="$dots_dir/hypr/shared"
+	local hypr_profile_dir="$dots_dir/hypr/$PROFILE"
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
 		return 1
 	fi
 
-	# Backup before making changes
 	create_backup "$config_dir" ".backup" || return 1
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
 
-	mkdir -p "$config_dir"
+	mkdir -p "$config_dir/hypr"
 
-	# Move profile-specific files
-	if [ -d "$profile_dir" ]; then
-		for item in "$profile_dir"/*; do
-			[ -e "$item" ] || continue
-			local item_name
-			item_name=$(basename "$item")
-
-			if [ -d "$item" ]; then
-				cp -r "$item" "$config_dir/" || return 1
-			else
-				cp "$item" "$config_dir/" || return 1
-			fi
-
-			print_msg "Moved $item_name to $config_dir"
-		done
-	fi
-
-	# Move shared files
+	# Move shared hypr files
 	for item in "$shared"/*; do
 		[ -e "$item" ] || continue
 		local item_name
 		item_name=$(basename "$item")
-
 		case "$item_name" in
 		zshrc)
 			cp "$item" "$USER_HOME/.zshrc" || return 1
@@ -464,14 +441,29 @@ move_dotfiles() {
 			;;
 		*)
 			if [ -d "$item" ]; then
-				cp -r "$item" "$config_dir/" || return 1
+				cp -r "$item" "$config_dir/hypr/" || return 1
 			else
-				cp "$item" "$config_dir/" || return 1
+				cp "$item" "$config_dir/hypr/" || return 1
 			fi
-			print_msg "Moved $item_name to $config_dir"
+			print_msg "Moved $item_name to $config_dir/hypr"
 			;;
 		esac
 	done
+
+	# Move profile-specific hypr files
+	if [ -d "$hypr_profile_dir" ]; then
+		for item in "$hypr_profile_dir"/*; do
+			[ -e "$item" ] || continue
+			local item_name
+			item_name=$(basename "$item")
+			if [ -d "$item" ]; then
+				cp -r "$item" "$config_dir/hypr/" || return 1
+			else
+				cp "$item" "$config_dir/hypr/" || return 1
+			fi
+			print_msg "Moved $item_name to $config_dir/hypr"
+		done
+	fi
 
 	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
 	DOTFILES_MOVED=true
@@ -489,14 +481,13 @@ main() {
 	update_system || return 1
 	enable_multilib || return 1
 	install_packages || return 1
-	install_paru || return 1
-	install_paru_packages || return 1
+	# install_paru || return 1
+	# install_paru_packages || return 1
 	enable_services || return 1
 	move_dotfiles || return 1
 	install_zsh_plugins || return 1
 
 	INSTALLATION_SUCCESSFUL=true
-
 	print_success "Installation completed successfully!"
 }
 
