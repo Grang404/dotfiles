@@ -454,38 +454,15 @@ main() {
 	show_banner
 	sleep 2
 
-	local total_steps=6
-	local current_step=0
-
 	print_msg "Starting installation..."
 
-	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps "Updating system"
 	update_system || return 1
-
-	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps "Enabling multilib"
 	enable_multilib || return 1
-
-	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps "Installing packages"
 	install_packages || return 1
-
-	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps "Enabling services"
 	enable_services || return 1
-
-	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps "Moving dotfiles"
 	move_dotfiles || return 1
-
-	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps "Installing ZSH plugins"
 	install_zsh_plugins || return 1
 
-	tput cup $(($(tput lines) - 1)) 0
-	tput el
-	echo
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
 }
