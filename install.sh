@@ -419,7 +419,22 @@ move_dotfiles() {
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
 
-	cp -r "$hypr_dir" "$config_dir/" || return 1
+	mkdir -p "$config_dir/hypr"
+
+	for item in "$hypr_dir"/*; do
+		[ -e "$item" ] || continue
+		local item_name=$(basename "$item")
+
+		if [ "$item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
+			continue
+		fi
+		if [ "$item_name" = "laptop" ] && [ "$PROFILE" != "laptop" ]; then
+			continue
+		fi
+
+		cp -r "$item" "$config_dir/hypr/" || return 1
+	done
+
 	print_msg "Copied hypr directory structure to $config_dir/hypr"
 
 	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir/hypr"
