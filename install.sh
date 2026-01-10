@@ -23,7 +23,7 @@ trap 'final_cleanup' EXIT
 trap 'handle_interrupt' INT TERM
 
 LOG_FILE="$SCRIPT_DIR/logs/install_script.log"
-exec > >(while IFS= read -r line; do echo "[$(date '+%Y-%m-%d %H:%M:%S')] $line"; done | tee -a "$LOG_FILE") 2>&1
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 print_msg() {
 	echo -e "${BOLD}${BLUE}[*]${NC} $1"
