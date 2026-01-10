@@ -422,11 +422,11 @@ move_dotfiles() {
 	cp -r "$hypr_dir" "$config_dir/" || return 1
 	print_msg "Copied hypr directory structure to $config_dir/hypr"
 
-	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf" || return 1
-	print_msg "Added device profile to hyprland.conf"
-
 	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir/hypr"
 	DOTFILES_MOVED=true
+
+	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf" || return 1
+	print_msg "Added device profile to hyprland.conf"
 	print_success "Dotfiles moved successfully"
 }
 
