@@ -449,27 +449,27 @@ main() {
 
 	print_msg "Starting installation..."
 
-	((current_step++))
+	current_step=$((current_step + 1))
 	show_progress $current_step $total_steps
 	update_system || return 1
 
-	((current_step++))
+	current_step=$((current_step + 1))
 	show_progress $current_step $total_steps
 	enable_multilib || return 1
 
-	((current_step++))
+	current_step=$((current_step + 1))
 	show_progress $current_step $total_steps
 	install_packages || return 1
 
-	((current_step++))
+	current_step=$((current_step + 1))
 	show_progress $current_step $total_steps
 	enable_services || return 1
 
-	((current_step++))
+	current_step=$((current_step + 1))
 	show_progress $current_step $total_steps
 	move_dotfiles || return 1
 
-	((current_step++))
+	current_step=$((current_step + 1))
 	show_progress $current_step $total_steps
 	install_zsh_plugins || return 1
 
