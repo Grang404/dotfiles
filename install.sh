@@ -264,7 +264,7 @@ install_packages() {
 	)
 
 	local application_packages=(
-		discord steam firefox kitty neovim obsidian
+		discord steam firefox ghostty neovim obsidian
 		mpv pavucontrol gparted
 	)
 
@@ -415,29 +415,52 @@ move_dotfiles() {
 		return 1
 	fi
 
-	create_backup "$config_dir/hypr" ".backup" || return 1
+	create_backup "$config_dir" ".backup" || return 1
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
 
-	mkdir -p "$config_dir/hypr"
+	mkdir -p "$config_dir"
 
-	for item in "$hypr_dir"/*; do
+	for item in "$dots_dir"/*; do
 		[ -e "$item" ] || continue
 		local item_name=$(basename "$item")
 
-		if [ "$item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
-			continue
-		fi
-		if [ "$item_name" = "laptop" ] && [ "$PROFILE" != "laptop" ]; then
-			continue
-		fi
+		case "$item_name" in
+		hypr)
+			mkdir -p "$config_dir/hypr"
+			for hypr_item in "$hypr_dir"/*; do
+				[ -e "$hypr_item" ] || continue
+				local hypr_item_name=$(basename "$hypr_item")
 
-		cp -r "$item" "$config_dir/hypr/" || return 1
+				if [ "$hypr_item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
+					continue
+				fi
+				if [ "$hypr_item_name" = "laptop" ] && [ "$PROFILE" != "laptop" ]; then
+					continue
+				fi
+
+				cp -r "$hypr_item" "$config_dir/hypr/" || return 1
+			done
+			print_msg "Copied hypr directory structure to $config_dir/hypr"
+			;;
+		zshrc)
+			cp "$item" "$USER_HOME/.zshrc" || return 1
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
+			print_msg "Copied zshrc to $USER_HOME/.zshrc"
+			;;
+		p10k.zsh)
+			cp "$item" "$USER_HOME/.p10k.zsh" || return 1
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
+			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
+			;;
+		*)
+			cp -r "$item" "$config_dir/" || return 1
+			print_msg "Copied $item_name to $config_dir"
+			;;
+		esac
 	done
 
-	print_msg "Copied hypr directory structure to $config_dir/hypr"
-
-	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir/hypr"
+	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
 	DOTFILES_MOVED=true
 
 	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf" || return 1
