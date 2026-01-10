@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# TODO: DNS
+# TODO: Firefox config
+# TODO: clean .desktop files
+# TODO: XDG config
+# TODO: btop config
+# TODO: laptop power management
+# TODO: Unzip fonts
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -22,7 +30,7 @@ trap 'handle_error $? $LINENO' ERR
 trap 'final_cleanup' EXIT
 trap 'handle_interrupt' INT TERM
 
-LOG_FILE="$SCRIPT_DIR/logs/install_script.log"
+LOG_FILE="$SCRIPT_DIR/logs/install.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 print_msg() {
@@ -252,20 +260,19 @@ install_packages() {
 	print_msg "Installing base packages..."
 	INSTALLATION_STARTED=true
 
-	# Define package groups for better error handling
 	local core_packages=(
-		base base-devel git curl wget
+		base base-devel git curl wget hyprland hyprlock hyprshot
+		hyprpicker hyprpolkitagent waybar wireplumber wl-clipboard
+		wtype xdg-desktop-portal-hyprland xdg-utils
 	)
 
-	local desktop_packages=(
-		hyprland hyprlock hyprshot hyprpicker
-		hyprpolkitagent waybar wireplumber wl-clipboard
-		wtype xdg-desktop-portal-hyprland xdg-utils
+	local laptop_packages=(
+		tlp tlp-rdw bluez bluez-utils impala
 	)
 
 	local application_packages=(
 		discord steam firefox ghostty neovim obsidian
-		mpv pavucontrol gparted
+		mpv pavucontrol imv yazi
 	)
 
 	local font_packages=(
@@ -273,14 +280,16 @@ install_packages() {
 	)
 
 	local utility_packages=(
-		zsh swww imv rofi-wayland
-		yazi ffmpeg jq poppler fd fzf zoxide imagemagick
+		zsh swww rofi-wayland ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza
+		cronie eza iwd
 	)
 
-	for group_name in "core" "desktop" "application" "font" "utility"; do
+	local groups=("core" "application" "font" "utility")
+	[[ "$PROFILE" == "laptop" ]] && groups+=("laptop")
+
+	for group_name in "${groups[@]}"; do
 		local -n current_group="${group_name}_packages"
 
 		print_msg "Installing $group_name packages..."
@@ -292,7 +301,6 @@ install_packages() {
 			return 1
 		fi
 	done
-
 }
 
 # install_paru() {
@@ -343,11 +351,18 @@ enable_services() {
 	local system_services=(
 		"cronie.service"
 		"lm_sensors.service"
-		# "bluetooth.service"
 		"fstrim.timer"
 	)
 
-	for service in "${system_services[@]}"; do
+	local laptop_services=(
+		"bluetooth.service"
+		"tlp.service"
+	)
+
+	local services=("${system_services[@]}")
+	[[ "$PROFILE" == "laptop" ]] && services+=("${laptop_services[@]}")
+
+	for service in "${services[@]}"; do
 		print_msg "Enabling $service..."
 		if systemctl enable --now "$service"; then
 			print_success "Successfully enabled $service!"
@@ -423,14 +438,16 @@ move_dotfiles() {
 
 	for item in "$dots_dir"/*; do
 		[ -e "$item" ] || continue
-		local item_name=$(basename "$item")
+		local item_name
+		item_name=$(basename "$item")
 
 		case "$item_name" in
 		hypr)
 			mkdir -p "$config_dir/hypr"
 			for hypr_item in "$hypr_dir"/*; do
 				[ -e "$hypr_item" ] || continue
-				local hypr_item_name=$(basename "$hypr_item")
+				local hypr_item_name
+				hypr_item_name=$(basename "$hypr_item")
 
 				if [ "$hypr_item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
 					continue
