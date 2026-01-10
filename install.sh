@@ -273,7 +273,7 @@ install_packages() {
 	)
 
 	local utility_packages=(
-		zsh ly awww imv rofi-wayland
+		zsh swww imv rofi-wayland
 		yazi ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
@@ -341,7 +341,6 @@ enable_services() {
 	print_msg "Enabling system services..."
 
 	local system_services=(
-		"ly.service"
 		"cronie.service"
 		"lm_sensors.service"
 		# "bluetooth.service"
@@ -409,84 +408,72 @@ move_dotfiles() {
 	print_msg "Moving config files..."
 	local config_dir="$USER_HOME/.config"
 	local dots_dir="$SCRIPT_DIR/dots"
-	local shared="$dots_dir/hypr/shared"
-	local hypr_profile_dir="$dots_dir/hypr/$PROFILE"
+	local hypr_dir="$dots_dir/hypr"
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
 		return 1
 	fi
 
-	create_backup "$config_dir" ".backup" || return 1
+	create_backup "$config_dir/hypr" ".backup" || return 1
 	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
 	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
 
-	mkdir -p "$config_dir/hypr"
+	cp -r "$hypr_dir" "$config_dir/" || return 1
+	print_msg "Copied hypr directory structure to $config_dir/hypr"
 
-	# Move shared hypr files
-	for item in "$shared"/*; do
-		[ -e "$item" ] || continue
-		local item_name
-		item_name=$(basename "$item")
-		case "$item_name" in
-		zshrc)
-			cp "$item" "$USER_HOME/.zshrc" || return 1
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
-			print_success "Moved zshrc to $USER_HOME/.zshrc"
-			;;
-		p10k.zsh)
-			cp "$item" "$USER_HOME/.p10k.zsh" || return 1
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
-			print_success "Moved p10k.zsh to $USER_HOME/.p10k.zsh"
-			;;
-		*)
-			if [ -d "$item" ]; then
-				cp -r "$item" "$config_dir/hypr/" || return 1
-			else
-				cp "$item" "$config_dir/hypr/" || return 1
-			fi
-			print_msg "Moved $item_name to $config_dir/hypr"
-			;;
-		esac
-	done
-
-	# Move profile-specific hypr files
-	if [ -d "$hypr_profile_dir" ]; then
-		for item in "$hypr_profile_dir"/*; do
-			[ -e "$item" ] || continue
-			local item_name
-			item_name=$(basename "$item")
-			if [ -d "$item" ]; then
-				cp -r "$item" "$config_dir/hypr/" || return 1
-			else
-				cp "$item" "$config_dir/hypr/" || return 1
-			fi
-			print_msg "Moved $item_name to $config_dir/hypr"
-		done
-	fi
-
-	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
+	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir/hypr"
 	DOTFILES_MOVED=true
 	print_success "Dotfiles moved successfully"
 }
 
-# Modified main function
+show_progress() {
+	local current=$1
+	local total=$2
+	local width=50
+	local percentage=$((current * 100 / total))
+	local completed=$((width * current / total))
+
+	printf "\r${BOLD}${CYAN}Progress: [${NC}"
+	printf "%${completed}s" | tr ' ' '='
+	printf "%$((width - completed))s" | tr ' ' ' '
+	printf "${BOLD}${CYAN}] %d%%${NC}" "$percentage"
+}
+
 main() {
 	show_banner
 	sleep 2
 
+	local total_steps=6
+	local current_step=0
+
 	print_msg "Starting installation..."
 
-	# Each function should return 1 on failure, 0 on success
+	((current_step++))
+	show_progress $current_step $total_steps
 	update_system || return 1
+
+	((current_step++))
+	show_progress $current_step $total_steps
 	enable_multilib || return 1
+
+	((current_step++))
+	show_progress $current_step $total_steps
 	install_packages || return 1
-	# install_paru || return 1
-	# install_paru_packages || return 1
+
+	((current_step++))
+	show_progress $current_step $total_steps
 	enable_services || return 1
+
+	((current_step++))
+	show_progress $current_step $total_steps
 	move_dotfiles || return 1
+
+	((current_step++))
+	show_progress $current_step $total_steps
 	install_zsh_plugins || return 1
 
+	echo
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
 }
