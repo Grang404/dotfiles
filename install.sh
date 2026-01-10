@@ -430,14 +430,21 @@ move_dotfiles() {
 show_progress() {
 	local current=$1
 	local total=$2
+	local step_name=$3
 	local width=50
 	local percentage=$((current * 100 / total))
 	local completed=$((width * current / total))
 
-	printf "\r${BOLD}${CYAN}Progress: [${NC}"
+	tput sc
+	tput cup $(($(tput lines) - 1)) 0
+	tput el
+
+	printf "${BOLD}${CYAN}[%d/%d] %s [${NC}" "$current" "$total" "$step_name"
 	printf "%${completed}s" | tr ' ' '='
 	printf "%$((width - completed))s" | tr ' ' ' '
 	printf "${BOLD}${CYAN}] %d%%${NC}" "$percentage"
+
+	tput rc
 }
 
 main() {
@@ -450,29 +457,31 @@ main() {
 	print_msg "Starting installation..."
 
 	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps
+	show_progress $current_step $total_steps "Updating system"
 	update_system || return 1
 
 	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps
+	show_progress $current_step $total_steps "Enabling multilib"
 	enable_multilib || return 1
 
 	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps
+	show_progress $current_step $total_steps "Installing packages"
 	install_packages || return 1
 
 	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps
+	show_progress $current_step $total_steps "Enabling services"
 	enable_services || return 1
 
 	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps
+	show_progress $current_step $total_steps "Moving dotfiles"
 	move_dotfiles || return 1
 
 	current_step=$((current_step + 1))
-	show_progress $current_step $total_steps
+	show_progress $current_step $total_steps "Installing ZSH plugins"
 	install_zsh_plugins || return 1
 
+	tput cup $(($(tput lines) - 1)) 0
+	tput el
 	echo
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
