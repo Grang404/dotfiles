@@ -277,7 +277,7 @@ install_packages() {
 		yazi ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie
+		cronie eza
 	)
 
 	for group_name in "core" "desktop" "application" "font" "utility"; do
@@ -500,6 +500,7 @@ main() {
 	enable_services || return 1
 	move_dotfiles || return 1
 	install_zsh_plugins || return 1
+	chsh -s /usr/bin/zsh "$SUDO_USER"
 
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
