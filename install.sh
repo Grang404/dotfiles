@@ -7,6 +7,7 @@
 # TODO: btop config
 # TODO: laptop power management
 # TODO: Unzip fonts
+# TODO: error handle funciton cooked
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -485,24 +486,71 @@ move_dotfiles() {
 	print_success "Dotfiles moved successfully"
 }
 
-show_progress() {
-	local current=$1
-	local total=$2
-	local step_name=$3
-	local width=50
-	local percentage=$((current * 100 / total))
-	local completed=$((width * current / total))
+config_dns() {
 
-	tput sc
-	tput cup $(($(tput lines) - 1)) 0
-	tput el
+	print_msg "Configuring DNS..."
 
-	printf "${BOLD}${CYAN}[%d/%d] %s [${NC}" "$current" "$total" "$step_name"
-	printf "%${completed}s" | tr ' ' '='
-	printf "%$((width - completed))s" | tr ' ' ' '
-	printf "${BOLD}${CYAN}] %d%%${NC}" "$percentage"
+	if [[ $PROFILE == "desktop" ]]; then
+		systemctl disable --now systemd-resolved || {
+			print_error "Failed to disable systemd-resolved"
+			return 1
+		}
 
-	tput rc
+		printf "nameserver 192.168.0.10\nnameserver 192.168.0.1\n" | tee /etc/resolv.conf >/dev/null || {
+			print_error "Failed to write to resolv.conf"
+			return 1
+		}
+
+		chattr +i /etc/resolv.conf || {
+			print_error "Failed to lock resolv.conf"
+			return 1
+		}
+
+		print_success "DNS configured successfully"
+	elif [[ $PROFILE == "laptop" ]]; then
+
+		mkdir -p /etc/systemd/resolved.conf.d
+
+		cat >/etc/systemd/resolved.conf.d/cloudflare.conf <<-EOF
+			[Resolve]
+			DNS=1.1.1.1 1.0.0.1
+			FallbackDNS=
+			Domains=~.
+			DNSSEC=yes
+			DNSOverTLS=opportunistic
+		EOF
+
+		systemctl enable --now systemd-resolved || {
+			print_error "Failed to enable systemd-resolved"
+			return 1
+		}
+
+		if [ -f /run/systemd/resolve/stub-resolv.conf ]; then
+			ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || {
+				print_error "Failed to link resolv.conf"
+				return 1
+			}
+		elif [ -f /run/systemd/resolve/resolv.conf ]; then
+			ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf || {
+				print_error "Failed to link resolv.conf"
+				return 1
+			}
+		else
+			print_error "systemd-resolved files not found"
+			return 1
+		fi
+
+		systemctl restart systemd-resolved || {
+			print_error "Failed to restart systemd-resolved"
+			return 1
+		}
+		print_success "DNS configured successfully"
+
+	else
+		print_error "cookered"
+
+	fi
+
 }
 
 main() {
@@ -518,6 +566,7 @@ main() {
 	move_dotfiles || return 1
 	install_zsh_plugins || return 1
 	chsh -s /usr/bin/zsh "$SUDO_USER"
+	config_dns
 
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
