@@ -1,7 +1,7 @@
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:$HOME/.local/bin:$HOME/go/bin:$HOME/.cargo/bin
 export EZA_CONFIG_DIR="$HOME/.config/eza/"
+
 # History settings
-DEVICE="desktop"
 HISTFILE=~/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000

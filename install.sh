@@ -546,9 +546,6 @@ config_dns() {
 		}
 		print_success "DNS configured successfully"
 
-	else
-		print_error "cookered"
-
 	fi
 
 }
