@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# TODO: DNS
 # TODO: Firefox config
 # TODO: clean .desktop files
 # TODO: XDG config
@@ -444,6 +443,24 @@ config_dns() {
 
 		print_success "DNS configured successfully"
 	fi
+}
+
+copy_firefox_config() {
+	print_msg "Copying Firefox configuration..."
+
+	local firefox_source="$SCRIPT_DIR/dots/firefox/user.js"
+	local firefox_profile
+	firefox_profile=$(find "$USER_HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n1)
+
+	if [ -z "$firefox_profile" ]; then
+		print_warning "Firefox profile not found, skipping..."
+		return 0
+	fi
+
+	cp "$firefox_source" "$firefox_profile/user.js"
+	chown "$SUDO_USER:$SUDO_USER" "$firefox_profile/user.js"
+
+	print_success "Firefox configuration copied"
 }
 
 main() {

@@ -141,6 +141,20 @@ main() {
         success "Trimmed hyprland.conf"
     fi
 
+    log "=== Syncing Firefox Config ==="
+    local firefox_profile
+    firefox_profile=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
+
+    if [[ -n "$firefox_profile" && -f "$firefox_profile/user.js" ]]; then
+        if sync_directory "$firefox_profile/user.js" "$DOTS_DIR/firefox/user.js"; then
+            ((sync_count++))
+        else
+            ((fail_count++))
+        fi
+    else
+        warn "Firefox user.js not found, skipping..."
+    fi
+
     log "=== Sync Complete ==="
     log "Successfully synced: $sync_count items"
     [[ $fail_count -gt 0 ]] && warn " Failed/Skipped: $fail_count items"
