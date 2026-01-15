@@ -445,22 +445,29 @@ config_dns() {
 	fi
 }
 
-copy_firefox_config() {
-	print_msg "Copying Firefox configuration..."
+move_firefox_config() {
+	print_msg "Moving Firefox configuration..."
 
 	local firefox_source="$SCRIPT_DIR/dots/firefox/user.js"
 	local firefox_profile
-	firefox_profile=$(find "$USER_HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" | head -n1)
+	firefox_profile=$(find "$USER_HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
 
 	if [ -z "$firefox_profile" ]; then
-		print_warning "Firefox profile not found, skipping..."
-		return 0
+		print_msg "Firefox profile not found, creating one..."
+		sudo -u "$SUDO_USER" DISPLAY=:0 timeout 5 firefox --headless >/dev/null 2>&1 || true
+		sleep 2
+		firefox_profile=$(find "$USER_HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
+
+		if [ -z "$firefox_profile" ]; then
+			print_warning "Failed to create Firefox profile, skipping..."
+			return 0
+		fi
 	fi
 
 	cp "$firefox_source" "$firefox_profile/user.js"
 	chown "$SUDO_USER:$SUDO_USER" "$firefox_profile/user.js"
 
-	print_success "Firefox configuration copied"
+	print_success "Firefox configuration moved!"
 }
 
 main() {
@@ -477,6 +484,7 @@ main() {
 	install_zsh_plugins
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
+	move_firefox_config
 
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
