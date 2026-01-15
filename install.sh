@@ -439,8 +439,8 @@ config_dns() {
 			DNSOverTLS=opportunistic
 		EOF
 
-		ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 		systemctl enable --now systemd-resolved
+		ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 		print_success "DNS configured successfully"
 	fi
