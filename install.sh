@@ -19,7 +19,6 @@ NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
-# Global variables to track installation state
 INSTALLATION_SUCCESSFUL=false
 INSTALLATION_STARTED=false
 DOTFILES_MOVED=false
@@ -118,15 +117,9 @@ create_backup() {
 		local backup_path="${source_path}${backup_suffix}"
 		print_warning "Creating backup: $backup_path"
 
-		if cp -r "$source_path" "$backup_path"; then
-			BACKUP_LOCATIONS+=("$source_path:$backup_path")
-			return 0
-		else
-			print_error "Failed to create backup of $source_path"
-			return 1
-		fi
+		cp -r "$source_path" "$backup_path"
+		BACKUP_LOCATIONS+=("$source_path:$backup_path")
 	fi
-	return 0
 }
 
 restore_backups() {
@@ -137,10 +130,13 @@ restore_backups() {
 
 		if [ -e "$backup" ]; then
 			print_msg "Restoring $original from backup..."
+
+			if [ -f "$original" ]; then
+				chattr -i "$original" 2>/dev/null || true
+			fi
+
 			rm -rf "$original" 2>/dev/null || true
-			mv "$backup" "$original" || {
-				print_error "Failed to restore $original"
-			}
+			mv "$backup" "$original"
 			chown -R "$SUDO_USER:$SUDO_USER" "$original" 2>/dev/null || true
 		fi
 	done
@@ -175,13 +171,11 @@ fi
 show_banner() {
 	clear
 
-	# Print top border
 	echo -e "$CYAN"
 	printf '%.0s═' {1..80}
 	echo -e "$NC"
 	echo
 
-	# Print ASCII art
 	echo -e "$RED"
 	cat <<'EOF'
                                                                 
@@ -211,7 +205,6 @@ EOF
 	echo -e "$NC"
 	echo
 
-	# Print bottom border
 	echo -e "$CYAN"
 	printf '%.0s═' {1..80}
 	echo -e "$NC"
@@ -233,10 +226,7 @@ USER_HOME=$(eval echo ~"$SUDO_USER")
 
 update_system() {
 	print_msg "Updating system..."
-	pacman -Syu --noconfirm || {
-		print_error "Failed to update system."
-		return 1
-	}
+	pacman -Syu --noconfirm
 }
 
 enable_multilib() {
@@ -249,10 +239,7 @@ enable_multilib() {
 
 	sed -i '/^\#\[multilib\]/,/^\#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 
-	pacman -Sy --noconfirm || {
-		print_error "Failed to update package database after enabling multilib"
-		return 1
-	}
+	pacman -Sy --noconfirm
 
 	print_success "Multilib enabled successfully"
 }
@@ -295,56 +282,10 @@ install_packages() {
 
 		print_msg "Installing $group_name packages..."
 
-		if pacman -S --needed --noconfirm "${current_group[@]}"; then
-			print_success "Successfully installed $group_name packages"
-		else
-			print_error "Failed to install $group_name packages"
-			return 1
-		fi
+		pacman -S --needed --noconfirm "${current_group[@]}"
+		print_success "Successfully installed $group_name packages"
 	done
 }
-
-# install_paru() {
-# 	print_msg "Installing paru..."
-# 	if ! command -v paru &>/dev/null; then
-# 		cd /tmp || return 1
-# 		git clone https://aur.archlinux.org/paru.git || {
-# 			print_error "Failed to clone paru"
-# 			return 1
-# 		}
-# 		chown -R "$SUDO_USER:$SUDO_USER" paru
-# 		cd paru || return 1
-# 		sudo -u "$SUDO_USER" makepkg -si --noconfirm || {
-# 			print_error "Failed to install paru"
-# 			return 1
-# 		}
-# 		print_success "Successfully installed paru!"
-# 		cd "$SCRIPT_DIR" || return 1
-# 	else
-# 		print_msg "paru is already installed"
-# 	fi
-# }
-
-# install_paru_packages() {
-# 	print_msg "Installing paru packages..."
-# 	local paru_packages=(
-# 		TODO: RE-ADD THIS FOR MAINSCRIPT OR POP OUT FOR MULTIPLE CONFIGS
-# 		# nvibrant-bin
-# 		# noisetorch
-# 	)
-#
-# 	for package in "${paru_packages[@]}"; do
-# 		print_msg "Installing $package..."
-# 		if sudo -u "$SUDO_USER" paru -S --needed --noconfirm "$package"; then
-# 			print_success "Successfully installed $package"
-# 		else
-# 			print_error "Failed to install $package"
-# 			return 1
-# 		fi
-# 	done
-#
-# 	print_success "Successfully installed all paru packages!"
-# }
 
 enable_services() {
 	print_msg "Enabling system services..."
@@ -365,12 +306,8 @@ enable_services() {
 
 	for service in "${services[@]}"; do
 		print_msg "Enabling $service..."
-		if systemctl enable --now "$service"; then
-			print_success "Successfully enabled $service!"
-		else
-			print_error "Failed to enable $service"
-			return 1
-		fi
+		systemctl enable --now "$service"
+		print_success "Successfully enabled $service!"
 	done
 
 	print_success "Services enabled successfully!"
@@ -386,30 +323,21 @@ install_zsh_plugins() {
 	mkdir -p "$PLUGINS_DIR" "$THEMES_DIR"
 
 	if [ ! -d "$PLUGINS_DIR/zsh-autosuggestions" ]; then
-		git clone https://github.com/zsh-users/zsh-autosuggestions "$PLUGINS_DIR/zsh-autosuggestions" || {
-			print_error "Failed to install zsh-autosuggestions"
-			return 1
-		}
+		git clone https://github.com/zsh-users/zsh-autosuggestions "$PLUGINS_DIR/zsh-autosuggestions"
 		print_success "Installed zsh-autosuggestions"
 	else
 		print_msg "zsh-autosuggestions already exists, skipping..."
 	fi
 
 	if [ ! -d "$PLUGINS_DIR/zsh-syntax-highlighting" ]; then
-		git clone https://github.com/zsh-users/zsh-syntax-highlighting "$PLUGINS_DIR/zsh-syntax-highlighting" || {
-			print_error "Failed to install zsh-syntax-highlighting"
-			return 1
-		}
+		git clone https://github.com/zsh-users/zsh-syntax-highlighting "$PLUGINS_DIR/zsh-syntax-highlighting"
 		print_success "Installed zsh-syntax-highlighting"
 	else
 		print_msg "zsh-syntax-highlighting already exists, skipping..."
 	fi
 
 	if [ ! -d "$THEMES_DIR/powerlevel10k" ]; then
-		git clone --depth=1 https://github.com/romkatv/powerlevel10k "$THEMES_DIR/powerlevel10k" || {
-			print_error "Failed to install powerlevel10k"
-			return 1
-		}
+		git clone --depth=1 https://github.com/romkatv/powerlevel10k "$THEMES_DIR/powerlevel10k"
 		print_success "Installed powerlevel10k theme"
 	else
 		print_msg "powerlevel10k already exists, skipping..."
@@ -428,12 +356,12 @@ move_dotfiles() {
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
-		return 1
+		false
 	fi
 
-	create_backup "$config_dir" ".backup" || return 1
-	create_backup "$USER_HOME/.zshrc" ".backup" || return 1
-	create_backup "$USER_HOME/.p10k.zsh" ".backup" || return 1
+	create_backup "$config_dir" ".backup"
+	create_backup "$USER_HOME/.zshrc" ".backup"
+	create_backup "$USER_HOME/.p10k.zsh" ".backup"
 
 	mkdir -p "$config_dir"
 
@@ -457,22 +385,22 @@ move_dotfiles() {
 					continue
 				fi
 
-				cp -r "$hypr_item" "$config_dir/hypr/" || return 1
+				cp -r "$hypr_item" "$config_dir/hypr/"
 			done
 			print_msg "Copied hypr directory structure to $config_dir/hypr"
 			;;
 		zshrc)
-			cp "$item" "$USER_HOME/.zshrc" || return 1
+			cp "$item" "$USER_HOME/.zshrc"
 			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
 			print_msg "Copied zshrc to $USER_HOME/.zshrc"
 			;;
 		p10k.zsh)
-			cp "$item" "$USER_HOME/.p10k.zsh" || return 1
+			cp "$item" "$USER_HOME/.p10k.zsh"
 			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
 			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
 			;;
 		*)
-			cp -r "$item" "$config_dir/" || return 1
+			cp -r "$item" "$config_dir/"
 			print_msg "Copied $item_name to $config_dir"
 			;;
 		esac
@@ -481,37 +409,28 @@ move_dotfiles() {
 	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
 	DOTFILES_MOVED=true
 
-	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf" || return 1
+	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf"
 	print_msg "Added device profile to hyprland.conf"
 	print_success "Dotfiles moved successfully"
 }
 
 config_dns() {
-
 	print_msg "Configuring DNS..."
 
 	if [[ $PROFILE == "desktop" ]]; then
-		systemctl disable --now systemd-resolved || {
-			print_error "Failed to disable systemd-resolved"
-			return 1
-		}
+		systemctl disable --now systemd-resolved
 
-		printf "nameserver 192.168.0.10\nnameserver 192.168.0.1\n" | tee /etc/resolv.conf >/dev/null || {
-			print_error "Failed to write to resolv.conf"
-			return 1
-		}
+		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
+		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
 
-		chattr +i /etc/resolv.conf || {
-			print_error "Failed to lock resolv.conf"
-			return 1
-		}
+		printf "nameserver 192.168.0.10\nnameserver 192.168.0.1\n" >/etc/resolv.conf
+		chattr +i /etc/resolv.conf
 
 		print_success "DNS configured successfully"
 	elif [[ $PROFILE == "laptop" ]]; then
-
 		mkdir -p /etc/systemd/resolved.conf.d
 
-		cat >/etc/systemd/resolved.conf.d/cloudflare.conf <<-EOF
+		cat >/etc/systemd/resolved.conf.d/cloudflare.conf <<-'EOF'
 			[Resolve]
 			DNS=1.1.1.1 1.0.0.1
 			FallbackDNS=
@@ -520,34 +439,11 @@ config_dns() {
 			DNSOverTLS=opportunistic
 		EOF
 
-		systemctl enable --now systemd-resolved || {
-			print_error "Failed to enable systemd-resolved"
-			return 1
-		}
+		ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+		systemctl enable --now systemd-resolved
 
-		if [ -f /run/systemd/resolve/stub-resolv.conf ]; then
-			ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf || {
-				print_error "Failed to link resolv.conf"
-				return 1
-			}
-		elif [ -f /run/systemd/resolve/resolv.conf ]; then
-			ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf || {
-				print_error "Failed to link resolv.conf"
-				return 1
-			}
-		else
-			print_error "systemd-resolved files not found"
-			return 1
-		fi
-
-		systemctl restart systemd-resolved || {
-			print_error "Failed to restart systemd-resolved"
-			return 1
-		}
 		print_success "DNS configured successfully"
-
 	fi
-
 }
 
 main() {
@@ -556,12 +452,12 @@ main() {
 
 	print_msg "Starting installation..."
 
-	update_system || return 1
-	enable_multilib || return 1
-	install_packages || return 1
-	enable_services || return 1
-	move_dotfiles || return 1
-	install_zsh_plugins || return 1
+	update_system
+	enable_multilib
+	install_packages
+	enable_services
+	move_dotfiles
+	install_zsh_plugins
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
 
