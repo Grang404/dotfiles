@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: XDG config
-# TODO: btop config
 # TODO: laptop power management
 # TODO: Unzip fonts
 # TODO: error handle funciton cooked
@@ -248,11 +246,11 @@ install_packages() {
 	local core_packages=(
 		base base-devel git curl wget hyprland hyprlock hyprshot
 		hyprpicker hyprpolkitagent waybar wireplumber wl-clipboard
-		wtype xdg-desktop-portal-hyprland xdg-utils
+		wtype xdg-desktop-portal-hyprland xdg-utils dhcpcd
 	)
 
 	local laptop_packages=(
-		tlp tlp-rdw bluez bluez-utils impala
+		tlp tlp-rdw bluez bluez-utils impala powertop iwd
 	)
 
 	local application_packages=(
@@ -268,7 +266,7 @@ install_packages() {
 		zsh swww rofi-wayland ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza iwd
+		cronie eza
 	)
 
 	local groups=("core" "application" "font" "utility")
@@ -291,15 +289,23 @@ enable_services() {
 		"cronie.service"
 		"lm_sensors.service"
 		"fstrim.timer"
+		"dhcpcd.service"
 	)
 
 	local laptop_services=(
+		"lm_sensors.service"
 		"bluetooth.service"
 		"tlp.service"
+		"dhcpcd.service"
+		"iwd.service"
 	)
 
 	local services=("${system_services[@]}")
 	[[ "$PROFILE" == "laptop" ]] && services+=("${laptop_services[@]}")
+
+	if [[ "$PROFILE" == "laptop" ]]; then
+		systemctl mask systemd-rfkill.service systemd-rfkill.socket
+	fi
 
 	for service in "${services[@]}"; do
 		print_msg "Enabling $service..."
@@ -511,6 +517,43 @@ config_xdg() {
 	print_success "XDG configuration completed"
 }
 
+config_power_management() {
+	print_msg "Configuring power management..."
+
+	local tlp_source="$SCRIPT_DIR/dots/tlp.conf"
+
+	if [ ! -f "$tlp_source" ]; then
+		print_error "tlp.conf not found: $tlp_source"
+		false
+	fi
+
+	create_backup "/etc/tlp.conf" ".backup"
+
+	cp "$tlp_source" /etc/tlp.conf
+	print_msg "Copied tlp.conf to /etc/tlp.conf"
+
+	local bootloader_entry
+	bootloader_entry=$(find /boot/loader/entries -type f -name "*.conf" | head -n1)
+
+	if [ -z "$bootloader_entry" ]; then
+		print_error "No systemd-boot entry found"
+		false
+	fi
+
+	if ! grep -q "amd_pstate=active" "$bootloader_entry"; then
+		create_backup "$bootloader_entry" ".backup"
+
+		sed -i '/^options / s/$/ amd_pstate=active/' "$bootloader_entry"
+		print_msg "Added amd_pstate=active to $bootloader_entry"
+	else
+		print_msg "amd_pstate already configured, skipping..."
+	fi
+
+	systemctl restart tlp
+
+	print_success "Power management configured successfully"
+}
+
 main() {
 	show_banner
 	sleep 2
@@ -526,6 +569,9 @@ main() {
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
 	move_firefox_config
+	if [[ "$PROFILE" == "laptop" ]]; then
+		config_power_management
+	fi
 
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
