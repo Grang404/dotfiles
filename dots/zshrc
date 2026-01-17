@@ -1,7 +1,3 @@
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:$HOME/.local/bin:$HOME/go/bin:$HOME/.cargo/bin
-export EZA_CONFIG_DIR="$HOME/.config/eza/"
-
-# History settings
 HISTFILE=~/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000
@@ -44,16 +40,9 @@ compinit
 # Update completion colors after LS_COLORS is set
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 
-# Environment variables
-export EDITOR='nvim'
-# export PATH="$PATH:$HOME/go/bin/:$HOME/.cargo/bin:$HOME/.local/bin"
-export ARCHFLAGS="-arch $(uname -m)"
-export MEDIA="/media/alice/MEDIA/media_server"
-
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 
 bindkey -v
-export KEYTIMEOUT=1
 
 bindkey -v '^?' backward-delete-char
 bindkey -v '^H' backward-delete-char

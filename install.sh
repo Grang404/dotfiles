@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# TODO: Firefox config
-# TODO: clean .desktop files
 # TODO: XDG config
 # TODO: btop config
 # TODO: laptop power management

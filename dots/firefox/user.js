@@ -11,6 +11,7 @@ user_pref("app.normandy.enabled", false);
 
 // Disable WebRTC IP leak
 user_pref("media.peerconnection.enabled", false);
+user_pref("media.peerconnection.allow_old_setParameters", false);
 
 // DNS over HTTPS (prevents DNS leaks)
 user_pref("network.trr.mode", 0);

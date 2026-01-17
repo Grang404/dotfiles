@@ -135,6 +135,12 @@ main() {
         ((fail_count++))
     fi
 
+    if sync_directory "$HOME/.zprofile" "$DOTS_DIR/zprofile"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
     if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
         log "Trimming first 2 lines from hyprland.conf"
         sed -i '1,2d' "$DOTS_DIR/hypr/hyprland.conf"
