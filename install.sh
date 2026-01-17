@@ -468,6 +468,49 @@ move_firefox_config() {
 	print_success "Firefox configuration moved!"
 }
 
+config_xdg() {
+	print_msg "Configuring XDG directories and MIME associations..."
+
+	create_backup "$USER_HOME/.config/mimeapps.list" ".backup"
+
+	mkdir -p "$USER_HOME/.config" "$USER_HOME/.cache" "$USER_HOME/.local/share" \
+		"$USER_HOME/.local/state" "$USER_HOME/.local/bin"
+
+	cat >"$USER_HOME/.config/mimeapps.list" <<-'EOF'
+		[Default Applications]
+		text/html=firefox.desktop
+		x-scheme-handler/http=firefox.desktop
+		x-scheme-handler/https=firefox.desktop
+		x-scheme-handler/about=firefox.desktop
+		text/plain=nvim.desktop
+		text/x-python=nvim.desktop
+		text/x-shellscript=nvim.desktop
+		text/markdown=nvim.desktop
+		image/png=imv.desktop
+		image/jpeg=imv.desktop
+		image/gif=imv.desktop
+		image/webp=imv.desktop
+		video/mp4=mpv.desktop
+		video/x-matroska=mpv.desktop
+		video/webm=mpv.desktop
+		audio/mpeg=mpv.desktop
+		audio/flac=mpv.desktop
+		audio/ogg=mpv.desktop
+		application/pdf=org.pwmt.zathura-pdf-mupdf.desktop
+		inode/directory=thunar.desktop
+
+		[Added Associations]
+		text/html=firefox.desktop
+		x-scheme-handler/http=firefox.desktop
+		x-scheme-handler/https=firefox.desktop
+	EOF
+
+	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config" "$USER_HOME/.cache" \
+		"$USER_HOME/.local"
+
+	print_success "XDG configuration completed"
+}
+
 main() {
 	show_banner
 	sleep 2
