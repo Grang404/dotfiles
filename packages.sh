@@ -62,14 +62,26 @@ utility_packages=(
 	cronie eza bind
 )
 
-groups=("core" "application" "font" "utility")
-[[ "$PROFILE" == "laptop" ]] && groups+=("laptop")
+print_msg "Installing core packages..."
+pacman -S --needed --noconfirm "${core_packages[@]}"
+print_success "Successfully installed core packages"
 
-for group_name in "${groups[@]}"; do
-	local -n current_group="${group_name}_packages"
-	print_msg "Installing $group_name packages..."
-	pacman -S --needed --noconfirm "${current_group[@]}"
-	print_success "Successfully installed $group_name packages"
-done
+print_msg "Installing application packages..."
+pacman -S --needed --noconfirm "${application_packages[@]}"
+print_success "Successfully installed application packages"
+
+print_msg "Installing font packages..."
+pacman -S --needed --noconfirm "${font_packages[@]}"
+print_success "Successfully installed font packages"
+
+print_msg "Installing utility packages..."
+pacman -S --needed --noconfirm "${utility_packages[@]}"
+print_success "Successfully installed utility packages"
+
+if [[ "$PROFILE" == "laptop" ]]; then
+	print_msg "Installing laptop packages..."
+	pacman -S --needed --noconfirm "${laptop_packages[@]}"
+	print_success "Successfully installed laptop packages"
+fi
 
 print_success "Installation completed!"
