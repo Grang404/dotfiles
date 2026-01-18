@@ -469,7 +469,7 @@ move_firefox_config() {
 
 	if [ -z "$firefox_profile" ]; then
 		print_msg "Firefox profile not found, creating one..."
-		sudo -u "$SUDO_USER" DISPLAY=:0 timeout 5 firefox --headless >/dev/null 2>&1 || true
+		sudo -u "$SUDO_USER" timeout 5 firefox --headless >/dev/null 2>&1 || true
 		sleep 2
 		firefox_profile=$(find "$USER_HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
 
@@ -613,6 +613,7 @@ main() {
 	config_dns
 	move_firefox_config
 	config_fonts
+	config_xdg
 	if [[ "$PROFILE" == "laptop" ]]; then
 		config_power_management
 	fi
