@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# TODO: Unzip fonts
 # TODO: error handle funciton cooked
 
 RED='\033[0;31m'
@@ -24,6 +23,7 @@ trap 'handle_error $? $LINENO' ERR
 trap 'final_cleanup' EXIT
 trap 'handle_interrupt' INT TERM
 
+mkdir "$SCRIPT_DIR/logs"
 LOG_FILE="$SCRIPT_DIR/logs/install.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
@@ -490,6 +490,8 @@ config_xdg() {
 	mkdir -p "$USER_HOME/.cache" "$USER_HOME/.local/share" \
 		"$USER_HOME/.local/state" "$USER_HOME/.local/bin"
 
+	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.local"
+
 	cat >"$USER_HOME/.config/mimeapps.list" <<-'EOF'
 		[Default Applications]
 		text/html=firefox.desktop
@@ -522,6 +524,13 @@ config_xdg() {
 	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config" "$USER_HOME/.cache" \
 		"$USER_HOME/.local"
 
+	if [[ ! -d /etc/xdg ]]; then
+		print_warning "No /etc/xdg directory, making one."
+		mkdir /etc/xdg
+	fi
+
+	cp "$SCRIPT_DIR/dots/xdg/user-dirs.conf" "$SCRIPT_DIR/dots/xdg/user-dirs.defaults" "/etc/xdg/"
+	sudo -u "$SUDO_USER" xdg-user-dirs-update
 	print_success "XDG configuration completed"
 }
 
