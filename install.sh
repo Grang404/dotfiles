@@ -23,7 +23,10 @@ trap 'handle_error $? $LINENO' ERR
 trap 'final_cleanup' EXIT
 trap 'handle_interrupt' INT TERM
 
-mkdir "$SCRIPT_DIR/logs"
+if [[ ! -d "$SCRIPT_DIR/logs" ]]; then
+	mkdir "$SCRIPT_DIR/logs"
+fi
+
 LOG_FILE="$SCRIPT_DIR/logs/install.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
