@@ -2,16 +2,9 @@
 #
 # The values are relative pathnames from the home directory and
 # will be translated on a per-path-element basis into the users locale
-DESKTOP=$HOME
+
+DESKTOP=.local/desktop
 DOWNLOAD=Downloads
-TEMPLATES=$HOME
-PUBLICSHARE=$HOME
 DOCUMENTS=Documents
-MUSIC=$HOME
 PICTURES=Pictures
 VIDEOS=Videos
-# Another alternative is:
-#MUSIC=Documents/Music
-#PICTURES=Documents/Pictures
-#VIDEOS=Documents/Videos
-
