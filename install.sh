@@ -532,19 +532,14 @@ config_power_management() {
 	cp "$tlp_source" /etc/tlp.conf
 	print_msg "Copied tlp.conf to /etc/tlp.conf"
 
-	local bootloader_entry
-	bootloader_entry=$(find /boot/loader/entries -type f -name "*.conf" | head -n1)
+	if ! grep -q "amd_pstate=active" /etc/default/grub; then
+		create_backup "/etc/default/grub" ".backup"
 
-	if [ -z "$bootloader_entry" ]; then
-		print_error "No systemd-boot entry found"
-		false
-	fi
+		sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&amd_pstate=active /' /etc/default/grub
+		print_msg "Added amd_pstate=active to GRUB_CMDLINE_LINUX_DEFAULT"
 
-	if ! grep -q "amd_pstate=active" "$bootloader_entry"; then
-		create_backup "$bootloader_entry" ".backup"
-
-		sed -i '/^options / s/$/ amd_pstate=active/' "$bootloader_entry"
-		print_msg "Added amd_pstate=active to $bootloader_entry"
+		grub-mkconfig -o /boot/grub/grub.cfg
+		print_msg "Regenerated GRUB configuration"
 	else
 		print_msg "amd_pstate already configured, skipping..."
 	fi
