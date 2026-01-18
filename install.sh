@@ -493,7 +493,7 @@ config_xdg() {
 	mkdir -p "$USER_HOME/.cache" "$USER_HOME/.local/share" \
 		"$USER_HOME/.local/state" "$USER_HOME/.local/bin"
 
-	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.local"
+	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.cache" "$USER_HOME/.local"
 
 	cat >"$USER_HOME/.config/mimeapps.list" <<-'EOF'
 		[Default Applications]
@@ -517,18 +517,16 @@ config_xdg() {
 		audio/ogg=mpv.desktop
 		application/pdf=org.pwmt.zathura-pdf-mupdf.desktop
 		inode/directory=thunar.desktop
-
 		[Added Associations]
 		text/html=firefox.desktop
 		x-scheme-handler/http=firefox.desktop
 		x-scheme-handler/https=firefox.desktop
 	EOF
 
-	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config" "$USER_HOME/.cache" \
-		"$USER_HOME/.local"
+	chown -R "$SUDO_USER:$SUDO_USER" "$USER_HOME/.config"
 
 	if [[ ! -d /etc/xdg ]]; then
-		print_warning "No /etc/xdg directory, making one."
+		print_warning "No /etc/xdg directory, creating one..."
 		mkdir /etc/xdg
 	fi
 
