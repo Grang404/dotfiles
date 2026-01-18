@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO: error handle funciton cooked
+#TODO: error handle funciton cooked
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -406,9 +406,8 @@ move_dotfiles() {
 			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
 			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
 			;;
-		tlp.conf)
-			print_msg "Skipping tlp.conf (handled in config_power_management)"
-			;;
+		tlp.conf) ;;
+		firefox) ;;
 		zprofile)
 			cp "$item" "$USER_HOME/.zprofile"
 			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zprofile"
@@ -466,7 +465,7 @@ move_firefox_config() {
 
 	local firefox_source="$SCRIPT_DIR/dots/firefox/user.js"
 	local firefox_profile
-	firefox_profile=$(find "$USER_HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
+	firefox_profile=$(find "$USER_HOME/.config/mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
 
 	if [ -z "$firefox_profile" ]; then
 		print_msg "Firefox profile not found, creating one..."
