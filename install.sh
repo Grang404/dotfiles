@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# TODO: mask networkd on desktop
 # TODO: Unzip fonts
 # TODO: error handle funciton cooked
 
@@ -293,10 +292,8 @@ enable_services() {
 	)
 
 	local laptop_services=(
-		"lm_sensors.service"
 		"bluetooth.service"
 		"tlp.service"
-		"dhcpcd.service"
 		"iwd.service"
 	)
 
@@ -305,6 +302,9 @@ enable_services() {
 
 	if [[ "$PROFILE" == "laptop" ]]; then
 		systemctl mask systemd-rfkill.service systemd-rfkill.socket
+	else
+		systemctl mask systemd-networkd.service
+
 	fi
 
 	for service in "${services[@]}"; do
@@ -526,6 +526,36 @@ config_xdg() {
 	print_success "XDG configuration completed"
 }
 
+config_fonts() {
+	print_msg "Installing fonts..."
+
+	local fonts_source="$SCRIPT_DIR/fonts"
+	local fonts_dest="$USER_HOME/.local/share/fonts"
+
+	if [ ! -d "$fonts_source" ]; then
+		print_warning "fonts directory not found: $fonts_source, skipping..."
+		return 0
+	fi
+
+	mkdir -p "$fonts_dest"
+
+	for font_zip in "$fonts_source"/*.zip; do
+		[ -e "$font_zip" ] || continue
+
+		local font_name
+		font_name=$(basename "$font_zip" .zip)
+
+		print_msg "Extracting $font_name..."
+		unzip -oq "$font_zip" -d "$fonts_dest"
+	done
+
+	chown -R "$SUDO_USER:$SUDO_USER" "$fonts_dest"
+
+	sudo -u "$SUDO_USER" fc-cache -f
+
+	print_success "Fonts installed successfully"
+}
+
 config_power_management() {
 	print_msg "Configuring power management..."
 
@@ -573,6 +603,7 @@ main() {
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
 	move_firefox_config
+	config_fonts
 	if [[ "$PROFILE" == "laptop" ]]; then
 		config_power_management
 	fi
