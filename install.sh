@@ -304,6 +304,7 @@ enable_services() {
 	[[ "$PROFILE" == "laptop" ]] && services+=("${laptop_services[@]}")
 
 	systemctl mask systemd-networkd.service systemd-networkd.socket systemd-networkd-varlink.socket systemd-networkd-resolve-hook.socket
+
 	if [[ "$PROFILE" == "laptop" ]]; then
 		systemctl mask systemd-rfkill.service systemd-rfkill.socket
 
@@ -432,7 +433,7 @@ config_dns() {
 	print_msg "Configuring DNS..."
 
 	if [[ $PROFILE == "desktop" ]]; then
-		systemctl disable --now systemd-resolved
+		systemctl mask systemd-resolved systemd-resolved-monitor.socket ssytemd-resolved.varlink.socket
 
 		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
 		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
@@ -611,12 +612,12 @@ main() {
 	install_zsh_plugins
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
-	move_firefox_config
 	config_fonts
 	config_xdg
 	if [[ "$PROFILE" == "laptop" ]]; then
 		config_power_management
 	fi
+	move_firefox_config
 
 	INSTALLATION_SUCCESSFUL=true
 	print_success "Installation completed successfully!"
