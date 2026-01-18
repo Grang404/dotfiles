@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TODO: laptop power management
+# TODO: mask networkd on desktop
 # TODO: Unzip fonts
 # TODO: error handle funciton cooked
 
@@ -266,7 +266,7 @@ install_packages() {
 		zsh swww rofi-wayland ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza
+		cronie eza bind
 	)
 
 	local groups=("core" "application" "font" "utility")
@@ -365,6 +365,7 @@ move_dotfiles() {
 	create_backup "$config_dir" ".backup"
 	create_backup "$USER_HOME/.zshrc" ".backup"
 	create_backup "$USER_HOME/.p10k.zsh" ".backup"
+	create_backup "$USER_HOME/.zprofile" ".backup"
 
 	mkdir -p "$config_dir"
 
@@ -404,6 +405,11 @@ move_dotfiles() {
 			;;
 		tlp.conf)
 			print_msg "Skipping tlp.conf (handled in config_power_management)"
+			;;
+		zprofile)
+			cp "$item" "$USER_HOME/.zprofile"
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zprofile"
+			print_msg "Copied zprofile to $USER_HOME/.zprofile"
 			;;
 		*)
 			cp -r "$item" "$config_dir/"
