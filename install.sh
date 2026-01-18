@@ -402,6 +402,9 @@ move_dotfiles() {
 			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
 			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
 			;;
+		tlp.conf)
+			print_msg "Skipping tlp.conf (handled in config_power_management)"
+			;;
 		*)
 			cp -r "$item" "$config_dir/"
 			print_msg "Copied $item_name to $config_dir"
@@ -479,7 +482,7 @@ config_xdg() {
 
 	create_backup "$USER_HOME/.config/mimeapps.list" ".backup"
 
-	mkdir -p "$USER_HOME/.config" "$USER_HOME/.cache" "$USER_HOME/.local/share" \
+	mkdir -p "$USER_HOME/.cache" "$USER_HOME/.local/share" \
 		"$USER_HOME/.local/state" "$USER_HOME/.local/bin"
 
 	cat >"$USER_HOME/.config/mimeapps.list" <<-'EOF'
