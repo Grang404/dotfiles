@@ -303,7 +303,7 @@ enable_services() {
 	local services=("${system_services[@]}")
 	[[ "$PROFILE" == "laptop" ]] && services+=("${laptop_services[@]}")
 
-	systemctl mask systemd-networkd.service systemd-networkd.socket systemd-networkd-varlink.socket systemd-networkd-resolve-hook.socket
+	systemctl mask systemd-networkd.service systemd-networkd.socket systemd-networkd-varlink.socket systemd-resolved-varlink.socket systemd-networkd-resolve-hook.socket
 
 	if [[ "$PROFILE" == "laptop" ]]; then
 		systemctl mask systemd-rfkill.service systemd-rfkill.socket
