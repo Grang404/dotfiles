@@ -90,6 +90,14 @@ sync_directory() {
         rsync_opts+=(--exclude='laptop/' --exclude='desktop/')
     fi
 
+if [[ "$name" == "waybar" ]]; then
+    if [[ "$PROFILE" == "laptop" ]]; then
+        rsync_opts+=(--exclude='desktop.jsonc')
+    elif [[ "$PROFILE" == "desktop" ]]; then
+        rsync_opts+=(--exclude='laptop.jsonc')
+    fi
+fi
+
     if [[ -d "$source" ]]; then
         if rsync_output=$(rsync "${rsync_opts[@]}" "$source/" "$target/" 2>&1); then
             log "$rsync_output"

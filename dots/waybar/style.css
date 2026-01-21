@@ -72,12 +72,21 @@ window#waybar {
   background-color: transparent;
 }
 
+#custom-tlp {
+  color: @green;
+  padding: 0 10px 0 5px;
+  margin: 0 0px;
+  background-color: transparent;
+  font-size: 20px;
+}
+
 #custom-vpn {
   color: @magenta;
   padding: 0 10px 0 5px;
   margin: 0 0px;
   background-color: transparent;
 }
+
 #custom-capslock {
   font-size: 20px;
   background-color: alpha(@red, 0.4);
@@ -158,6 +167,7 @@ window#waybar {
 #battery.charging,
 #battery.plugged {
   color: @green;
+  font-size: 18px;
 }
 
 #battery.warning:not(.charging) {

@@ -12,3 +12,6 @@ export EDITOR='nvim'
 export ARCHFLAGS="-arch $(uname -m)"
 export MEDIA="/media/$USER/MEDIA/media_server"
 export KEYTIMEOUT=1
+
+eval $(ssh-agent)
+ssh-add "$HOME/.ssh/gh_ed25519"
