@@ -12,6 +12,7 @@ readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m'
 
 LOG_FILE=""
+PROFILE=""
 
 log() {
     local msg
@@ -44,6 +45,20 @@ check_dependencies() {
             error "$dep is not installed. Please install it first."
         fi
     done
+}
+
+get_profile() {
+    local hypr_conf="$HOME/.config/hypr/hyprland.conf"
+    if [[ -f "$hypr_conf" ]]; then
+        PROFILE=$(grep -oP '^\$DEVICE\s*=\s*\K\w+' "$hypr_conf" | head -n1)
+        if [[ -n "$PROFILE" ]]; then
+            log "Detected profile: $PROFILE"
+        else
+            error "Could not find \$DEVICE variable in hyprland.conf"
+        fi
+    else
+        error "hyprland.conf not found at $hypr_conf"
+    fi
 }
 
 setup_directories() {
@@ -94,12 +109,53 @@ sync_directory() {
     return 1
 }
 
+sync_hypr_profile() {
+    local profile_source="$HOME/.config/hypr/$PROFILE"
+    local profile_target="$DOTS_DIR/hypr/$PROFILE"
+
+    if [[ -d "$profile_source" ]]; then
+        log "Syncing hypr/$PROFILE profile"
+        mkdir -p "$profile_target"
+        if rsync -a -v -h --progress --delete "$profile_source/" "$profile_target/" >>"$LOG_FILE" 2>&1; then
+            success "Synced hypr/$PROFILE"
+            return 0
+        else
+            warn "Failed to sync hypr/$PROFILE"
+            return 1
+        fi
+    else
+        warn "hypr/$PROFILE directory does not exist"
+        return 1
+    fi
+}
+
+sync_waybar_profile() {
+    local profile_source="$HOME/.config/waybar/$PROFILE.jsonc"
+    local profile_target="$DOTS_DIR/waybar/$PROFILE.jsonc"
+
+    if [[ -f "$profile_source" ]]; then
+        log "Syncing waybar/$PROFILE.jsonc"
+        mkdir -p "$(dirname "$profile_target")"
+        if rsync -a -v -h --progress "$profile_source" "$profile_target" >>"$LOG_FILE" 2>&1; then
+            success "Synced waybar/$PROFILE.jsonc"
+            return 0
+        else
+            warn "Failed to sync waybar/$PROFILE.jsonc"
+            return 1
+        fi
+    else
+        warn "waybar/$PROFILE.jsonc does not exist"
+        return 1
+    fi
+}
+
 main() {
     local sync_count=0 fail_count=0
 
     log "=== Dotfiles Sync Started ==="
 
     check_dependencies
+    get_profile
     setup_directories
 
     local -a config_dirs=(
@@ -125,6 +181,13 @@ main() {
             ((fail_count++))
         fi
     done
+
+    log "=== Syncing Hypr Profile ==="
+    if sync_hypr_profile; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
 
     log "=== Syncing Home Dotfiles ==="
     if sync_directory "$HOME/.zshrc" "$DOTS_DIR/zshrc"; then
@@ -163,6 +226,13 @@ main() {
         fi
     else
         warn "Firefox user.js not found, skipping..."
+    fi
+
+    log "=== Syncing Waybar Profile ==="
+    if sync_waybar_profile; then
+        ((sync_count++))
+    else
+        ((fail_count++))
     fi
 
     log "=== Sync Complete ==="
