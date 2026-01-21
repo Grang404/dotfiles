@@ -1,0 +1,38 @@
+background = 0c0a0a
+foreground = c1c0d4
+cursor-color = c1c0d4
+
+palette = 0=#160d10
+palette = 8=#1c1014
+
+palette = 1=#a23649
+palette = 9=#de4a64
+
+palette = 2=#8daa91
+palette = 10=#a1baa4
+
+palette = 3=#d6a78a
+palette = 11=#e9b696
+
+palette = 4=#a096c1
+palette = 12=#aca2cb
+
+palette = 5=#B25E7F
+palette = 13=#d77199
+
+palette = 6=#6e8f89
+palette = 14=#81a8a0
+
+palette = 7=#757580
+palette = 15=#9998a8
+
+background-opacity = 0.8
+
+font-family = "JetBrainsMono Nerd Font Mono"
+font-size = 14
+font-feature = -liga
+font-feature = -calt
+
+
+window-decoration = none
+gtk-tabs-location = hidden

@@ -1,0 +1,15 @@
+theme = groob_theme
+cursor-style-blink = true
+
+confirm-close-surface = false
+app-notifications = false
+resize-overlay = never
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+shell-integration = zsh
+bell-features = no-audio,no-system,no-attention,no-title
+
+keybind = ctrl+shift+t=unbind
+keybind = ctrl+tab=unbind
+keybind = ctrl+shift+tab=unbind

@@ -1,0 +1,14 @@
+if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
+	exec start-hyprland
+fi
+
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/sbin:/usr/local/bin:$HOME/.local/bin:$HOME/go/bin:$HOME/.cargo/bin
+export EZA_CONFIG_DIR="$HOME/.config/eza/"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+export EDITOR='nvim'
+export ARCHFLAGS="-arch $(uname -m)"
+export MEDIA="/media/$USER/MEDIA/media_server"
+export KEYTIMEOUT=1

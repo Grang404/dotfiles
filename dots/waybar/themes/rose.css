@@ -1,0 +1,186 @@
+@define-color background #0c0a0a;
+@define-color background-light #28151c;
+@define-color foreground #c1c0d4;
+@define-color black #1b0e13;
+@define-color red #a72449;
+@define-color green #8daa91;
+@define-color yellow #e6b99d;
+@define-color blue #aca1cf;
+@define-color magenta #6b384b;
+@define-color cyan #873c56;
+@define-color white #4e494d;
+
+* {
+  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
+  border: none;
+  border-radius: 0;
+  font-weight: bold;
+  font-size: 16px;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: rgba(12, 10, 10, 0.8);
+  color: @foreground;
+}
+
+#workspaces button {
+  padding: 0 5px;
+  border-top: 1px solid transparent;
+  background-color: transparent;
+  color: @foreground;
+  margin: 0;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-top 0.2s ease;
+}
+
+#workspaces button:hover {
+  background: @background-light;
+}
+
+#workspaces button.focused {
+  color: @workspaces-focused-fg;
+}
+
+#workspaces button.active {
+  border-top: 1px solid @magenta;
+  background-color: rgba(30, 30, 30, 0.8);
+  color: @magenta;
+}
+
+#workspaces button.urgent {
+  background-color: @red;
+  color: @white;
+}
+
+#custom-separator {
+  color: alpha(@white, 0.4);
+}
+
+#clock,
+#network,
+#pulseaudio,
+#battery,
+#temperature,
+#cpu,
+#memory {
+  color: @foreground;
+  padding: 0 5px 0 5px;
+  margin: 0 0px;
+  background-color: transparent;
+}
+
+#custom-vpn {
+  color: @cyan;
+  padding: 0 10px 0 5px;
+  margin: 0 0px;
+  background-color: transparent;
+}
+#custom-capslock {
+  font-size: 20px;
+  background-color: alpha(@red, 0.4);
+  padding: 0 7px 0 6px;
+}
+
+#clock:hover,
+#network:hover,
+#pulseaudio:hover,
+#battery:hover,
+#cpu:hover {
+  color: @blue;
+}
+
+#clock {
+  margin-right: 3px;
+  color: @foreground;
+}
+
+#network {
+  color: @foreground;
+}
+
+#network.disconnected {
+  color: @red;
+}
+
+#pulseaudio {
+  font-size: 20px;
+}
+
+#pulseaudio.muted {
+  color: @red;
+}
+
+#cpu {
+  color: @green;
+}
+
+#cpu.warning {
+  color: @yellow;
+}
+
+#cpu.critical {
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#temperature {
+  color: @green;
+}
+
+#temperature.critical {
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#memory {
+  color: @green;
+}
+
+#memory.warning {
+  color: @yellow;
+}
+
+#memory.critical {
+  color: @red;
+}
+
+#battery.charging,
+#battery.plugged {
+  color: @green;
+}
+
+#battery.warning:not(.charging) {
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#battery.critical:not(.charging) {
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes blink-red {
+  to {
+    background-color: @red;
+    color: @background;
+  }
+}
