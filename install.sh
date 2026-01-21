@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -258,11 +258,11 @@ install_packages() {
 	local core_packages=(
 		base base-devel git curl wget hyprland hyprlock hyprshot
 		hyprpicker hyprpolkitagent waybar wireplumber wl-clipboard
-		wtype xdg-desktop-portal-hyprland xdg-utils dhcpcd
+		wtype xdg-desktop-portal-hyprland xdg-utils
 	)
 
 	local laptop_packages=(
-		tlp tlp-rdw bluez bluez-utils impala powertop iwd openresolv
+		tlp tlp-rdw bluez bluez-utils impala powertop iwd
 	)
 
 	local application_packages=(
@@ -449,19 +449,18 @@ move_dotfiles() {
 config_dns() {
 	print_msg "Configuring DNS..."
 
-	systemctl mask \
-		systemd-networkd.service \
-		systemd-networkd.socket \
-		systemd-networkd-varlink.socket \
-		systemd-networkd-resolve-hook.socket \
-		systemd-resolved.service \
-		systemd-resolved-monitor.socket \
-		systemd-resolved-varlink.socket
-
-	[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
-	[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
-
 	if [[ $PROFILE == "desktop" ]]; then
+		systemctl mask \
+			systemd-networkd.service \
+			systemd-networkd.socket \
+			systemd-networkd-varlink.socket \
+			systemd-networkd-resolve-hook.socket \
+			systemd-resolved.service \
+			systemd-resolved-monitor.socket \
+			systemd-resolved-varlink.socket
+
+		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
+		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
 
 		printf "nameserver 192.168.0.10\nnameserver 192.168.0.1\n" >/etc/resolv.conf
 		chattr +i /etc/resolv.conf
@@ -470,8 +469,23 @@ config_dns() {
 
 	elif [[ $PROFILE == "laptop" ]]; then
 
-		printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" >/etc/resolv.conf
-		chattr +i /etc/resolv.conf
+		systemctl enable --now systemd-resolved iwd
+
+		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
+		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
+
+		ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+
+		mkdir -p /etc/iwd
+		cat >/etc/iwd/main.conf <<-'EOF'
+			[General]
+			EnableNetworkConfiguration=true
+
+			[Network]
+			NameResolvingService=systemd
+		EOF
+
+		systemctl restart iwd
 
 		print_success "DNS configured successfully"
 	fi
