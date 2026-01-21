@@ -262,7 +262,7 @@ install_packages() {
 	)
 
 	local laptop_packages=(
-		tlp tlp-rdw bluez bluez-utils impala powertop iwd
+		tlp tlp-rdw bluez bluez-utils impala powertop iwd openresolv
 	)
 
 	local application_packages=(
@@ -278,7 +278,7 @@ install_packages() {
 		zsh swww rofi-wayland ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza bind
+		cronie eza bind which
 	)
 
 	local groups=("core" "application" "font" "utility")
@@ -301,7 +301,6 @@ enable_services() {
 		"cronie.service"
 		"lm_sensors.service"
 		"fstrim.timer"
-		"dhcpcd.service"
 	)
 
 	local laptop_services=(
@@ -450,38 +449,29 @@ move_dotfiles() {
 config_dns() {
 	print_msg "Configuring DNS..."
 
+	systemctl mask \
+		systemd-networkd.service \
+		systemd-networkd.socket \
+		systemd-networkd-varlink.socket \
+		systemd-networkd-resolve-hook.socket \
+		systemd-resolved.service \
+		systemd-resolved-monitor.socket \
+		systemd-resolved-varlink.socket
+
+	[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
+	[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
+
 	if [[ $PROFILE == "desktop" ]]; then
-
-		systemctl mask \
-			systemd-networkd.service \
-			systemd-networkd.socket \
-			systemd-networkd-varlink.socket \
-			systemd-networkd-resolve-hook.socket \
-			systemd-resolved.service \
-			systemd-resolved-monitor.socket \
-			systemd-resolved-varlink.socket
-
-		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
-		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
 
 		printf "nameserver 192.168.0.10\nnameserver 192.168.0.1\n" >/etc/resolv.conf
 		chattr +i /etc/resolv.conf
 
 		print_success "DNS configured successfully"
+
 	elif [[ $PROFILE == "laptop" ]]; then
-		mkdir -p /etc/systemd/resolved.conf.d
 
-		cat >/etc/systemd/resolved.conf.d/cloudflare.conf <<-'EOF'
-			[Resolve]
-			DNS=1.1.1.1 1.0.0.1
-			FallbackDNS=
-			Domains=~.
-			DNSSEC=yes
-			DNSOverTLS=opportunistic
-		EOF
-
-		systemctl enable --now systemd-resolved
-		ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+		printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" >/etc/resolv.conf
+		chattr +i /etc/resolv.conf
 
 		print_success "DNS configured successfully"
 	fi
