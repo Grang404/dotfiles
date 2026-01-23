@@ -361,10 +361,11 @@ install_zsh_plugins() {
 	print_success "ZSH plugins and theme installed successfully"
 }
 
-symlink_dotfiles() {
-	print_msg "Symlinking dotfiles..."
+move_dotfiles() {
+	print_msg "Moving config files..."
 	local config_dir="$USER_HOME/.config"
 	local dots_dir="$SCRIPT_DIR/dots"
+	local hypr_dir="$dots_dir/hypr"
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
@@ -380,48 +381,69 @@ symlink_dotfiles() {
 
 	mkdir -p "$config_dir"
 
-	local shared_dirs=("btop" "eza" "fastfetch" "ghostty" "gtk-2.0" "gtk-3.0" "gtk-4.0" "nvim" "rofi" "xdg" "zsh")
+	for item in "$dots_dir"/*; do
+		[ -e "$item" ] || continue
+		local item_name
+		item_name=$(basename "$item")
 
-	for dir in "${shared_dirs[@]}"; do
-		if [ -d "$dots_dir/$dir" ]; then
-			ln -sf "$dots_dir/$dir" "$config_dir/$dir"
-			print_msg "Symlinked $dir"
-		fi
+		case "$item_name" in
+		hypr)
+			if [ ! -d "$hypr_dir" ]; then
+				print_error "hypr directory not found: $hypr_dir"
+				exit 1
+			fi
+
+			mkdir -p "$config_dir/hypr"
+			for hypr_item in "$hypr_dir"/*; do
+				[ -e "$hypr_item" ] || continue
+				local hypr_item_name
+				hypr_item_name=$(basename "$hypr_item")
+
+				if [ "$hypr_item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
+					continue
+				fi
+				if [ "$hypr_item_name" = "laptop" ] && [ "$PROFILE" != "laptop" ]; then
+					continue
+				fi
+
+				if [ "$hypr_item_name" = "$PROFILE" ] && [ ! -d "$hypr_item" ]; then
+					print_error "Profile directory not found: $hypr_item"
+					exit 1
+				fi
+
+				cp -r "$hypr_item" "$config_dir/hypr/"
+			done
+			print_msg "Copied hypr directory structure to $config_dir/hypr"
+			;;
+		zshrc)
+			cp "$item" "$USER_HOME/.zshrc"
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
+			print_msg "Copied zshrc to $USER_HOME/.zshrc"
+			;;
+		p10k.zsh)
+			cp "$item" "$USER_HOME/.p10k.zsh"
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
+			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
+			;;
+		tlp.conf) ;;
+		firefox) ;;
+		zprofile)
+			cp "$item" "$USER_HOME/.zprofile"
+			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zprofile"
+			print_msg "Copied zprofile to $USER_HOME/.zprofile"
+			;;
+		*)
+			cp -r "$item" "$config_dir/"
+			print_msg "Copied $item_name to $config_dir"
+			;;
+		esac
 	done
-
-	ln -sf "$dots_dir/zshrc" "$USER_HOME/.zshrc"
-	ln -sf "$dots_dir/p10k.zsh" "$USER_HOME/.p10k.zsh"
-	ln -sf "$dots_dir/zprofile" "$USER_HOME/.zprofile"
-	print_msg "Symlinked home dotfiles"
-
-	mkdir -p "$config_dir/hypr"
-	ln -sf "$dots_dir/hypr/hypridle.conf" "$config_dir/hypr/hypridle.conf"
-	ln -sf "$dots_dir/hypr/hyprland.conf" "$config_dir/hypr/hyprland.conf"
-	ln -sf "$dots_dir/hypr/hyprlock.conf" "$config_dir/hypr/hyprlock.conf"
-	ln -sf "$dots_dir/hypr/scripts" "$config_dir/hypr/scripts"
-	ln -sf "$dots_dir/hypr/shared" "$config_dir/hypr/shared"
-
-	for conf in "$dots_dir/hypr/$PROFILE"/*.conf; do
-		[ -e "$conf" ] || continue
-		local conf_name=$(basename "$conf")
-		ln -sf "$conf" "$config_dir/hypr/$conf_name"
-		print_msg "Symlinked hypr/$conf_name"
-	done
-
-	mkdir -p "$config_dir/waybar"
-	ln -sf "$dots_dir/waybar/$PROFILE.jsonc" "$config_dir/waybar/config.jsonc"
-	ln -sf "$dots_dir/waybar/style.css" "$config_dir/waybar/style.css"
-	ln -sf "$dots_dir/waybar/themes" "$config_dir/waybar/themes"
-
-	mkdir -p "$config_dir/waybar/scripts"
-	ln -sf "$dots_dir/waybar/scripts/vpn.sh" "$config_dir/waybar/scripts/vpn.sh"
-	if [[ "$PROFILE" == "laptop" ]]; then
-		ln -sf "$dots_dir/waybar/scripts/tlp.sh" "$config_dir/waybar/scripts/tlp.sh"
-	fi
-	print_msg "Symlinked waybar"
 
 	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
-	print_success "Dotfiles symlinked successfully"
+
+	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf"
+	print_msg "Added device profile to hyprland.conf"
+	print_success "Dotfiles moved successfully"
 }
 
 config_dns() {
@@ -667,7 +689,7 @@ main() {
 	install_gpu_drivers
 	install_packages
 	enable_services
-	symlink_dotfiles
+	move_dotfiles
 	install_zsh_plugins
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
