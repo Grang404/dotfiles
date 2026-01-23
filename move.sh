@@ -1,43 +1,3 @@
-#!/bin/bash
-
-set -eE
-
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly BLUE='\033[0;34m'
-readonly YELLOW='\033[1;33m'
-readonly BOLD='\033[1m'
-readonly NC='\033[0m'
-
-readonly SCRIPT_DIR
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly DOTS_DIR="$SCRIPT_DIR/dots"
-readonly CONFIG_DIR="$HOME/.config"
-
-print_msg() {
-	echo -e "${BOLD}${BLUE}[*]${NC} $1"
-}
-
-print_success() {
-	echo -e "${BOLD}${GREEN}[+]${NC} $1"
-}
-
-print_error() {
-	echo -e "${BOLD}${RED}[!]${NC} $1"
-}
-
-print_warning() {
-	echo -e "${BOLD}${YELLOW}[!]${NC} $1"
-}
-
-detect_profile() {
-	if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
-		echo "laptop"
-	else
-		echo "desktop"
-	fi
-}
-
 update_dotfiles() {
 	local profile=$(detect_profile)
 	print_msg "Detected profile: $profile"
@@ -47,7 +7,7 @@ update_dotfiles() {
 		exit 1
 	fi
 
-	local shared_dirs=("btop" "eza" "fastfetch" "ghostty" "gtk-2.0" "gtk-3.0" "gtk-4.0" "nvim" "rofi" "xdg" "zsh" "waybar")
+	local shared_dirs=("btop" "eza" "fastfetch" "ghostty" "gtk-2.0" "gtk-3.0" "gtk-4.0" "nvim" "rofi" "xdg" "waybar")
 
 	for dir in "${shared_dirs[@]}"; do
 		if [[ -d "$DOTS_DIR/$dir" ]]; then
@@ -69,6 +29,19 @@ update_dotfiles() {
 			print_success "Updated $dir"
 		fi
 	done
+
+	if [[ -d "$CONFIG_DIR/zsh/plugins" && -d "$CONFIG_DIR/zsh/themes" ]]; then
+		if [[ -d "$DOTS_DIR/zsh" ]]; then
+			print_msg "Updating zsh..."
+			rsync -a --delete \
+				--exclude="plugins/" \
+				--exclude="themes/" \
+				"$DOTS_DIR/zsh/" "$CONFIG_DIR/zsh/"
+			print_success "Updated zsh"
+		fi
+	else
+		print_warning "ZSH plugins/themes not found, skipping zsh update (run install.sh first)"
+	fi
 
 	if [[ -d "$DOTS_DIR/hypr" ]]; then
 		print_msg "Updating hypr..."
@@ -99,8 +72,7 @@ update_dotfiles() {
 		fi
 	done
 
-	local firefox_profile
-	firefox_profile=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
+	local firefox_profile=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
 	if [[ -n "$firefox_profile" && -f "$DOTS_DIR/firefox/user.js" ]]; then
 		print_msg "Updating Firefox user.js..."
 		cp "$DOTS_DIR/firefox/user.js" "$firefox_profile/user.js"
@@ -109,10 +81,3 @@ update_dotfiles() {
 
 	print_success "Dotfiles updated successfully!"
 }
-
-main() {
-	print_msg "Updating dotfiles from repository..."
-	update_dotfiles
-}
-
-main
