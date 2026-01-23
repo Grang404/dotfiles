@@ -667,7 +667,7 @@ main() {
 	install_gpu_drivers
 	install_packages
 	enable_services
-	move_dotfiles
+	symlink_dotfiles
 	install_zsh_plugins
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
