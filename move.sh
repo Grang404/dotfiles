@@ -1,3 +1,43 @@
+#!/bin/bash
+
+set -eE
+
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly BLUE='\033[0;34m'
+readonly YELLOW='\033[1;33m'
+readonly BOLD='\033[1m'
+readonly NC='\033[0m'
+
+readonly SCRIPT_DIR
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly DOTS_DIR="$SCRIPT_DIR/dots"
+readonly CONFIG_DIR="$HOME/.config"
+
+print_msg() {
+	echo -e "${BOLD}${BLUE}[*]${NC} $1"
+}
+
+print_success() {
+	echo -e "${BOLD}${GREEN}[+]${NC} $1"
+}
+
+print_error() {
+	echo -e "${BOLD}${RED}[!]${NC} $1"
+}
+
+print_warning() {
+	echo -e "${BOLD}${YELLOW}[!]${NC} $1"
+}
+
+detect_profile() {
+	if [[ -d /sys/class/power_supply/BAT0 ]] || [[ -d /sys/class/power_supply/BAT1 ]]; then
+		echo "laptop"
+	else
+		echo "desktop"
+	fi
+}
+
 update_dotfiles() {
 	local profile=$(detect_profile)
 	print_msg "Detected profile: $profile"
@@ -81,3 +121,10 @@ update_dotfiles() {
 
 	print_success "Dotfiles updated successfully!"
 }
+
+main() {
+	print_msg "Updating dotfiles from repository..."
+	update_dotfiles
+}
+
+main
