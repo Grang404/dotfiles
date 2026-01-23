@@ -9,7 +9,8 @@ readonly YELLOW='\033[1;33m'
 readonly BOLD='\033[1m'
 readonly NC='\033[0m'
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DOTS_DIR="$SCRIPT_DIR/dots"
 readonly CONFIG_DIR="$HOME/.config"
 
@@ -82,6 +83,11 @@ update_dotfiles() {
 			print_msg "Updated hypr from $profile profile"
 		fi
 
+		if [[ -f "$CONFIG_DIR/hypr/hyprland.conf" ]]; then
+			sed -i "1i\$DEVICE = $profile" "$CONFIG_DIR/hypr/hyprland.conf"
+			print_msg "Added \$DEVICE = $profile to hyprland.conf"
+		fi
+
 		print_success "Updated hypr"
 	fi
 
@@ -93,7 +99,8 @@ update_dotfiles() {
 		fi
 	done
 
-	local firefox_profile=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
+	local firefox_profile
+	firefox_profile=$(find "$HOME/.mozilla/firefox" -maxdepth 1 -type d -name "*.default-release" 2>/dev/null | head -n1)
 	if [[ -n "$firefox_profile" && -f "$DOTS_DIR/firefox/user.js" ]]; then
 		print_msg "Updating Firefox user.js..."
 		cp "$DOTS_DIR/firefox/user.js" "$firefox_profile/user.js"
