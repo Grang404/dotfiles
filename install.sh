@@ -361,11 +361,10 @@ install_zsh_plugins() {
 	print_success "ZSH plugins and theme installed successfully"
 }
 
-move_dotfiles() {
-	print_msg "Moving config files..."
+symlink_dotfiles() {
+	print_msg "Symlinking dotfiles..."
 	local config_dir="$USER_HOME/.config"
 	local dots_dir="$SCRIPT_DIR/dots"
-	local hypr_dir="$dots_dir/hypr"
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
@@ -381,69 +380,48 @@ move_dotfiles() {
 
 	mkdir -p "$config_dir"
 
-	for item in "$dots_dir"/*; do
-		[ -e "$item" ] || continue
-		local item_name
-		item_name=$(basename "$item")
+	local shared_dirs=("btop" "eza" "fastfetch" "ghostty" "gtk-2.0" "gtk-3.0" "gtk-4.0" "nvim" "rofi" "xdg" "zsh")
 
-		case "$item_name" in
-		hypr)
-			if [ ! -d "$hypr_dir" ]; then
-				print_error "hypr directory not found: $hypr_dir"
-				exit 1
-			fi
-
-			mkdir -p "$config_dir/hypr"
-			for hypr_item in "$hypr_dir"/*; do
-				[ -e "$hypr_item" ] || continue
-				local hypr_item_name
-				hypr_item_name=$(basename "$hypr_item")
-
-				if [ "$hypr_item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
-					continue
-				fi
-				if [ "$hypr_item_name" = "laptop" ] && [ "$PROFILE" != "laptop" ]; then
-					continue
-				fi
-
-				if [ "$hypr_item_name" = "$PROFILE" ] && [ ! -d "$hypr_item" ]; then
-					print_error "Profile directory not found: $hypr_item"
-					exit 1
-				fi
-
-				cp -r "$hypr_item" "$config_dir/hypr/"
-			done
-			print_msg "Copied hypr directory structure to $config_dir/hypr"
-			;;
-		zshrc)
-			cp "$item" "$USER_HOME/.zshrc"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
-			print_msg "Copied zshrc to $USER_HOME/.zshrc"
-			;;
-		p10k.zsh)
-			cp "$item" "$USER_HOME/.p10k.zsh"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
-			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
-			;;
-		tlp.conf) ;;
-		firefox) ;;
-		zprofile)
-			cp "$item" "$USER_HOME/.zprofile"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zprofile"
-			print_msg "Copied zprofile to $USER_HOME/.zprofile"
-			;;
-		*)
-			cp -r "$item" "$config_dir/"
-			print_msg "Copied $item_name to $config_dir"
-			;;
-		esac
+	for dir in "${shared_dirs[@]}"; do
+		if [ -d "$dots_dir/$dir" ]; then
+			ln -sf "$dots_dir/$dir" "$config_dir/$dir"
+			print_msg "Symlinked $dir"
+		fi
 	done
 
-	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
+	ln -sf "$dots_dir/zshrc" "$USER_HOME/.zshrc"
+	ln -sf "$dots_dir/p10k.zsh" "$USER_HOME/.p10k.zsh"
+	ln -sf "$dots_dir/zprofile" "$USER_HOME/.zprofile"
+	print_msg "Symlinked home dotfiles"
 
-	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf"
-	print_msg "Added device profile to hyprland.conf"
-	print_success "Dotfiles moved successfully"
+	mkdir -p "$config_dir/hypr"
+	ln -sf "$dots_dir/hypr/hypridle.conf" "$config_dir/hypr/hypridle.conf"
+	ln -sf "$dots_dir/hypr/hyprland.conf" "$config_dir/hypr/hyprland.conf"
+	ln -sf "$dots_dir/hypr/hyprlock.conf" "$config_dir/hypr/hyprlock.conf"
+	ln -sf "$dots_dir/hypr/scripts" "$config_dir/hypr/scripts"
+	ln -sf "$dots_dir/hypr/shared" "$config_dir/hypr/shared"
+
+	for conf in "$dots_dir/hypr/$PROFILE"/*.conf; do
+		[ -e "$conf" ] || continue
+		local conf_name=$(basename "$conf")
+		ln -sf "$conf" "$config_dir/hypr/$conf_name"
+		print_msg "Symlinked hypr/$conf_name"
+	done
+
+	mkdir -p "$config_dir/waybar"
+	ln -sf "$dots_dir/waybar/$PROFILE.jsonc" "$config_dir/waybar/config.jsonc"
+	ln -sf "$dots_dir/waybar/style.css" "$config_dir/waybar/style.css"
+	ln -sf "$dots_dir/waybar/themes" "$config_dir/waybar/themes"
+
+	mkdir -p "$config_dir/waybar/scripts"
+	ln -sf "$dots_dir/waybar/scripts/vpn.sh" "$config_dir/waybar/scripts/vpn.sh"
+	if [[ "$PROFILE" == "laptop" ]]; then
+		ln -sf "$dots_dir/waybar/scripts/tlp.sh" "$config_dir/waybar/scripts/tlp.sh"
+	fi
+	print_msg "Symlinked waybar"
+
+	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
+	print_success "Dotfiles symlinked successfully"
 }
 
 config_dns() {
@@ -635,29 +613,39 @@ config_grub() {
 config_power_management() {
 	print_msg "Configuring power management..."
 
-	local tlp_source="$SCRIPT_DIR/dots/tlp.conf"
-
-	if [ ! -f "$tlp_source" ]; then
-		print_error "tlp.conf not found: $tlp_source"
-		exit 1
-	fi
-
 	print_warning "Masking unrequired services..."
 	systemctl mask systemd-rfkill.service systemd-rfkill.socket
 
 	create_backup "/etc/tlp.conf" ".backup"
 
-	cp "$tlp_source" /etc/tlp.conf
-
-	if [[ -e /etc/tlp.conf ]]; then
-		print_msg "Copied tlp.conf to /etc/tlp.conf"
-	else
-		print_error "Failed to copy tlp.conf to /etc/tlp.conf"
-	fi
+	cat >/etc/tlp.conf <<-'EOF'
+		TLP_ENABLE=1
+		TLP_AUTO_SWITCH=2
+		DISK_IDLE_SECS_ON_AC=0
+		DISK_IDLE_SECS_ON_BAT=2
+		CPU_SCALING_GOVERNOR_ON_AC=performance
+		CPU_SCALING_GOVERNOR_ON_BAT=powersave
+		CPU_SCALING_GOVERNOR_ON_SAV=powersave
+		CPU_ENERGY_PERF_POLICY_ON_AC=balance_performance
+		CPU_ENERGY_PERF_POLICY_ON_BAT=balance_power
+		CPU_ENERGY_PERF_POLICY_ON_SAV=power
+		CPU_BOOST_ON_AC=1
+		CPU_BOOST_ON_BAT=1
+		CPU_BOOST_ON_SAV=0
+		PLATFORM_PROFILE_ON_AC=performance
+		PLATFORM_PROFILE_ON_BAT=balanced
+		PLATFORM_PROFILE_ON_SAV=low-power
+		DISK_DEVICES="nvme0n1"
+		WIFI_PWR_ON_AC=off
+		WIFI_PWR_ON_BAT=on
+		PCIE_ASPM_ON_AC=default
+		PCIE_ASPM_ON_BAT=powersave
+		RUNTIME_PM_ON_AC=on
+		RUNTIME_PM_ON_BAT=auto
+	EOF
 
 	if ! grep -q "amd_pstate=active" /etc/default/grub; then
 		create_backup "/etc/default/grub" ".backup"
-
 		sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="/&amd_pstate=active /' /etc/default/grub
 		print_msg "Added amd_pstate=active to GRUB_CMDLINE_LINUX_DEFAULT"
 	else
@@ -665,7 +653,6 @@ config_power_management() {
 	fi
 
 	systemctl restart tlp
-
 	print_success "Power management configured successfully"
 }
 
