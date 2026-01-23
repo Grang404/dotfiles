@@ -92,8 +92,9 @@ update_dotfiles() {
 			"$DOTS_DIR/hypr/" "$CONFIG_DIR/hypr/"
 
 		if [[ -d "$DOTS_DIR/hypr/$profile" ]]; then
-			rsync -a "$DOTS_DIR/hypr/$profile/" "$CONFIG_DIR/hypr/"
-			print_msg "Updated hypr from $profile profile"
+			rm -rf "$CONFIG_DIR/hypr/$profile"
+			cp -r "$DOTS_DIR/hypr/$profile" "$CONFIG_DIR/hypr/$profile"
+			print_msg "Updated hypr/$profile directory"
 		fi
 
 		if [[ -f "$CONFIG_DIR/hypr/hyprland.conf" ]]; then
