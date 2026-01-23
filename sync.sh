@@ -90,13 +90,13 @@ sync_directory() {
         rsync_opts+=(--exclude='laptop/' --exclude='desktop/')
     fi
 
-if [[ "$name" == "waybar" ]]; then
-    if [[ "$PROFILE" == "laptop" ]]; then
-        rsync_opts+=(--exclude='desktop.jsonc')
-    elif [[ "$PROFILE" == "desktop" ]]; then
-        rsync_opts+=(--exclude='laptop.jsonc')
+    if [[ "$name" == "waybar" ]]; then
+        if [[ "$PROFILE" == "laptop" ]]; then
+            rsync_opts+=(--exclude='desktop.jsonc')
+        elif [[ "$PROFILE" == "desktop" ]]; then
+            rsync_opts+=(--exclude='laptop.jsonc')
+        fi
     fi
-fi
 
     if [[ -d "$source" ]]; then
         if rsync_output=$(rsync "${rsync_opts[@]}" "$source/" "$target/" 2>&1); then
@@ -217,9 +217,9 @@ main() {
     fi
 
     if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
-        log "Trimming first 2 lines from hyprland.conf"
-        sed -i '1,2d' "$DOTS_DIR/hypr/hyprland.conf"
-        success "Trimmed hyprland.conf"
+        log "Removing \$DEVICE line from hyprland.conf"
+        sed -i '1d' "$DOTS_DIR/hypr/hyprland.conf"
+        success "Cleaned hyprland.conf"
     fi
 
     log "=== Syncing Firefox Config ==="

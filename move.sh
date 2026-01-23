@@ -9,7 +9,6 @@ readonly YELLOW='\033[1;33m'
 readonly BOLD='\033[1m'
 readonly NC='\033[0m'
 
-readonly SCRIPT_DIR
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DOTS_DIR="$SCRIPT_DIR/dots"
 readonly CONFIG_DIR="$HOME/.config"
@@ -39,7 +38,8 @@ detect_profile() {
 }
 
 update_dotfiles() {
-	local profile=$(detect_profile)
+	local profile
+	profile=$(detect_profile)
 	print_msg "Detected profile: $profile"
 
 	if [[ ! -d "$DOTS_DIR" ]]; then
@@ -98,6 +98,7 @@ update_dotfiles() {
 		fi
 
 		if [[ -f "$CONFIG_DIR/hypr/hyprland.conf" ]]; then
+			sed -i '/^\$DEVICE = /d' "$CONFIG_DIR/hypr/hyprland.conf"
 			sed -i "1i\$DEVICE = $profile" "$CONFIG_DIR/hypr/hyprland.conf"
 			print_msg "Added \$DEVICE = $profile to hyprland.conf"
 		fi
