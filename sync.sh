@@ -216,6 +216,12 @@ main() {
         ((fail_count++))
     fi
 
+    if sync_directory "$HOME/.zshenv" "$DOTS_DIR/zshenv"; then
+        ((sync_count++))
+    else
+        ((fail_count++))
+    fi
+
     if [[ -f "$DOTS_DIR/hypr/hyprland.conf" ]]; then
         log "Removing \$DEVICE line from hyprland.conf"
         sed -i '1d' "$DOTS_DIR/hypr/hyprland.conf"
