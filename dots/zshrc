@@ -93,7 +93,7 @@ bindkey "^[[3;5~" kill-word         # Ctrl+Delete
 alias vim='nvim'
 alias todo='nvim ~/Documents/tasks.md'
 alias venv='[[ -d .venv ]] && source .venv/bin/activate || python -m venv .venv && source .venv/bin/activate'
-alias vpn='~/VPN/vpn.py'
+alias vpn='~/VPN/vpn.sh'
 alias scratch='nvim /tmp/scratch.md'
 alias hg='history 1 | grep'
 alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
