@@ -21,6 +21,11 @@ vim.keymap.set("n", "<leader>cq", vim.diagnostic.setloclist, { desc = "Open diag
 vim.keymap.set("n", "<leader>bn", ":bnext<CR>", { desc = "[B]uffer [N]ext" })
 vim.keymap.set("n", "<leader>bp", ":bprevious<CR>", { desc = "[B]uffer [P]revious" })
 
+vim.keymap.set("n", "<leader>tf", function()
+	vim.g.format_on_save = not vim.g.format_on_save
+	vim.notify("Format on save: " .. (vim.g.format_on_save and "enabled" or "disabled"))
+end, { desc = "[T]oggle [F]ormat on Save" })
+
 function setup_telescope_keymaps()
 	local builtin = require("telescope.builtin")
 

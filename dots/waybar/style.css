@@ -30,10 +30,6 @@ window#waybar {
   background-color: transparent;
   color: @foreground;
   margin: 0;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    border-top 0.2s ease;
 }
 
 #workspaces button:hover {
