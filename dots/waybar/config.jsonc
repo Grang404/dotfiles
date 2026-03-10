@@ -151,7 +151,7 @@
   },
 
   "custom/capslock": {
-    "exec": "~/.config/hypr/scripts/capslock.sh",
+    "exec": "~/.config/hypr/scripts/capslock",
     "interval": 1,
     "format": "{}",
     "tooltip": false
