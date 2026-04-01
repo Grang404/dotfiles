@@ -278,7 +278,7 @@ install_packages() {
 		ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza bind which cmake dysk gamemode intel-ucode less
+		cronie eza bind which cmake dysk gamemode intel-ucode
 		networkmanager-openvpn
 
 	)
