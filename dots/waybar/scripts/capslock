@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 caps_on=false
 
 for led in /sys/class/leds/input*::capslock/brightness; do
@@ -12,7 +12,7 @@ for led in /sys/class/leds/input*::capslock/brightness; do
 done
 
 if [ "$caps_on" = true ]; then
-	echo "󰌎"
+	echo '{"text": "󰌎", "class": "active"}'
 else
-	echo ""
+	echo '{"text": ""}'
 fi

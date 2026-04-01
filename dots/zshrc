@@ -98,9 +98,6 @@ alias scratch='nvim /tmp/scratch.md'
 alias hg='history 1 | grep'
 alias ven='sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
 alias sdn='shutdown now'
-alias poke='/sbin/pokemon-colorscripts-go'
-alias exiftool='/usr/bin/vendor_perl/exiftool'
-# Enable colors for ls commands
 
 # alias ls='ls --color=auto'
 # alias ll='ls -lF --color=auto'

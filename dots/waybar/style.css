@@ -2,13 +2,13 @@
 @define-color background-light #2a2a2d;
 @define-color foreground #c1c0d4;
 @define-color black #160d10;
-@define-color red #a23649;
-@define-color green #8daa91;
+@define-color red #de556d;
+@define-color green #628d68;
 @define-color yellow #d6a78a;
-@define-color blue #a096c1;
-@define-color magenta #b25e7f;
-@define-color cyan #6e8f89;
-@define-color white #cfcede;
+@define-color blue #8d82b3;
+@define-color magenta #a9486e;
+@define-color cyan #558f84;
+@define-color white #c1c0d4;
 
 * {
   font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
@@ -83,9 +83,14 @@ window#waybar {
   background-color: transparent;
 }
 
-#custom-capslock {
+#custom-capslock.active {
+  color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
   font-size: 20px;
-  background-color: alpha(@red, 0.4);
   padding: 0 7px 0 6px;
 }
 
@@ -185,6 +190,10 @@ window#waybar {
 }
 
 @keyframes blink-red {
+  from {
+    background-color: transparent;
+    color: @red;
+  }
   to {
     background-color: @red;
     color: @background;

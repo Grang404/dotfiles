@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -244,10 +244,10 @@ install_gpu_drivers() {
 
 	if [[ "$PROFILE" == "laptop" ]]; then
 		pacman -S --needed --noconfirm vulkan-radeon lib32-vulkan-radeon
-		print_success "AMD Vulkan drivers installed"
+		print_success "GPU Drivers installed"
 	else
-		pacman -S --needed --noconfirm nvidia nvidia-utils lib32-nvidia-utils
-		print_success "NVIDIA drivers installed"
+		pacman -S --needed --noconfirm vulkan-radeon lib32-vulkan-radeon mesa lib32-mesa
+		print_success "GPU Drivers installed"
 	fi
 }
 
@@ -258,7 +258,7 @@ install_packages() {
 	local core_packages=(
 		base base-devel git curl wget hyprland hyprlock hyprshot
 		hyprpicker hyprpolkitagent waybar wireplumber wl-clipboard
-		wtype xdg-desktop-portal-hyprland xdg-utils
+		wtype xdg-desktop-portal-hyprland xdg-utils zsh awww rofi-wayland
 	)
 
 	local laptop_packages=(
@@ -275,10 +275,12 @@ install_packages() {
 	)
 
 	local utility_packages=(
-		zsh swww rofi-wayland ffmpeg jq poppler fd fzf zoxide imagemagick
+		ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza bind which
+		cronie eza bind which cmake dysk gamemode intel-ucode less
+		networkmanager-openvpn
+
 	)
 
 	local groups=("core" "application" "font" "utility")
@@ -298,6 +300,7 @@ enable_services() {
 	print_msg "Enabling system services..."
 
 	local system_services=(
+		NetworkManager.service
 		"cronie.service"
 		"lm_sensors.service"
 		"fstrim.timer"
@@ -313,7 +316,7 @@ enable_services() {
 	[[ "$PROFILE" == "laptop" ]] && services+=("${laptop_services[@]}")
 
 	for service in "${services[@]}"; do
-		if ! systemctl list-unit-files "$service" &>/dev/null; then
+		if ! systemctl list-unit-files | grep -q "^$service"; then
 			print_warning "Service $service not found, skipping..."
 			continue
 		fi
@@ -362,10 +365,9 @@ install_zsh_plugins() {
 }
 
 move_dotfiles() {
-	print_msg "Moving config files..."
+	print_msg "Setting up dotfile symlinks..."
 	local config_dir="$USER_HOME/.config"
 	local dots_dir="$SCRIPT_DIR/dots"
-	local hypr_dir="$dots_dir/hypr"
 
 	if [ ! -d "$dots_dir" ]; then
 		print_error "dots directory not found: $dots_dir"
@@ -378,72 +380,77 @@ move_dotfiles() {
 	create_backup "$USER_HOME/.zprofile" ".backup"
 
 	DOTFILES_MOVED=true
-
 	mkdir -p "$config_dir"
 
-	for item in "$dots_dir"/*; do
-		[ -e "$item" ] || continue
-		local item_name
-		item_name=$(basename "$item")
+	local config_dirs=(
+		waybar nvim ghostty rofi eza
+		fastfetch btop gtk-2.0 gtk-3.0 gtk-4.0
+	)
 
-		case "$item_name" in
-		hypr)
-			if [ ! -d "$hypr_dir" ]; then
-				print_error "hypr directory not found: $hypr_dir"
-				exit 1
-			fi
+	for dir in "${config_dirs[@]}"; do
+		local source="$dots_dir/$dir"
+		local target="$config_dir/$dir"
+		[ -e "$source" ] || continue
+		[ -e "$target" ] && rm -rf "$target"
+		ln -sf "$source" "$target"
+		print_msg "Linked $dir → $target"
+	done
 
-			mkdir -p "$config_dir/hypr"
-			for hypr_item in "$hypr_dir"/*; do
-				[ -e "$hypr_item" ] || continue
-				local hypr_item_name
-				hypr_item_name=$(basename "$hypr_item")
+	local hypr_source="$dots_dir/hypr"
+	local hypr_target="$config_dir/hypr"
+	mkdir -p "$hypr_target"
 
-				if [ "$hypr_item_name" = "desktop" ] && [ "$PROFILE" != "desktop" ]; then
-					continue
-				fi
-				if [ "$hypr_item_name" = "laptop" ] && [ "$PROFILE" != "laptop" ]; then
-					continue
-				fi
+	for f in "$hypr_source"/*.conf; do
+		[ -e "$f" ] || continue
+		local fname
+		fname=$(basename "$f")
+		ln -sf "$f" "$hypr_target/$fname"
+		print_msg "Linked hypr/$fname"
+	done
 
-				if [ "$hypr_item_name" = "$PROFILE" ] && [ ! -d "$hypr_item" ]; then
-					print_error "Profile directory not found: $hypr_item"
-					exit 1
-				fi
+	for f in "$hypr_source/shared"/*; do
+		[ -e "$f" ] || continue
+		local fname
+		fname=$(basename "$f")
+		ln -sf "$f" "$hypr_target/$fname"
+		print_msg "Linked hypr/shared/$fname"
+	done
 
-				cp -r "$hypr_item" "$config_dir/hypr/"
-			done
-			print_msg "Copied hypr directory structure to $config_dir/hypr"
-			;;
-		zshrc)
-			cp "$item" "$USER_HOME/.zshrc"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zshrc"
-			print_msg "Copied zshrc to $USER_HOME/.zshrc"
-			;;
-		p10k.zsh)
-			cp "$item" "$USER_HOME/.p10k.zsh"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.p10k.zsh"
-			print_msg "Copied p10k.zsh to $USER_HOME/.p10k.zsh"
-			;;
-		tlp.conf) ;;
-		firefox) ;;
-		zprofile)
-			cp "$item" "$USER_HOME/.zprofile"
-			chown "$SUDO_USER:$SUDO_USER" "$USER_HOME/.zprofile"
-			print_msg "Copied zprofile to $USER_HOME/.zprofile"
-			;;
-		*)
-			cp -r "$item" "$config_dir/"
-			print_msg "Copied $item_name to $config_dir"
-			;;
-		esac
+	local profile_dir="$hypr_source/$PROFILE"
+	if [ ! -d "$profile_dir" ]; then
+		print_error "Profile directory not found: $profile_dir"
+		exit 1
+	fi
+	for f in "$profile_dir"/*; do
+		[ -e "$f" ] || continue
+		local fname
+		fname=$(basename "$f")
+		ln -sf "$f" "$hypr_target/$fname"
+		print_msg "Linked hypr/$PROFILE/$fname"
+	done
+
+	ln -sf "$hypr_source/scripts" "$hypr_target/scripts"
+	print_msg "Linked hypr/scripts"
+
+	local zsh_target="$config_dir/zsh"
+	mkdir -p "$zsh_target"
+	cp "$dots_dir/zsh/highlight_styles.zsh" "$zsh_target/highlight_styles.zsh"
+	chown -R "$SUDO_USER:$SUDO_USER" "$zsh_target"
+	print_msg "Copied zsh/highlight_styles.zsh"
+
+	local home_dots=(zshrc p10k.zsh zprofile zshenv)
+	for dot in "${home_dots[@]}"; do
+		local source="$dots_dir/$dot"
+		[ -e "$source" ] || continue
+		local target="$USER_HOME/.${dot}"
+		[ -e "$target" ] && rm -f "$target"
+		ln -sf "$source" "$target"
+		chown -h "$SUDO_USER:$SUDO_USER" "$target"
+		print_msg "Linked $dot → $target"
 	done
 
 	chown -R "$SUDO_USER:$SUDO_USER" "$config_dir"
-
-	sed -i "1i\$DEVICE = $PROFILE" "$config_dir/hypr/hyprland.conf"
-	print_msg "Added device profile to hyprland.conf"
-	print_success "Dotfiles moved successfully"
+	print_success "Dotfiles linked successfully"
 }
 
 config_dns() {
@@ -462,14 +469,10 @@ config_dns() {
 		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
 		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
 
-		printf "nameserver 192.168.0.10\nnameserver 192.168.0.1\n" >/etc/resolv.conf
-		chattr +i /etc/resolv.conf
-
+		ln -sf /run/NetworkManager/resolv.conf /etc/resolv.conf
 		print_success "DNS configured successfully"
 
 	elif [[ $PROFILE == "laptop" ]]; then
-
-		systemctl enable --now systemd-resolved iwd
 
 		[ -L /etc/resolv.conf ] && rm /etc/resolv.conf
 		[ -f /etc/resolv.conf ] && chattr -i /etc/resolv.conf 2>/dev/null
@@ -486,7 +489,6 @@ config_dns() {
 		EOF
 
 		systemctl restart iwd
-
 		print_success "DNS configured successfully"
 	fi
 }

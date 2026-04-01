@@ -23,14 +23,6 @@ require("lazy").setup({
 	},
 
 	{
-		"startup-nvim/startup.nvim",
-		dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
-		config = function()
-			require("startup").setup(require("config.startup_nvim"))
-		end,
-	},
-
-	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		main = "nvim-treesitter.configs",
@@ -253,12 +245,50 @@ require("lazy").setup({
 						},
 					},
 				},
-			}
 
+				pyright = {
+					settings = {
+						python = {
+							analysis = {
+								typeCheckingMode = "basic",
+								autoSearchPaths = true,
+								useLibraryCodeForTypes = true,
+								diagnosticMode = "workspace",
+							},
+						},
+					},
+				},
+
+				ruff = {
+					on_attach = function(client)
+						client.server_capabilities.hoverProvider = false
+						client.server_capabilities.documentFormattingProvider = false
+					end,
+				},
+			}
+			vim.lsp.config("pyright", {
+				settings = {
+					python = {
+						analysis = {
+							typeCheckingMode = "basic",
+							autoSearchPaths = true,
+							useLibraryCodeForTypes = true,
+							diagnosticMode = "workspace",
+						},
+					},
+				},
+			})
+
+			vim.lsp.config("ruff", {
+				on_attach = function(client)
+					client.server_capabilities.hoverProvider = false
+					client.server_capabilities.documentFormattingProvider = false
+				end,
+			})
 			require("mason").setup()
 
 			local ensure_installed = vim.tbl_keys(servers or {})
-			vim.list_extend(ensure_installed, { "stylua" })
+			vim.list_extend(ensure_installed, { "stylua", "pyright", "ruff" })
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
 			require("mason-lspconfig").setup({
@@ -301,19 +331,20 @@ require("lazy").setup({
 					lsp_format_opt = "fallback"
 				end
 				return {
-					timeout_ms = 500,
+					timeout_ms = 10000,
 					lsp_format = lsp_format_opt,
 				}
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
-				python = { "black" },
+				-- python = { "black" },
+				python = { "ruff_fix", "ruff_format" },
 				sh = { "shfmt" },
-				javascript = { "prettierd", "prettier", stop_after_first = true },
-				html = { "prettierd", "prettier", stop_after_first = true },
-				htmldjango = { "prettierd", "prettier", stop_after_first = true },
-				css = { "prettierd", "prettier", stop_after_first = true },
-				rasi = { "prettierd", "prettier", stop_after_first = true },
+				javascript = { "prettier" },
+				-- html = { "prettier", stop_after_first = true },
+				htmldjango = { "djlint" },
+				css = { "prettier" },
+				rasi = { "prettier" },
 			},
 		},
 	},

@@ -2,28 +2,28 @@ background = 0c0a0a
 foreground = c1c0d4
 cursor-color = c1c0d4
 
-palette = 0=#160d10
-palette = 8=#1c1014
+palette = 0=#382f2f
+palette = 8=#6d5c5c
 
 palette = 1=#a23649
-palette = 9=#de4a64
+palette = 9=#de556d
 
-palette = 2=#8daa91
-palette = 10=#a1baa4
+palette = 2=#628d68
+palette = 10=#87c28f
 
-palette = 3=#d6a78a
-palette = 11=#e9b696
+palette = 3=#bf7547
+palette = 11=#de966a
 
-palette = 4=#a096c1
-palette = 12=#aca2cb
+palette = 4=#8d82b3
+palette = 12=#bcb3d8
 
-palette = 5=#B25E7F
-palette = 13=#d77199
+palette = 5=#a9486e
+palette = 13=#c37593
 
-palette = 6=#6e8f89
-palette = 14=#81a8a0
+palette = 6=#558f84
+palette = 14=#87b3aa
 
-palette = 7=#757580
+palette = 7=#505058
 palette = 15=#9998a8
 
 background-opacity = 0.8

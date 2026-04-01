@@ -150,10 +150,11 @@
     "smooth-scrolling-threshold": 1
   },
 
-  "custom/capslock": {
-    "exec": "~/.config/hypr/scripts/capslock",
-    "interval": 1,
+"custom/capslock": {
+    "exec": "~/.config/waybar/scripts/capslock",
+    "interval": 2,
+    "return-type": "json",
     "format": "{}",
     "tooltip": false
-    },
+},
 }

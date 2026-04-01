@@ -7,4 +7,4 @@ selected=$(for file in *; do
 	printf '%s\0icon\x1f%s\n' "$file" "$file"
 done | rofi -dmenu -show-icons -theme "$THEME_FILE" -p "wallpaper")
 
-[ -n "$selected" ] && swww img "$WALLPAPER_DIR/$selected" --resize=crop --transition-type=wipe --transition-angle=30 --transition-step=20 --transition-fps=60
+[ -n "$selected" ] && awww img "$WALLPAPER_DIR/$selected" --resize=crop --transition-type=wipe --transition-angle=30 --transition-step=20 --transition-fps=60
