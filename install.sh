@@ -300,7 +300,7 @@ enable_services() {
 	print_msg "Enabling system services..."
 
 	local system_services=(
-		NetworkManager.service
+		"NetworkManager.service"
 		"cronie.service"
 		"lm_sensors.service"
 		"fstrim.timer"
