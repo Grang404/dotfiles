@@ -279,7 +279,7 @@ install_packages() {
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
 		cronie eza bind which cmake dysk gamemode intel-ucode
-		networkmanager-openvpn
+		networkmanager-openvpn networkmanager
 
 	)
 
