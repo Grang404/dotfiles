@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CONFIG_FILE="$HOME/.config/hypr/shared/keybinds.conf"
 DEVICE_CONFIG_FILE="$HOME/.config/hypr/$DEVICE/device-keybinds.conf"
