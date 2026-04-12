@@ -1,0 +1,51 @@
+[colors.primary]
+background = "#0C0A0A"
+foreground = "#C1C0D4"
+
+[colors.cursor]
+text   = "#0C0A0A"
+cursor = "#C1C0D4"
+
+[colors.normal]
+black   = "#160D10"
+red     = "#A23649"
+green   = "#8DAA91"
+yellow  = "#D6A78A"
+blue    = "#A096C1"
+magenta = "#B25E7F"
+cyan    = "#6E8F89"
+white   = "#757580"
+
+[colors.bright]
+black   = "#1C1014"
+red     = "#DE4A64"
+green   = "#A1BAA4"
+yellow  = "#E9B696"
+blue    = "#ACA2CB"
+magenta = "#D77199"
+cyan    = "#81A8A0"
+white   = "#9998A8"
+
+[colors.selection]
+
+text 	   = "#0C0A0A"
+background = "#C1C0D4"
+
+[colors.hints.start]
+foreground = "#0C0A0A"
+background = "#ACA2CB"
+
+[colors.hints.end]
+foreground = "#ACA2CB"
+background = "#0C0A0A"
+
+[window]
+dynamic_title = true
+decorations   = "None"
+opacity       = 0.8
+
+[font]
+size = 14.0
+
+[font.normal]
+family = "JetBrainsMono Nerd Font Mono"
