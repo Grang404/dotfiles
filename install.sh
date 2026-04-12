@@ -258,7 +258,7 @@ install_packages() {
 	local core_packages=(
 		base base-devel git curl wget hyprland hyprlock hyprshot
 		hyprpicker hyprpolkitagent waybar wireplumber wl-clipboard
-		wtype xdg-desktop-portal-hyprland xdg-utils zsh awww rofi-wayland
+		wtype xdg-desktop-portal-hyprland xdg-utils zsh awww rofi
 	)
 
 	local laptop_packages=(
@@ -278,8 +278,9 @@ install_packages() {
 		ffmpeg jq poppler fd fzf zoxide imagemagick
 		btop fastfetch go less man-db man-pages npm
 		ntfs-3g p7zip ripgrep rsync luarocks tree unzip
-		cronie eza bind which cmake dysk gamemode intel-ucode
-		networkmanager-openvpn networkmanager
+		cronie eza bind which cmake dysk gamemode 
+		# intel-ucode
+		# networkmanager-openvpn networkmanager
 
 	)
 
