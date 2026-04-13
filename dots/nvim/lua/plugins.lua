@@ -1,8 +1,13 @@
--- Load lazy package manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+	local out = vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"--branch=stable",
+		"https://github.com/folke/lazy.nvim.git",
+		lazypath,
+	})
 	if vim.v.shell_error ~= 0 then
 		error("Error cloning lazy.nvim:\n" .. out)
 	end
@@ -10,8 +15,14 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
+
+	-- Detect tabstop/shiftwidth automatically
 	"tpope/vim-sleuth",
 
+	-- Lua API docs for vim.uv
+	{ "Bilal2453/luvit-meta", lazy = true },
+
+	-- Lua LSP aware of Neovim runtime
 	{
 		"folke/lazydev.nvim",
 		ft = "lua",
@@ -22,6 +33,7 @@ require("lazy").setup({
 		},
 	},
 
+	-- Treesitter
 	{
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
@@ -47,6 +59,7 @@ require("lazy").setup({
 		},
 	},
 
+	-- Which-key
 	{
 		"folke/which-key.nvim",
 		event = "VimEnter",
@@ -64,12 +77,12 @@ require("lazy").setup({
 					S = "<S-…> ",
 					CR = "<CR> ",
 					Esc = "<Esc> ",
-					ScrollWheelDown = "<ScrollWheelDown> ",
-					ScrollWheelUp = "<ScrollWheelUp> ",
 					NL = "<NL> ",
 					BS = "<BS> ",
 					Space = "<Space> ",
 					Tab = "<Tab> ",
+					ScrollWheelDown = "<ScrollWheelDown> ",
+					ScrollWheelUp = "<ScrollWheelUp> ",
 					F1 = "<F1>",
 					F2 = "<F2>",
 					F3 = "<F3>",
@@ -88,10 +101,11 @@ require("lazy").setup({
 		},
 	},
 
+	-- Telescope
 	{
 		"nvim-telescope/telescope.nvim",
 		event = "VimEnter",
-		branch = "0.1.x",
+		branch = "master",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{
@@ -112,13 +126,13 @@ require("lazy").setup({
 					},
 				},
 			})
-
 			pcall(require("telescope").load_extension, "fzf")
 			pcall(require("telescope").load_extension, "ui-select")
 			setup_telescope_keymaps()
 		end,
 	},
 
+	-- Gitsigns
 	{
 		"lewis6991/gitsigns.nvim",
 		opts = {
@@ -134,6 +148,7 @@ require("lazy").setup({
 		},
 	},
 
+	-- Colour highlighter
 	{
 		"brenoprata10/nvim-highlight-colors",
 		config = function()
@@ -142,11 +157,7 @@ require("lazy").setup({
 		end,
 	},
 
-	{
-		"Bilal2453/luvit-meta",
-		lazy = true,
-	},
-
+	-- LSP
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
@@ -157,46 +168,45 @@ require("lazy").setup({
 			"hrsh7th/cmp-nvim-lsp",
 		},
 		config = function()
-			-- Diagnostic Toggling Functions
+			-- Diagnostics
 			vim.g.diagnostics_enabled = true
+
 			function _G.toggle_diagnostics()
 				vim.g.diagnostics_enabled = not vim.g.diagnostics_enabled
-				if vim.g.diagnostics_enabled then
-					vim.diagnostic.enable()
-				else
-					vim.diagnostic.enable(false)
-				end
+				vim.diagnostic.enable(vim.g.diagnostics_enabled)
 			end
 
 			function _G.toggle_hover_diagnostics()
-				local current_line_diagnostics = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
-				if #current_line_diagnostics > 0 then
-					vim.diagnostic.hide(nil, 0, nil, { virtual_text = true })
-					print("Diagnostics hidden for current line")
-				else
-					vim.diagnostic.show()
-					print("All diagnostics shown")
-				end
+				vim.diagnostic.open_float(nil, { scope = "line" })
 			end
 
+			vim.diagnostic.config({
+				virtual_text = { prefix = "●", severity_sort = true },
+				signs = true,
+				underline = true,
+				update_in_insert = false,
+				severity_sort = true,
+			})
+
+			-- LspAttach
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
 				callback = function(event)
 					setup_lsp_keymaps(event)
 
-					-- Document highlight setup
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-						local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
+						local hl_group = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
+
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 							buffer = event.buf,
-							group = highlight_augroup,
+							group = hl_group,
 							callback = vim.lsp.buf.document_highlight,
 						})
 
 						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 							buffer = event.buf,
-							group = highlight_augroup,
+							group = hl_group,
 							callback = vim.lsp.buf.clear_references,
 						})
 
@@ -211,36 +221,20 @@ require("lazy").setup({
 				end,
 			})
 
-			-- Configure diagnostic display
-			vim.diagnostic.config({
-				virtual_text = {
-					prefix = "●",
-					severity_sort = true,
-				},
-				signs = true,
-				underline = true,
-				update_in_insert = false,
-				severity_sort = true,
-			})
+			local capabilities = vim.tbl_deep_extend(
+				"force",
+				vim.lsp.protocol.make_client_capabilities(),
+				require("cmp_nvim_lsp").default_capabilities()
+			)
 
-			-- LSP capabilities
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-			-- LSP servers
 			local servers = {
 				lua_ls = {
 					settings = {
 						Lua = {
 							runtime = { version = "LuaJIT" },
 							completion = { callSnippet = "Replace" },
-							diagnostics = {
-								globals = { "vim" },
-								disable = { "undefined-global" },
-							},
-							workspace = {
-								library = vim.api.nvim_get_runtime_file("", true),
-							},
+							diagnostics = { globals = { "vim" }, disable = { "undefined-global" } },
+							workspace = { library = vim.api.nvim_get_runtime_file("", true) },
 							telemetry = { enable = false },
 						},
 					},
@@ -266,35 +260,15 @@ require("lazy").setup({
 					end,
 				},
 			}
-			vim.lsp.config("pyright", {
-				settings = {
-					python = {
-						analysis = {
-							typeCheckingMode = "basic",
-							autoSearchPaths = true,
-							useLibraryCodeForTypes = true,
-							diagnosticMode = "workspace",
-						},
-					},
-				},
-			})
 
-			vim.lsp.config("ruff", {
-				on_attach = function(client)
-					client.server_capabilities.hoverProvider = false
-					client.server_capabilities.documentFormattingProvider = false
-				end,
-			})
 			require("mason").setup()
-
-			local ensure_installed = vim.tbl_keys(servers or {})
-			vim.list_extend(ensure_installed, { "stylua", "pyright", "ruff" })
-			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
+			require("mason-tool-installer").setup({
+				ensure_installed = vim.list_extend(vim.tbl_keys(servers), { "stylua" }),
+			})
 			require("mason-lspconfig").setup({
 				handlers = {
 					function(server_name)
-						local server = servers[server_name] or {}
+						local server = vim.tbl_deep_extend("force", {}, servers[server_name] or {})
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
 						require("lspconfig")[server_name].setup(server)
 					end,
@@ -303,10 +277,11 @@ require("lazy").setup({
 		end,
 	},
 
+	-- Formatter
 	{
 		"stevearc/conform.nvim",
-		event = { "BufWritePre" },
-		cmd = { "ConformInfo" },
+		event = "BufWritePre",
+		cmd = "ConformInfo",
 		keys = {
 			{
 				"<leader>F",
@@ -323,25 +298,16 @@ require("lazy").setup({
 				if not vim.g.format_on_save then
 					return nil
 				end
-				local disable_filetypes = { c = true, cpp = true }
-				local lsp_format_opt
-				if disable_filetypes[vim.bo[bufnr].filetype] then
-					lsp_format_opt = "never"
-				else
-					lsp_format_opt = "fallback"
-				end
 				return {
 					timeout_ms = 10000,
-					lsp_format = lsp_format_opt,
+					lsp_format = ({ c = "never", cpp = "never" })[vim.bo[bufnr].filetype] or "fallback",
 				}
 			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
-				-- python = { "black" },
 				python = { "ruff_fix", "ruff_format" },
 				sh = { "shfmt" },
 				javascript = { "prettier" },
-				-- html = { "prettier", stop_after_first = true },
 				htmldjango = { "djlint" },
 				css = { "prettier" },
 				rasi = { "prettier" },
@@ -349,32 +315,29 @@ require("lazy").setup({
 		},
 	},
 
+	-- Snippets
 	{
 		"L3MON4D3/LuaSnip",
-		dependencies = {
-			"rafamadriz/friendly-snippets",
-		},
+		dependencies = { "rafamadriz/friendly-snippets" },
 		config = function()
 			require("luasnip.loaders.from_vscode").lazy_load()
+			require("luasnip").config.setup({})
 		end,
 	},
 
+	-- Completion
 	{
 		"hrsh7th/nvim-cmp",
 		event = "InsertEnter",
 		dependencies = {
 			"L3MON4D3/LuaSnip",
 			"saadparwaiz1/cmp_luasnip",
-			"rafamadriz/friendly-snippets",
 			"hrsh7th/cmp-nvim-lsp",
 			"hrsh7th/cmp-path",
 		},
 		config = function()
 			local cmp = require("cmp")
 			local luasnip = require("luasnip")
-
-			require("luasnip.loaders.from_vscode").lazy_load()
-			luasnip.config.setup({})
 
 			cmp.setup({
 				snippet = {
@@ -410,13 +373,21 @@ require("lazy").setup({
 					{ name = "path" },
 				},
 			})
-
-			-- Autopairs integration
-			local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-			cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done())
 		end,
 	},
 
+	-- Autopairs (must come after cmp so cmp is available)
+	{
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		dependencies = { "hrsh7th/nvim-cmp" },
+		config = function()
+			require("nvim-autopairs").setup({})
+			require("cmp").event:on("confirm_done", require("nvim-autopairs.completion.cmp").on_confirm_done())
+		end,
+	},
+
+	-- Todo comments
 	{
 		"folke/todo-comments.nvim",
 		event = "VimEnter",
@@ -424,13 +395,17 @@ require("lazy").setup({
 		opts = { signs = false },
 	},
 
+	-- Harpoon v2
 	{
 		"ThePrimeagen/harpoon",
+		branch = "harpoon2",
+		dependencies = { "nvim-lua/plenary.nvim" },
 		config = function()
 			setup_harpoon_keymaps()
 		end,
 	},
 
+	-- Mini
 	{
 		"echasnovski/mini.nvim",
 		config = function()
@@ -448,7 +423,6 @@ require("lazy").setup({
 
 			local statusline = require("mini.statusline")
 			statusline.setup({ use_icons = vim.g.have_nerd_font })
-
 			---@diagnostic disable-next-line: duplicate-set-field
 			statusline.section_location = function()
 				return "%2l:%-2v"
@@ -456,19 +430,10 @@ require("lazy").setup({
 		end,
 	},
 
-	{
-		"windwp/nvim-autopairs",
-		event = "InsertEnter",
-		dependencies = { "hrsh7th/nvim-cmp" },
-		opts = {},
-	},
-
+	-- Markdown rendering
 	{
 		"MeanderingProgrammer/render-markdown.nvim",
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"echasnovski/mini.nvim",
-		},
+		dependencies = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" },
 		opts = {
 			heading = {
 				icons = { " 󰮯 " },
