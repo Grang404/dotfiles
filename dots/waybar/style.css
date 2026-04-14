@@ -1,26 +1,22 @@
 @define-color background #0c0a0a;
-@define-color background-light #2a2a2d;
-@define-color foreground #c1c0d4;
-@define-color black #160d10;
-@define-color red #de556d;
-@define-color green #628d68;
-@define-color yellow #d6a78a;
-@define-color blue #8d82b3;
-@define-color magenta #a9486e;
-@define-color cyan #558f84;
-@define-color white #c1c0d4;
+@define-color background-light #2a2525;
+@define-color foreground #c4b8b8;
+@define-color foreground-dim #5c5050;
+@define-color red #8a4040;
+@define-color yellow #b07930;
+@define-color magenta #8a4060;
 
 * {
-  font-family: "DepartureMono Nerd Font", "Font Awesome 6 Free", monospace;
+  font-family: "0xProto Nerd Font", monospace;
   border: none;
   border-radius: 0;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
   min-height: 0;
 }
 
 window#waybar {
-  background-color: rgba(12, 10, 10, 0.8);
+  background-color: rgba(12, 10, 10, 0);
   color: @foreground;
 }
 
@@ -28,31 +24,41 @@ window#waybar {
   padding: 0 5px;
   border-top: 1px solid transparent;
   background-color: transparent;
-  color: @foreground;
+  color: @foreground-dim;
   margin: 0;
 }
 
 #workspaces button:hover {
   background: @background-light;
-}
-
-#workspaces button.focused {
-  color: @workspaces-focused-fg;
+  color: @foreground;
 }
 
 #workspaces button.active {
-  border-top: 1px solid @cyan;
-  background-color: rgba(12, 10, 10, 0.8);
-  color: @cyan;
+  border-top: 1px solid @foreground-dim;
+  background-color: transparent;
+  color: @foreground;
 }
 
 #workspaces button.urgent {
-  background-color: @red;
-  color: @white;
+  color: @red;
+  animation-name: blink-urgent;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes blink-urgent {
+  from {
+    color: @red;
+  }
+  to {
+    color: transparent;
+  }
 }
 
 #custom-separator {
-  color: alpha(@white, 0.4);
+  color: alpha(@foreground-dim, 0.3);
 }
 
 #clock,
@@ -61,58 +67,13 @@ window#waybar {
 #battery,
 #temperature,
 #cpu,
-#memory {
+#memory,
+#custom-vpn,
+#custom-capslock {
   color: @foreground;
-  padding: 0 5px 0 5px;
-  margin: 0 0px;
+  padding: 0 5px;
+  margin: 0;
   background-color: transparent;
-}
-
-#custom-tlp {
-  color: @green;
-  padding: 0 10px 0 5px;
-  margin: 0 0px;
-  background-color: transparent;
-  font-size: 20px;
-}
-
-#custom-vpn {
-  color: @magenta;
-  padding: 0 10px 0 5px;
-  margin: 0 0px;
-  background-color: transparent;
-}
-
-#custom-capslock.active {
-  color: @red;
-  animation-name: blink-red;
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  font-size: 20px;
-  padding: 0 7px 0 6px;
-}
-
-#clock:hover,
-#network:hover,
-#pulseaudio:hover,
-#battery:hover,
-#cpu:hover {
-  color: @blue;
-}
-
-#clock {
-  margin-right: 3px;
-  color: @foreground;
-}
-
-#network {
-  color: @foreground;
-}
-
-#network.disconnected {
-  color: @red;
 }
 
 #pulseaudio {
@@ -120,66 +81,41 @@ window#waybar {
 }
 
 #pulseaudio.muted {
+  color: @foreground-dim;
+}
+
+#network.disconnected {
   color: @red;
 }
 
-#cpu {
-  color: @green;
-}
-
-#cpu.warning {
-  color: @yellow;
-}
-
-#cpu.critical {
-  color: @red;
-  animation-name: blink-red;
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-#temperature {
-  color: @green;
-}
-
+#cpu.warning,
+#memory.warning,
 #temperature.critical {
-  color: @red;
-  animation-name: blink-red;
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-#memory {
-  color: @green;
-}
-
-#memory.warning {
   color: @yellow;
 }
 
+#cpu.critical,
 #memory.critical {
   color: @red;
+  animation-name: blink-red;
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#custom-capslock.active {
+  color: @magenta;
+  font-size: 20px;
+  padding: 0 7px 0 6px;
 }
 
 #battery.charging,
 #battery.plugged {
-  color: @green;
   font-size: 18px;
 }
 
-#battery.warning:not(.charging) {
-  color: @red;
-  animation-name: blink-red;
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
+#battery.warning:not(.charging),
 #battery.critical:not(.charging) {
   color: @red;
   animation-name: blink-red;
