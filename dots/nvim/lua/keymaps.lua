@@ -113,7 +113,7 @@ function setup_lsp_keymaps(event)
 
 	-- Toggle: inlay hints (LSP capability check)
 	local client = vim.lsp.get_client_by_id(event.data.client_id)
-	if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+	if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
 		map("<leader>ti", function()
 			vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 		end, "[T]oggle [I]nlay hints")

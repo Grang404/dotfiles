@@ -31,9 +31,11 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 print_msg() {
 	echo -e "${BOLD}${BLUE}[*]${NC} $1"
 }
+
 print_success() {
 	echo -e "${BOLD}${GREEN}[+]${NC} $1"
 }
+
 print_error() {
 	echo -e "${BOLD}${RED}[!]${NC} $1"
 }

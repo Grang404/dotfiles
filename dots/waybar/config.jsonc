@@ -77,7 +77,7 @@
     },
 
     "custom/vpn": {
-        "exec": "~/.config/waybar/scripts/vpn.sh",
+        "exec": "~/dotfiles/dots//scripts/vpn",
         "interval": 5,
         "return-type": "json",
         "tooltip": false
@@ -151,7 +151,7 @@
   },
 
 "custom/capslock": {
-    "exec": "~/.config/waybar/scripts/capslock",
+    "exec": "~/dotfiles/dots/scripts/capslock",
     "interval": 2,
     "return-type": "json",
     "format": "{}",
