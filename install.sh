@@ -70,6 +70,7 @@ handle_interrupt() {
 final_cleanup() {
 	cleanup_temp_files
 	cleanup_package_manager
+	rm -f /etc/sudoers.d/makepkg_tmp
 
 	if [[ "$INSTALLATION_SUCCESSFUL" == true ]]; then
 		print_success "Installation completed successfully!"
@@ -146,9 +147,6 @@ rollback_installation() {
 
 	print_msg "Packages left installed (removing them could cause issues)"
 	print_msg "If you want to remove packages, run: pacman -Rns [package_names]"
-
-	cleanup_temp_files
-	cleanup_package_manager
 
 	print_error "Rollback completed"
 }
@@ -258,7 +256,7 @@ install_packages() {
 	local core_packages=(
 		base base-devel git curl wget hyprland hyprlock hyprshot
 		hyprpicker hyprpolkitagent waybar wireplumber wl-clipboard
-		wtype xdg-desktop-portal-hyprland xdg-utils zsh awww rofi
+		wtype xdg-desktop-portal-hyprland xdg-utils zsh awww rofi lm_sensors
 	)
 
 	local laptop_packages=(
@@ -295,6 +293,48 @@ install_packages() {
 		pacman -S --needed --noconfirm "${current_group[@]}"
 		print_success "Successfully installed $group_name packages"
 	done
+}
+
+install_paru() {
+	print_msg "Installing paru..."
+
+	if command -v paru &>/dev/null; then
+		print_msg "paru already installed, skipping..."
+		return 0
+	fi
+
+	pacman -S --needed --noconfirm rust
+
+	local paru_dir="/tmp/paru"
+	local sudoers_drop="/etc/sudoers.d/makepkg_tmp"
+
+	git clone https://aur.archlinux.org/paru.git "$paru_dir"
+	chown -R "$SUDO_USER:$SUDO_USER" "$paru_dir"
+
+	echo "$SUDO_USER ALL=(ALL) NOPASSWD: ALL" >"$sudoers_drop"
+	chmod 440 "$sudoers_drop"
+
+	sudo -u "$SUDO_USER" bash -c "cd $paru_dir && makepkg -si --noconfirm"
+
+	rm -f "$sudoers_drop"
+
+	print_success "paru installed successfully"
+}
+
+install_aur_packages() {
+	print_msg "Installing AUR packages..."
+
+	local aur_packages=(
+		vesktop-bin
+		visual-studio-code-bin
+		noisetorch
+		coolercontrol
+		ivpn
+		ivpn-ui
+	)
+
+	sudo -u "$SUDO_USER" paru -S --needed --noconfirm "${aur_packages[@]}"
+	print_success "AUR packages installed successfully"
 }
 
 enable_services() {
@@ -711,7 +751,6 @@ main() {
 	config_grub
 
 	INSTALLATION_SUCCESSFUL=true
-	print_success "Installation completed successfully!"
 }
 
 main
