@@ -1,31 +1,35 @@
-foreground = #c4b8b8
-background = #0c0a0a
-cursor-color = #9e9494
-cursor-text = #0c0a0a
-selection-foreground = #0c0a0a
-selection-background = #8a4060
+background = #0a0a0a
+foreground = #c9c7cd
+cursor-color = #c1c0d4
 
-palette = 0=#2a2525
-palette = 8=#3d3636
-palette = 1=#8a4040
-palette = 9=#b05050
-palette = 2=#2e7060
-palette = 10=#3a9070
-palette = 3=#8a5c20
-palette = 11=#b07830
-palette = 4=#4a607a
-palette = 12=#5a7090
-palette = 5=#8a4060
-palette = 13=#b05880
-palette = 6=#2a8070
-palette = 14=#309088
-palette = 7=#9c9393
-palette = 15=#b0a5a5
+palette = 0=#27272a
+palette = 8=#353539
+
+palette = 1=#b53c4a
+palette = 9=#d44657
+
+palette = 2=#90b99f
+palette = 10=#9dc6ac
+
+palette = 3=#e6b99d
+palette = 11=#f0c5a9
+
+palette = 4=#aca1cf
+palette = 12=#b9aeda
+
+palette = 5=#e29eca
+palette = 13=#ecaad6
+
+palette = 6=#ea83a5
+palette = 14=#f591b2
+
+palette = 7=#c1c0d4
+palette = 15=#cac9dd
 
 background-opacity = 0.8
 
-font-family = "GeistMono Nerd Font Mono"
-font-size = 12
+font-family = "JetBrainsMono Nerd Font Mono"
+font-size = 14
 font-feature = -liga
 font-feature = -calt
 

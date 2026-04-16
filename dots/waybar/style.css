@@ -1,13 +1,13 @@
-@define-color background #0c0a0a;
-@define-color background-light #2a2525;
-@define-color foreground #c4b8b8;
-@define-color foreground-dim #5c5050;
-@define-color red #8a4040;
-@define-color yellow #b07930;
-@define-color magenta #8a4060;
+@define-color background #0a0a0a;
+@define-color background-light #131314;
+@define-color foreground #c9c7cd;
+@define-color foreground-dim #757581;
+@define-color red #d44657;
+@define-color yellow #f0c5a9;
+@define-color magenta #f591b2;
 
 * {
-  font-family: "GeistMono Nerd Font", monospace;
+  font-family: "JetBrainsMono Nerd Font", monospace;
   border: none;
   border-radius: 0;
   font-weight: bold;
@@ -74,6 +74,10 @@ window#waybar {
   padding: 0 5px;
   margin: 0;
   background-color: transparent;
+}
+
+#custom-vpn {
+  margin-right: 5px;
 }
 
 #pulseaudio {
