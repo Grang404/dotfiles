@@ -1,16 +1,24 @@
 filekinds:
-  normal: {foreground: Default}
-  directory: {foreground: Blue}
-  symlink: {foreground: Magenta}
-  pipe: {foreground: Default}
-  block_device: {foreground: Default}
-  char_device: {foreground: Yellow}
-  socket: {foreground: Magenta}
-  special: {foreground: }
-  executable: {foreground: Green}
-  mount_point: {foreground: Red}
-
-
+  normal:
+    foreground: Default
+  directory:
+    foreground: Blue
+  symlink:
+    foreground: Magenta
+  pipe:
+    foreground: Default
+  block_device:
+    foreground: Default
+  char_device:
+    foreground: Yellow
+  socket:
+    foreground: Magenta
+  special:
+    foreground:
+  executable:
+    foreground: Green
+  mount_point:
+    foreground: Red
 perms:
   user_read:
     foreground: Magenta
@@ -38,41 +46,66 @@ perms:
     foreground: White
   attribute:
     foreground: White
-
 size:
-  major: {foreground: Default}
-  minor: {foreground: Default}
-  number_byte: {foreground: Default}
-  number_kilo: {foreground: Default}
-  number_mega: {foreground: Default}
-  number_giga: {foreground: Default}
-  number_huge: {foreground: Default}
-  unit_byte: {foreground: Default}
-  unit_kilo: {foreground: Default}
-  unit_mega: {foreground: Default}
-  unit_giga: {foreground: Default}
-  unit_huge: {foreground: Default}
-
+  major:
+    foreground: Default
+  minor:
+    foreground: Default
+  number_byte:
+    foreground: Default
+  number_kilo:
+    foreground: Default
+  number_mega:
+    foreground: Default
+  number_giga:
+    foreground: Default
+  number_huge:
+    foreground: Default
+  unit_byte:
+    foreground: Default
+  unit_kilo:
+    foreground: Default
+  unit_mega:
+    foreground: Default
+  unit_giga:
+    foreground: Default
+  unit_huge:
+    foreground: Default
 users:
-  user_you: {foreground: Green}
-  user_root: {foreground: Red}
-  user_other: {foreground: Blue}
-  group_yours: {foreground: Green}
-  group_root: {foreground: Red}
-  group_other: {foreground: Blue}
-
+  user_you:
+    foreground: Green
+  user_root:
+    foreground: Red
+  user_other:
+    foreground: Default
+  group_yours:
+    foreground: Green
+  group_root:
+    foreground: Red
+  group_other:
+    foreground: Default
 punctuation:
   foreground: White
-
 file_type:
-  image: {foreground: Default}
-  video: {foreground: Default}
-  music: {foreground: Default}
-  lossless: {foreground: Default}
-  crypto: {foreground: Default}
-  document: {foreground: Default}
-  compressed: {foreground: Default}
-  temp: {foreground: Default}
-  compiled: {foreground: Default}
-  build: {foreground: Default}
-  source: {foreground: Default}
+  image:
+    foreground: Default
+  video:
+    foreground: Default
+  music:
+    foreground: Default
+  lossless:
+    foreground: Default
+  crypto:
+    foreground: Default
+  document:
+    foreground: Default
+  compressed:
+    foreground: Default
+  temp:
+    foreground: Default
+  compiled:
+    foreground: Default
+  build:
+    foreground: Default
+  source:
+    foreground: Default
