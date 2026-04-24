@@ -609,36 +609,6 @@ config_xdg() {
 	print_success "XDG configuration completed"
 }
 
-config_fonts() {
-	print_msg "Installing fonts..."
-
-	local fonts_source="$SCRIPT_DIR/fonts"
-	local fonts_dest="$USER_HOME/.local/share/fonts"
-
-	if [ ! -d "$fonts_source" ]; then
-		print_warning "fonts directory not found: $fonts_source, skipping..."
-		return 0
-	fi
-
-	mkdir -p "$fonts_dest"
-
-	for font_zip in "$fonts_source"/*.zip; do
-		[ -e "$font_zip" ] || continue
-
-		local font_name
-		font_name=$(basename "$font_zip" .zip)
-
-		print_msg "Extracting $font_name..."
-		unzip -oq "$font_zip" -d "$fonts_dest"
-	done
-
-	chown -R "$SUDO_USER:$SUDO_USER" "$fonts_dest"
-
-	sudo -u "$SUDO_USER" fc-cache -f
-
-	print_success "Fonts installed successfully"
-}
-
 config_autologin() {
 	print_msg "Configuring autologin..."
 
@@ -736,7 +706,6 @@ main() {
 	install_zsh_plugins
 	chsh -s /usr/bin/zsh "$SUDO_USER"
 	config_dns
-	config_fonts
 	config_xdg
 	config_firefox
 
