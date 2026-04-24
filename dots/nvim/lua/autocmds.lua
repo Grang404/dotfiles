@@ -19,3 +19,13 @@ vim.api.nvim_create_autocmd("FileType", {
 		vim.opt_local.formatoptions:remove({ "c", "r", "o" })
 	end,
 })
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = "*",
+	callback = function()
+		local save = vim.fn.winsaveview()
+		vim.cmd([[%s/\s\+$//e]])
+		vim.cmd([[silent! %s/\($\n\s*\)\+\%$//]])
+		vim.fn.winrestview(save)
+	end,
+})
