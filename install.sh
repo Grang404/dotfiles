@@ -264,7 +264,7 @@ install_packages() {
 	)
 
 	local application_packages=(
-		discord steam firefox ghostty neovim obsidian
+		discord steam firefox alacritty neovim obsidian
 		mpv pavucontrol imv yazi
 	)
 
@@ -424,7 +424,7 @@ move_dotfiles() {
 	mkdir -p "$config_dir"
 
 	local config_dirs=(
-		waybar nvim ghostty rofi eza
+		waybar nvim alacritty rofi eza
 		fastfetch btop gtk-2.0 gtk-3.0 gtk-4.0
 	)
 
