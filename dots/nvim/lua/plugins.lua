@@ -440,6 +440,15 @@ require("lazy").setup({
 				signs = { "󰫎 " },
 			},
 		},
+		keys = {
+			{
+				"<leader>tm",
+				function()
+					require("render-markdown").toggle()
+				end,
+				desc = "Toggle render-markdown",
+			},
+		},
 	},
 }, {
 	ui = {
