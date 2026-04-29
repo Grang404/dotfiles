@@ -1,2 +1,2 @@
 vim.g.groob_transparent = true
-require("themes.groob").load()
+require("themes.groob").colorscheme()
