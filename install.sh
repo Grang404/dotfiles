@@ -326,11 +326,6 @@ install_aur_packages() {
 
 	local aur_packages=(
 		vesktop-bin
-		visual-studio-code-bin
-		noisetorch
-		coolercontrol
-		ivpn
-		ivpn-ui
 	)
 
 	sudo -u "$SUDO_USER" paru -S --needed --noconfirm "${aur_packages[@]}"
@@ -701,6 +696,8 @@ main() {
 	enable_multilib
 	install_gpu_drivers
 	install_packages
+	install_paru
+	install_aur_packages
 	enable_services
 	move_dotfiles
 	install_zsh_plugins
